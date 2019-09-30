@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
@@ -12,7 +13,6 @@ namespace send.helpers
         {
             return random(spintax(base64(text)));
         }
-
         public static string rdns(string ip, string domain)
         {
             try
@@ -41,7 +41,46 @@ namespace send.helpers
                 return domain;
             }
         }
+        public static string Build_rp(string return_path, string domain, string rdns, string emailName)
+        {
+            return_path = Regex.Replace(return_path, @"\[domain\]", domain, RegexOptions.IgnoreCase);
+            return_path = Regex.Replace(return_path, @"\[rdns\]", rdns, RegexOptions.IgnoreCase);
+            return_path = Regex.Replace(return_path, @"\[name\]", emailName, RegexOptions.IgnoreCase);
+            return generate(return_path);
+        }
+        public static string Build_header(string header, string ip, string domain, string rdns, string email, string emailName)
+        {
+            Dictionary<string, string> header_array = new Dictionary<string, string>();
 
+            string[] header_params = header.Split('\n');
+            foreach (string param in header_params)
+            {
+                string[] keys = param.Split(':');
+                if (keys.Length == 2)
+                {
+                    header_array.Add(keys[0], keys[1]);
+                }
+            }
+
+            string header_result = string.Join("\n", header_array.Select(x => $"{x.Key}:{x.Value}"));
+            header_result = Regex.Replace(header_result, @"\[ip\]", ip, RegexOptions.IgnoreCase);
+            header_result = Regex.Replace(header_result, @"\[domain\]", domain, RegexOptions.IgnoreCase);
+            header_result = Regex.Replace(header_result, @"\[rdns\]", rdns, RegexOptions.IgnoreCase);
+            header_result = Regex.Replace(header_result, @"\[name\]", emailName, RegexOptions.IgnoreCase);
+            header_result = Regex.Replace(header_result, @"\[to\]", email, RegexOptions.IgnoreCase);
+            header_result = Regex.Replace(header_result, @"\[date\]", GetRFC822Date(), RegexOptions.IgnoreCase);
+            return generate(header_result);
+        }
+        public static string Build_body(string body, string ip, string domain, string rdns, string email, string emailName)
+        {
+            body = Regex.Replace(body, @"\[ip\]", ip, RegexOptions.IgnoreCase);
+            body = Regex.Replace(body, @"\[domain\]", domain, RegexOptions.IgnoreCase);
+            body = Regex.Replace(body, @"\[rdns\]", rdns, RegexOptions.IgnoreCase);
+            body = Regex.Replace(body, @"\[name\]", emailName, RegexOptions.IgnoreCase);
+            body = Regex.Replace(body, @"\[to\]", email, RegexOptions.IgnoreCase);
+            body = Regex.Replace(body, @"\[date\]", GetRFC822Date(), RegexOptions.IgnoreCase);
+            return generate(body);
+        }
         private static string RandomString(int length, int option = 0)
         {
             Random rnd = new Random();
@@ -167,6 +206,19 @@ namespace send.helpers
                 return match.Value.ToString();
 
             }, RegexOptions.IgnoreCase | RegexOptions.Multiline | RegexOptions.IgnorePatternWhitespace);
+        }
+
+        private static string GetRFC822Date()
+        {
+            int offset = TimeZone.CurrentTimeZone.GetUtcOffset(DateTime.Now).Hours;
+            string timeZone = "+" + offset.ToString().PadLeft(2, '0');
+            if (offset < 0)
+            {
+                int i = offset * -1;
+                timeZone = "-" + i.ToString().PadLeft(2, '0');
+            }
+            return DateTime.Now.ToString("ddd, dd MMM yyyy HH:mm:ss " + timeZone.PadRight(5, '0'));
+
         }
 
 
