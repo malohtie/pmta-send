@@ -48,7 +48,7 @@ namespace send.helpers
             return_path = Regex.Replace(return_path, @"\[name\]", emailName, RegexOptions.IgnoreCase);
             return generate(return_path);
         }
-        public static string Build_header(string header, string ip, string domain, string rdns, string email, string emailName)
+        public static string Build_header(string header, string ip, string domain, string rdns, string email, string emailName, string boundary = null)
         {
             Dictionary<string, string> header_array = new Dictionary<string, string>();
 
@@ -69,9 +69,13 @@ namespace send.helpers
             header_result = Regex.Replace(header_result, @"\[name\]", emailName, RegexOptions.IgnoreCase);
             header_result = Regex.Replace(header_result, @"\[to\]", email, RegexOptions.IgnoreCase);
             header_result = Regex.Replace(header_result, @"\[date\]", GetRFC822Date(), RegexOptions.IgnoreCase);
+            if (!string.IsNullOrWhiteSpace(boundary))
+            {
+                header_result = Regex.Replace(header_result, @"\[boundary\]", boundary, RegexOptions.IgnoreCase);
+            }
             return generate(header_result);
         }
-        public static string Build_body(string body, string ip, string domain, string rdns, string email, string emailName)
+        public static string Build_body(string body, string ip, string domain, string rdns, string email, string emailName, string boundary = null)
         {
             body = Regex.Replace(body, @"\[ip\]", ip, RegexOptions.IgnoreCase);
             body = Regex.Replace(body, @"\[domain\]", domain, RegexOptions.IgnoreCase);
@@ -79,6 +83,10 @@ namespace send.helpers
             body = Regex.Replace(body, @"\[name\]", emailName, RegexOptions.IgnoreCase);
             body = Regex.Replace(body, @"\[to\]", email, RegexOptions.IgnoreCase);
             body = Regex.Replace(body, @"\[date\]", GetRFC822Date(), RegexOptions.IgnoreCase);
+            if (!string.IsNullOrWhiteSpace(boundary))
+            {
+                body = Regex.Replace(body, @"\[boundary\]", boundary, RegexOptions.IgnoreCase);
+            }
             return generate(body);
         }
         private static string RandomString(int length, int option = 0)
@@ -117,8 +125,7 @@ namespace send.helpers
             //lower + numbers + upper
             return new string(Enumerable.Repeat(up + lw + nb, length).Select(s => s[rnd.Next(s.Length)]).ToArray());
         }
-
-        private static string random(string text)
+        public static string random(string text)
         {
             return Regex.Replace(text, @"\[(rnd.*?)\]", delegate (Match match)
             {
@@ -165,7 +172,6 @@ namespace send.helpers
             }, RegexOptions.IgnoreCase | RegexOptions.Multiline | RegexOptions.IgnorePatternWhitespace);
 
         }
-
         private static string base64(string text)
         {
             return Regex.Replace(text, @"\[base64:([^\]]*)\]", delegate (Match match)
@@ -175,23 +181,18 @@ namespace send.helpers
 
             }, RegexOptions.IgnoreCase | RegexOptions.Multiline | RegexOptions.IgnorePatternWhitespace);
         }
-
         private static string Base64Encode(string plainText)
         {
             return Convert.ToBase64String(Encoding.UTF8.GetBytes(plainText));
         }
-        
         public static string Base64Decode(string base64EncodedData)
         {
             return Encoding.UTF8.GetString(Convert.FromBase64String(base64EncodedData));
         }
-
         public static bool IsBase64String(string s)
         {
-            s = s.Trim();
-            return (s.Length % 4 == 0) && Regex.IsMatch(s, @"^[a-zA-Z0-9\+/]*={0,3}$", RegexOptions.None);
+            return (s.Length % 4 == 0) && Regex.IsMatch(s.Trim(), @"^[a-zA-Z0-9\+/]*={0,3}$", RegexOptions.None);
         }
-
         private static string spintax(string text)
         {
             return Regex.Replace(text, @"\[text:([^\]]*)\]", delegate (Match match)
@@ -207,7 +208,6 @@ namespace send.helpers
 
             }, RegexOptions.IgnoreCase | RegexOptions.Multiline | RegexOptions.IgnorePatternWhitespace);
         }
-
         private static string GetRFC822Date()
         {
             int offset = TimeZone.CurrentTimeZone.GetUtcOffset(DateTime.Now).Hours;
@@ -220,7 +220,18 @@ namespace send.helpers
             return DateTime.Now.ToString("ddd, dd MMM yyyy HH:mm:ss " + timeZone.PadRight(5, '0'));
 
         }
-
+        public static string generate_links(string body, string url, string unsub, string open, string optout, string shortlink = null)
+        {
+            body = Regex.Replace(body, @"\[red\]", url, RegexOptions.IgnoreCase);
+            body = Regex.Replace(body, @"\[unsub\]", unsub, RegexOptions.IgnoreCase);
+            body = Regex.Replace(body, @"\[out\]", optout, RegexOptions.IgnoreCase);
+            body = Regex.Replace(body, @"\[opn\]", open, RegexOptions.IgnoreCase);
+            if (!string.IsNullOrWhiteSpace(shortlink))
+            {
+                body = Regex.Replace(body, @"\[short\]", shortlink, RegexOptions.IgnoreCase);
+            }
+            return body;
+        }
 
 
     }

@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using NLog;
+using Org.BouncyCastle.Utilities.Encoders;
 using send.helpers;
 using System;
 using System.Collections.Generic;
@@ -33,21 +34,41 @@ namespace send
                             {
                                 // Begin timing
                                 stopwatch.Start();
-                                dynamic data = JsonConvert.DeserializeObject<dynamic>(Text.Base64Decode(args[1]));
-                                GlobalTest test = new GlobalTest(data);
-                                List<string> result = test.Send();
+                                dynamic gdata = JsonConvert.DeserializeObject<dynamic>(Text.Base64Decode(args[1]));
+                                GlobalTest gtest = new GlobalTest(gdata);
+                                List<string> gresult = gtest.Send();
                                 // Stop timing
                                 stopwatch.Stop();
-                                Console.Write(string.Join("<br>", result)+"<br>TOOK : " + stopwatch.Elapsed.ToString());
+                                Console.Write(string.Join("<br>", gresult)+"<br>TOOK : " + stopwatch.Elapsed.ToString());
                             }
                             else
                             {
                                 Console.Write("TEST, INVALID DATA");
                                 logger.Warn("TEST, INVALID DATA B64");
                             }
-
                             break;
-
+                        case "ctest":
+                            if (Text.IsBase64String(args[1]))
+                            {
+                                // Begin timing
+                                stopwatch.Start();
+                                dynamic data = JsonConvert.DeserializeObject<dynamic>(Text.Base64Decode(args[1]));
+                                Ctest test = new Ctest(data);
+                                List<string> result = test.Send();
+                                // Stop timing
+                                stopwatch.Stop();
+                                Console.Write(string.Join("<br>", result) + "<br>TOOK : " + stopwatch.Elapsed.ToString());
+                            }
+                            else
+                            {
+                                Console.Write("TEST, INVALID DATA");
+                                logger.Warn("TEST, INVALID DATA B64");
+                            }
+                            break;
+                        case "delay":
+                            break;
+                        case "normal":
+                            break;
                         default:
                             Console.Write("UNKNOW ACTION");
                             break;
