@@ -8,7 +8,7 @@ namespace send
 {
     class Ctest
     {
-        private static Logger logger = LogManager.GetCurrentClassLogger();
+        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
         public Message Message { get; set; }
         public string Return_path { get; set; }
         public string[] Emails { get; set; }
@@ -25,17 +25,17 @@ namespace send
 
         public Ctest(dynamic data)
         {
-            this.Id = data.id ?? 0;
-            this.Return_path = !string.IsNullOrWhiteSpace((string)data.return_path) ? (string)data.return_path : "[rnd]@[domain]";
-            this.Emails = data.test_emails.ToObject<string[]>() ?? throw new ArgumentNullException(nameof(data.emails));
-            this.Header = Text.Base64Decode(Convert.ToString(data.header)) ?? throw new ArgumentNullException(nameof(data.header));
-            this.Body = Text.Base64Decode(Convert.ToString(data.body)) ?? "";
-            this.Mta = data.mta ?? throw new ArgumentNullException(nameof(data.mta));
-            this.Username = data.username ?? throw new ArgumentNullException(nameof(data.username));
-            this.Servers = data.servers ?? throw new ArgumentNullException(nameof(data.servers));
-            this.Redirect = data.redirect ?? throw new ArgumentNullException(nameof(data.redirect));
-            this.Unsubscribe = data.unsubscribe ?? throw new ArgumentNullException(nameof(data.unsubscribe));
-            this.Platform = data.platform ?? throw new ArgumentNullException(nameof(data.platform));
+            Id = data.id ?? 0;
+            Return_path = !string.IsNullOrWhiteSpace((string)data.return_path) ? (string)data.return_path : "[rnd]@[domain]";
+            Emails = data.test_emails.ToObject<string[]>() ?? throw new ArgumentNullException(nameof(data.emails));
+            Header = Text.Base64Decode(Convert.ToString(data.header)) ?? throw new ArgumentNullException(nameof(data.header));
+            Body = Text.Base64Decode(Convert.ToString(data.body)) ?? "";
+            Mta = data.mta ?? throw new ArgumentNullException(nameof(data.mta));
+            Username = data.username ?? throw new ArgumentNullException(nameof(data.username));
+            Servers = data.servers ?? throw new ArgumentNullException(nameof(data.servers));
+            Redirect = data.redirect ?? throw new ArgumentNullException(nameof(data.redirect));
+            Unsubscribe = data.unsubscribe ?? throw new ArgumentNullException(nameof(data.unsubscribe));
+            Platform = data.platform ?? throw new ArgumentNullException(nameof(data.platform));
         }
 
         public List<string> Send()
@@ -67,15 +67,14 @@ namespace send
                             string emailName = email.Split('@')[0];
                             string rp = Text.Build_rp(Return_path, domain, rdns, emailName);
                             string hd = Text.Build_header(Header, email_ip, domain, rdns, email, emailName, boundary);
+                            hd =  Text.Inject_header(hd, "t", Id.ToString(), Username, ip.idip, ip.idddomain);
                             string bd = Text.Build_body(Body, email_ip, domain, rdns, email, emailName, boundary);
-                            
-                            bd = Text.generate_links(bd, redirect, unsubscribe, open, optout);
+                            bd = Text.Generate_links(bd, redirect, unsubscribe, open, optout);
                             Message = new Message(rp);
                             Message.AddData(hd + "\n" + bd);
                             Message.AddRecipient(new Recipient(email));
                             Message.VirtualMTA = vmta;
                             Message.JobID = job;
-                            Message.EnvID = $"{job}_{DateTime.Now.ToString("dd-MM-yyyy_HH-mm-ss_")}";
                             Message.Verp = false;
                             Message.Encoding = Encoding.EightBit;
                             p.Send(Message);

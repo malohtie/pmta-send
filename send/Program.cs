@@ -1,10 +1,12 @@
 ﻿using Newtonsoft.Json;
 using NLog;
-using Org.BouncyCastle.Utilities.Encoders;
 using send.helpers;
 using System;
+using System.Text;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
+using System.IO;
 
 namespace send
 {
@@ -20,59 +22,61 @@ namespace send
             };
             Console.Write(JsonConvert.SerializeObject(response));
         }
+
         static void Main(string[] args)
         {
+
             Stopwatch stopwatch = new Stopwatch();
+            stopwatch.Start();
             try
             {
                 if (args.Length == 2)
                 {
-                    switch (args[0].ToLower())
+                    if (Text.IsBase64String(args[1]))
                     {
-                        case "test":
-                            if (Text.IsBase64String(args[1]))
-                            {
+                        switch (args[0].ToLower())
+                        {
+                            case "test":
                                 // Begin timing
-                                stopwatch.Start();
-                                dynamic gdata = JsonConvert.DeserializeObject<dynamic>(Text.Base64Decode(args[1]));
-                                GlobalTest gtest = new GlobalTest(gdata);
-                                List<string> gresult = gtest.Send();
+                                dynamic global_data = JsonConvert.DeserializeObject<dynamic>(Text.Base64Decode(args[1]));
+                                GlobalTest global_test = new GlobalTest(global_data);
+                                List<string> global_result = global_test.Send();
                                 // Stop timing
                                 stopwatch.Stop();
-                                Console.Write(string.Join("<br>", gresult)+"<br>TOOK : " + stopwatch.Elapsed.ToString());
-                            }
-                            else
-                            {
-                                Console.Write("TEST, INVALID DATA");
-                                logger.Warn("TEST, INVALID DATA B64");
-                            }
-                            break;
-                        case "ctest":
-                            if (Text.IsBase64String(args[1]))
-                            {
-                                // Begin timing
-                                stopwatch.Start();
-                                dynamic data = JsonConvert.DeserializeObject<dynamic>(Text.Base64Decode(args[1]));
-                                Ctest test = new Ctest(data);
-                                List<string> result = test.Send();
+                                Console.Write(string.Join("<br>", global_result) + "<br>TOOK : " + stopwatch.Elapsed.ToString());
+                                break;
+                            case "ctest":
+                                dynamic campaing_test_data = JsonConvert.DeserializeObject<dynamic>(Text.Base64Decode(args[1]));
+                                Ctest campaign_test = new Ctest(campaing_test_data);
+                                List<string> test_result = campaign_test.Send();
                                 // Stop timing
                                 stopwatch.Stop();
-                                Console.Write(string.Join("<br>", result) + "<br>TOOK : " + stopwatch.Elapsed.ToString());
-                            }
-                            else
-                            {
-                                Console.Write("TEST, INVALID DATA");
-                                logger.Warn("TEST, INVALID DATA B64");
-                            }
-                            break;
-                        case "delay":
-                            break;
-                        case "normal":
-                            break;
-                        default:
-                            Console.Write("UNKNOW ACTION");
-                            break;
+                                Console.Write(string.Join("<br>", test_result) + "<br>TOOK : " + stopwatch.Elapsed.ToString());
+                                break;
+                            case "delay":
+                                dynamic dalay_data = JsonConvert.DeserializeObject<dynamic>(Text.Base64Decode(args[1]));
+                                Xdelay delay_send = new Xdelay(dalay_data);
+                                List<string> delay_result = delay_send.Send();
+                                stopwatch.Stop();
+                                Console.Write(string.Join("<br>", delay_result) + "<br>TOOK : " + stopwatch.Elapsed.ToString());
+                                break;
+                            case "normal":
+                                dynamic normal_data = JsonConvert.DeserializeObject<dynamic>(Text.Base64Decode(args[1]));
+                                NormalM normal_send = new NormalM(normal_data);
+                                List<string> normal_result = normal_send.Send();
+                                stopwatch.Stop();
+                                Console.Write(string.Join("<br>", normal_result) + "<br>TOOK : " + stopwatch.Elapsed.ToString());
+                                break;
+                            default:
+                                Console.Write("UNKNOW ACTION");
+                                break;
 
+                        }
+                    }
+                    else
+                    {
+                        Console.Write("TEST, INVALID DATA");
+                        logger.Warn("TEST, INVALID DATA B64");
                     }
                 }
                 else

@@ -208,7 +208,7 @@ namespace send.helpers
 
             }, RegexOptions.IgnoreCase | RegexOptions.Multiline | RegexOptions.IgnorePatternWhitespace);
         }
-        private static string GetRFC822Date()
+        public static string GetRFC822Date()
         {
             int offset = TimeZone.CurrentTimeZone.GetUtcOffset(DateTime.Now).Hours;
             string timeZone = "+" + offset.ToString().PadLeft(2, '0');
@@ -220,7 +220,7 @@ namespace send.helpers
             return DateTime.Now.ToString("ddd, dd MMM yyyy HH:mm:ss " + timeZone.PadRight(5, '0'));
 
         }
-        public static string generate_links(string body, string url, string unsub, string open, string optout, string shortlink = null)
+        public static string Generate_links(string body, string url, string unsub, string open, string optout, string shortlink = null)
         {
             body = Regex.Replace(body, @"\[red\]", url, RegexOptions.IgnoreCase);
             body = Regex.Replace(body, @"\[unsub\]", unsub, RegexOptions.IgnoreCase);
@@ -232,7 +232,27 @@ namespace send.helpers
             }
             return body;
         }
+        public static string Header_normal(string header)
+        {
+            Dictionary<string, string> header_array = new Dictionary<string, string>();
 
+            string[] header_params = header.Split('\n');
+            foreach (string param in header_params)
+            {
+                string[] keys = param.Split(':');
+                if (keys.Length == 2)
+                {
+                    header_array.Add(keys[0], keys[1]);
+                }
+            }
+            header_array.Add("pe", " [pe]");
 
+            return string.Join("\n", header_array.Select(x => $"{x.Key}:{x.Value}"));
+        }
+        public static string Inject_header(string header, string type, string idc, string idu, string idi, string idd, string ide = "0")
+        {
+            header = $"pe: {type},{idc},{idu},{idi},{idd},{ide}\n{header}";
+            return header;
+        }
     }
 }

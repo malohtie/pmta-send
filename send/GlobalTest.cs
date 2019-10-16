@@ -62,13 +62,13 @@ namespace send
                             string emailName = email.Split('@')[0];
                             string rp = Text.Build_rp(Return_path, domain, rdns, emailName);
                             string hd = Text.Build_header(Header, email_ip, domain, rdns, email, emailName);
+                            hd = Text.Inject_header(hd, "t", "0", Username, ip.idip, ip.idddomain);
                             string bd = Text.Build_body(Body, email_ip, domain, rdns, email, emailName);
                             Message = new Message(rp);
                             Message.AddData(hd + "\n" + bd);
                             Message.AddRecipient(new Recipient(email));
                             Message.VirtualMTA = vmta;
-                            Message.JobID = job;
-                            Message.EnvID = $"{job}_{DateTime.Now.ToString("dd-MM-yyyy_HH-mm-ss_")}";
+                            Message.JobID = job;                          
                             Message.Verp = false;
                             Message.Encoding = Encoding.EightBit;
                             p.Send(Message);
