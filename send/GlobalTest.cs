@@ -52,7 +52,7 @@ namespace send
                     {
                         string email_ip = ip.ip;
                         string domain = ip.domain;
-                        string rdns = Text.rdns(email_ip, domain);
+                        string rdns = Text.Rdns(email_ip, domain);
                         string vmta_ip = email_ip.Replace(':', '.');
                         string vmta = Mta.ToLower() == "none" ? $"mta-{vmta_ip}" : (Mta == "vmta" ? $"vmta-{vmta_ip}-{Username}" : $"smtp-{vmta_ip}-{Username}");
                         string job = $"0_GLOBAL-TEST_{Username}";

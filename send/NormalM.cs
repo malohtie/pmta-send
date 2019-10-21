@@ -109,7 +109,7 @@ namespace send
                                         {
                                             string email_ip = ip["ip"];
                                             string domain = ip["domain"];
-                                            string rdns = Text.rdns(email_ip, domain);
+                                            string rdns = Text.Rdns(email_ip, domain);
                                             string vmta_ip = email_ip.Replace(':', '.');
                                             string vmta = Mta.ToLower() == "none" ? $"mta-{vmta_ip}" : (Mta == "vmta" ? $"vmta-{vmta_ip}-{Username}" : $"smtp-{vmta_ip}-{Username}");
                                             string job = $"{Id}";
@@ -117,7 +117,7 @@ namespace send
                                             string rp = Text.Build_rp(raw_rp, domain, rdns, "reply");
                                             message = new Message(rp);
                                             string header = Text.Header_normal(raw_hd);
-                                            message.AddMergeData(Text.generate(header + "\n" + raw_bd));
+                                            message.AddMergeData(Text.Generate(header + "\n" + raw_bd));
                                             message.VirtualMTA = vmta;
                                             message.JobID = Id.ToString();
                                             message.Verp = false;
@@ -131,15 +131,16 @@ namespace send
                                                 r["unsub"] = enc.encrypt($"u!!{Id}!!{ip["idi"]}!!{ip["idd"]}!!{email[0]}!!{unsubscribe_link}");
                                                 r["opn"] = enc.encrypt($"o!!{Id}!!{ip["idi"]}!!{ip["idd"]}!!{email[0]}");
                                                 r["out"] = enc.encrypt($"out!!{new Random().Next(5, 15)}");
+                                                r["short"] = enc.encrypt(email[0]); //shortlink 
                                                 //header body
-                                                r["pe"] = $"n,{Id},{Username},{ip["idi"]},{ip["idd"]},{email[0]}";
+                                                r["pe"] = $"n,{Id},{Username},{ip["ip"]},{ip["idd"]},{email[0]}";
                                                 r["ip"] = email_ip;
                                                 r["domain"] = domain;
                                                 r["rdns"] = rdns;
                                                 r["name"] = email[1].Split('@')[0];
                                                 r["to"] = email[1];                                                
                                                 r["date"] = Text.GetRFC822Date();
-                                                r["boundary"] = Text.random("[rndlu/30]");
+                                                r["boundary"] = Text.Random("[rndlu/30]");
                                                 r["*parts"] = "1";
 
                                                 message.AddRecipient(r);
@@ -149,7 +150,6 @@ namespace send
                                                
                                                 if (Seed != 0 && c_seed % Seed == 0)
                                                 {
-                                                    Console.WriteLine("Seed : " + c_seed);
                                                     if (seed_emails.Length > 0)
                                                     {
                                                         foreach (string test_email in seed_emails)
@@ -160,16 +160,17 @@ namespace send
                                                             t["unsub"] = enc.encrypt($"u!!{Id}!!{ip["idi"]}!!{ip["idd"]}!!0!!{unsubscribe_link}");
                                                             t["opn"] = enc.encrypt($"o!!{Id}!!{ip["idi"]}!!{ip["idd"]}!!0");
                                                             t["out"] = enc.encrypt($"out!!{new Random().Next(5, 15)}");
+                                                            t["short"] = enc.encrypt("0"); //shortlink 
                                                             //header body
-                                                            r["pe"] = $"n,{Id},{Username},{ip["idi"]},{ip["idd"]},0";
+                                                            t["pe"] = $"t,{Id},{Username},{ip["ip"]},{ip["idd"]},0";
                                                             t["ip"] = email_ip;
                                                             t["domain"] = domain;
                                                             t["rdns"] = rdns;
                                                             t["name"] = test_email.Split('@')[0];
                                                             t["to"] = email[1];
                                                             t["date"] = Text.GetRFC822Date();
-                                                            t["boundary"] = Text.random("[rndlu/30]");
-                                                            r["*parts"] = "1";
+                                                            t["boundary"] = Text.Random("[rndlu/30]");
+                                                            t["*parts"] = "1";
                                                             message.AddRecipient(t);    
                                                         }
                                                     }
@@ -183,6 +184,7 @@ namespace send
                                             Result.Add("Emails Empty" + Id);
                                             logger.Error("Emails Empty" + Id);
                                             campaign.Campaign_update_progress(Id, "start", true, 0);
+                                            p.Close();
                                             return Result;
                                         }
                                     }
@@ -191,6 +193,7 @@ namespace send
                                         Result.Add("Cant get Send progress campaign" + Id);
                                         logger.Error("Cant get Send progress campaign" + Id);
                                         campaign.Campaign_update_progress(Id, "start", true, 0);
+                                        p.Close();
                                         return Result;
                                     }
                                     Thread.Sleep(Delay * 1000); //sleep delay

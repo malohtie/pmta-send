@@ -51,7 +51,7 @@ namespace send
                     {
                         string email_ip = ip.ip;
                         string domain = ip.domain;
-                        string rdns = Text.rdns(email_ip, domain);
+                        string rdns = Text.Rdns(email_ip, domain);
                         string vmta_ip = email_ip.Replace(':', '.');
                         string vmta = Mta.ToLower() == "none" ? $"mta-{vmta_ip}" : (Mta == "vmta" ? $"vmta-{vmta_ip}-{Username}" : $"smtp-{vmta_ip}-{Username}");
                         string job = $"0_CAMPAIGN-TEST_{Id}_{Username}";
@@ -63,11 +63,11 @@ namespace send
 
                         foreach (string email in Emails)
                         {
-                            string boundary = Text.random("[rndlu/30]");
+                            string boundary = Text.Random("[rndlu/30]");
                             string emailName = email.Split('@')[0];
                             string rp = Text.Build_rp(Return_path, domain, rdns, emailName);
                             string hd = Text.Build_header(Header, email_ip, domain, rdns, email, emailName, boundary);
-                            hd =  Text.Inject_header(hd, "t", Id.ToString(), Username, ip.idip, ip.idddomain);
+                            hd =  Text.Inject_header(hd, "t", Id.ToString(), Username, ip.ip, ip.idddomain);
                             string bd = Text.Build_body(Body, email_ip, domain, rdns, email, emailName, boundary);
                             bd = Text.Generate_links(bd, redirect, unsubscribe, open, optout);
                             Message = new Message(rp);

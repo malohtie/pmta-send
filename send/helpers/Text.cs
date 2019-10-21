@@ -9,11 +9,11 @@ namespace send.helpers
 {
     class Text
     {
-        public static string generate(string text)
+        public static string Generate(string text)
         {
-            return random(spintax(base64(text)));
+            return Random(Spintax(Base64(text)));
         }
-        public static string rdns(string ip, string domain)
+        public static string Rdns(string ip, string domain)
         {
             try
             {
@@ -46,7 +46,7 @@ namespace send.helpers
             return_path = Regex.Replace(return_path, @"\[domain\]", domain, RegexOptions.IgnoreCase);
             return_path = Regex.Replace(return_path, @"\[rdns\]", rdns, RegexOptions.IgnoreCase);
             return_path = Regex.Replace(return_path, @"\[name\]", emailName, RegexOptions.IgnoreCase);
-            return generate(return_path);
+            return Generate(return_path);
         }
         public static string Build_header(string header, string ip, string domain, string rdns, string email, string emailName, string boundary = null)
         {
@@ -73,7 +73,7 @@ namespace send.helpers
             {
                 header_result = Regex.Replace(header_result, @"\[boundary\]", boundary, RegexOptions.IgnoreCase);
             }
-            return generate(header_result);
+            return Generate(header_result);
         }
         public static string Build_body(string body, string ip, string domain, string rdns, string email, string emailName, string boundary = null)
         {
@@ -87,7 +87,7 @@ namespace send.helpers
             {
                 body = Regex.Replace(body, @"\[boundary\]", boundary, RegexOptions.IgnoreCase);
             }
-            return generate(body);
+            return Generate(body);
         }
         private static string RandomString(int length, int option = 0)
         {
@@ -125,7 +125,7 @@ namespace send.helpers
             //lower + numbers + upper
             return new string(Enumerable.Repeat(up + lw + nb, length).Select(s => s[rnd.Next(s.Length)]).ToArray());
         }
-        public static string random(string text)
+        public static string Random(string text)
         {
             return Regex.Replace(text, @"\[(rnd.*?)\]", delegate (Match match)
             {
@@ -172,7 +172,7 @@ namespace send.helpers
             }, RegexOptions.IgnoreCase | RegexOptions.Multiline | RegexOptions.IgnorePatternWhitespace);
 
         }
-        private static string base64(string text)
+        private static string Base64(string text)
         {
             return Regex.Replace(text, @"\[base64:([^\]]*)\]", delegate (Match match)
             {
@@ -193,7 +193,7 @@ namespace send.helpers
         {
             return (s.Length % 4 == 0) && Regex.IsMatch(s.Trim(), @"^[a-zA-Z0-9\+/]*={0,3}$", RegexOptions.None);
         }
-        private static string spintax(string text)
+        private static string Spintax(string text)
         {
             return Regex.Replace(text, @"\[text:([^\]]*)\]", delegate (Match match)
             {

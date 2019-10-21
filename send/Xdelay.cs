@@ -108,7 +108,7 @@ namespace send
                                         {
                                             string email_ip = ip["ip"];
                                             string domain = ip["domain"];
-                                            string rdns = Text.rdns(email_ip, domain);
+                                            string rdns = Text.Rdns(email_ip, domain);
                                             string vmta_ip = email_ip.Replace(':', '.');
                                             string vmta = Mta.ToLower() == "none" ? $"mta-{vmta_ip}" : (Mta == "vmta" ? $"vmta-{vmta_ip}-{Username}" : $"smtp-{vmta_ip}-{Username}");
                                             
@@ -120,11 +120,11 @@ namespace send
                                                 string open = enc.encrypt($"o!!{Id}!!{ip["idi"]}!!{ip["idd"]}!!{email[0]}"); //o_idc_idi_idd_ide
                                                 string optout = enc.encrypt($"out!!{new Random().Next(5, 15)}"); // out_random
 
-                                                string boundary = Text.random("[rndlu/30]");
+                                                string boundary = Text.Random("[rndlu/30]");
                                                 string emailName = email[1].Split('@')[0];
                                                 string rp = Text.Build_rp(raw_rp, domain, rdns, emailName);
                                                 string hd = Text.Build_header(raw_hd, email_ip, domain, rdns, email[1], emailName, boundary);
-                                                hd = Text.Inject_header(hd, "x", Id.ToString(), Username, ip["idi"], ip["idd"], email[0]);
+                                                hd = Text.Inject_header(hd, "x", Id.ToString(), Username, ip["ip"], ip["idd"], email[0]);
                                                 string bd = Text.Build_body(raw_bd, email_ip, domain, rdns, email[1], emailName, boundary);
                                                 bd = Text.Generate_links(bd, redirect, unsubscribe, open, optout);
                                                 message = new Message(rp);
@@ -138,6 +138,7 @@ namespace send
                                                 total_send++;
                                                 c_seed++;
                                                 campaign.Campaign_update_send(Id, total_send + total_sended);
+
                                                 if (Seed != 0 && c_seed % Seed == 0)
                                                 {
                                                     Console.WriteLine("Seed : " + c_seed);
@@ -149,12 +150,13 @@ namespace send
                                                             string tunsubscribe = enc.encrypt($"u!!{Id}!!{ip["idi"]}!!{ip["idd"]}!!0!!{unsubscribe_link}"); //u_idc_idi_idd_ide_link
                                                             string topen = enc.encrypt($"o!!{Id}!!{ip["idi"]}!!{ip["idd"]}!!0");//o_idc_idi_idd_ide
                                                             string toptout = enc.encrypt($"out!!{new Random().Next(5, 15)}"); // out_random
+                                                            string shortf = enc.encrypt(""); //shortlink
 
-                                                            string tboundary = Text.random("[rndlu/30]");
+                                                            string tboundary = Text.Random("[rndlu/30]");
                                                             string temailName = test_email.Split('@')[0];
                                                             string trp = Text.Build_rp(raw_rp, domain, rdns, temailName);
                                                             string thd = Text.Build_header(raw_hd, email_ip, domain, rdns, test_email, temailName, tboundary);
-                                                            thd = Text.Inject_header(thd, "x", Id.ToString(), Username, ip["idi"], ip["idd"]);
+                                                            thd = Text.Inject_header(thd, "x", Id.ToString(), Username, ip["ip"], ip["idd"]);
                                                             string tbd = Text.Build_body(raw_bd, email_ip, domain, rdns, test_email, temailName, tboundary);
                                                             tbd = Text.Generate_links(tbd, tredirect, tunsubscribe, topen, toptout);
                                                             message = new Message(trp);
@@ -175,6 +177,7 @@ namespace send
                                             Result.Add("Emails Empty" + Id);
                                             logger.Error("Emails Empty" + Id);
                                             campaign.Campaign_update_progress(Id, "start", true, 0);
+                                            p.Close();
                                             return Result;
                                         }
                                     }
@@ -183,6 +186,7 @@ namespace send
                                         Result.Add("Cant get Send progress campaign" + Id);
                                         logger.Error("Cant get Send progress campaign" + Id);
                                         campaign.Campaign_update_progress(Id, "start", true, 0);
+                                        p.Close();
                                         return Result;
                                     }
                                     Thread.Sleep(Delay * 1000); //sleep delay

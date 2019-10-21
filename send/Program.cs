@@ -66,6 +66,7 @@ namespace send
                                 List<string> normal_result = normal_send.Send();
                                 stopwatch.Stop();
                                 Console.Write(string.Join("<br>", normal_result) + "<br>TOOK : " + stopwatch.Elapsed.ToString());
+                                Console.ReadLine();
                                 break;
                             default:
                                 Console.Write("UNKNOW ACTION");
