@@ -56,10 +56,10 @@ namespace send
                         string vmta = Mta.ToLower() == "none" ? $"mta-{vmta_ip}" : (Mta == "vmta" ? $"vmta-{vmta_ip}-{Username}" : $"smtp-{vmta_ip}-{Username}");
                         string job = $"0_CAMPAIGN-TEST_{Id}_{Username}";
 
-                        string redirect = enc.encrypt($"r!!{Id}!!{ip.idip}!!{ip.idddomain}!!0!!{Redirect}!!{Platform}"); //r_idc_idi_idd_ide_link_platform
-                        string unsubscribe = enc.encrypt($"u!!{Id}!!{ip.idip}!!{ip.idddomain}!!0!!{Unsubscribe}"); //u_idc_idi_idd_ide_link
-                        string open = enc.encrypt($"o!!{Id}!!{ip.idip}!!{ip.idddomain}!!0"); ;//o_idc_idi_idd_ide
-                        string optout = enc.encrypt($"out!!{new Random().Next(5, 15)}"); // out_random
+                        string redirect = enc.Encrypt($"r!!{Id}!!{ip.idip}!!{ip.idddomain}!!0!!{Redirect}!!{Platform}"); //r_idc_idi_idd_ide_link_platform
+                        string unsubscribe = enc.Encrypt($"u!!{Id}!!{ip.idip}!!{ip.idddomain}!!0!!{Unsubscribe}"); //u_idc_idi_idd_ide_link
+                        string open = enc.Encrypt($"o!!{Id}!!{ip.idip}!!{ip.idddomain}!!0"); ;//o_idc_idi_idd_ide
+                        string optout = enc.Encrypt($"out!!{new Random().Next(5, 15)}"); // out_random
 
                         foreach (string email in Emails)
                         {
@@ -67,7 +67,7 @@ namespace send
                             string emailName = email.Split('@')[0];
                             string rp = Text.Build_rp(Return_path, domain, rdns, emailName);
                             string hd = Text.Build_header(Header, email_ip, domain, rdns, email, emailName, boundary);
-                            hd =  Text.Inject_header(hd, "t", Id.ToString(), Username, ip.ip, ip.idddomain);
+                            hd =  Text.Inject_header(hd, "t", Id.ToString(), Username, Convert.ToString(ip.ip), Convert.ToString(ip.idddomain));
                             string bd = Text.Build_body(Body, email_ip, domain, rdns, email, emailName, boundary);
                             bd = Text.Generate_links(bd, redirect, unsubscribe, open, optout);
                             Message = new Message(rp);

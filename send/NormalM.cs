@@ -127,11 +127,11 @@ namespace send
                                             {
                                                 Recipient r = new Recipient(email[1]);
                                                 //links
-                                                r["red"] = enc.encrypt($"r!!{Id}!!{ip["idi"]}!!{ip["idd"]}!!{email[0]}!!{redirect_link}!!{platform}");
-                                                r["unsub"] = enc.encrypt($"u!!{Id}!!{ip["idi"]}!!{ip["idd"]}!!{email[0]}!!{unsubscribe_link}");
-                                                r["opn"] = enc.encrypt($"o!!{Id}!!{ip["idi"]}!!{ip["idd"]}!!{email[0]}");
-                                                r["out"] = enc.encrypt($"out!!{new Random().Next(5, 15)}");
-                                                r["short"] = enc.encrypt(email[0]); //shortlink 
+                                                r["red"] = enc.Encrypt($"r!!{Id}!!{ip["idi"]}!!{ip["idd"]}!!{email[0]}!!{redirect_link}!!{platform}");
+                                                r["unsub"] = enc.Encrypt($"u!!{Id}!!{ip["idi"]}!!{ip["idd"]}!!{email[0]}!!{unsubscribe_link}");
+                                                r["opn"] = enc.Encrypt($"o!!{Id}!!{ip["idi"]}!!{ip["idd"]}!!{email[0]}");
+                                                r["out"] = enc.Encrypt($"out!!{new Random().Next(5, 15)}");
+                                                r["short"] = enc.Encrypt(email[0]); //shortlink 
                                                 //header body
                                                 r["pe"] = $"n,{Id},{Username},{ip["ip"]},{ip["idd"]},{email[0]}";
                                                 r["ip"] = email_ip;
@@ -156,11 +156,11 @@ namespace send
                                                         {
                                                             Recipient t = new Recipient(email[1]);
                                                             //links
-                                                            t["red"] = enc.encrypt($"r!!{Id}!!{ip["idi"]}!!{ip["idd"]}!!0!!{redirect_link}!!{platform}");
-                                                            t["unsub"] = enc.encrypt($"u!!{Id}!!{ip["idi"]}!!{ip["idd"]}!!0!!{unsubscribe_link}");
-                                                            t["opn"] = enc.encrypt($"o!!{Id}!!{ip["idi"]}!!{ip["idd"]}!!0");
-                                                            t["out"] = enc.encrypt($"out!!{new Random().Next(5, 15)}");
-                                                            t["short"] = enc.encrypt("0"); //shortlink 
+                                                            t["red"] = enc.Encrypt($"r!!{Id}!!{ip["idi"]}!!{ip["idd"]}!!0!!{redirect_link}!!{platform}");
+                                                            t["unsub"] = enc.Encrypt($"u!!{Id}!!{ip["idi"]}!!{ip["idd"]}!!0!!{unsubscribe_link}");
+                                                            t["opn"] = enc.Encrypt($"o!!{Id}!!{ip["idi"]}!!{ip["idd"]}!!0");
+                                                            t["out"] = enc.Encrypt($"out!!{new Random().Next(5, 15)}");
+                                                            t["short"] = enc.Encrypt("0"); //shortlink 
                                                             //header body
                                                             t["pe"] = $"t,{Id},{Username},{ip["ip"]},{ip["idd"]},0";
                                                             t["ip"] = email_ip;

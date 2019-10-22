@@ -12,8 +12,8 @@ namespace send
 {
     class Program
     {
-        private static Logger logger = LogManager.GetCurrentClassLogger();
-        static void log(bool status, string message)
+        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
+        static void Log(bool status, string message)
         {
             Dictionary<string, object> response = new Dictionary<string, object>
             {

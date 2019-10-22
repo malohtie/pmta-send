@@ -8,7 +8,7 @@ namespace send
 {
     class GlobalTest
     {
-        private static Logger logger = LogManager.GetCurrentClassLogger();
+        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
         public Message Message { get; set; }
         public string Return_path { get; set; }
         public string[] Emails { get; set; }
@@ -62,7 +62,7 @@ namespace send
                             string emailName = email.Split('@')[0];
                             string rp = Text.Build_rp(Return_path, domain, rdns, emailName);
                             string hd = Text.Build_header(Header, email_ip, domain, rdns, email, emailName);
-                            hd = Text.Inject_header(hd, "t", "0", Username, ip.idip, ip.idddomain);
+                            hd = Text.Inject_header(hd, "t", "0", Username, email_ip, Convert.ToString(ip.idddomain));
                             string bd = Text.Build_body(Body, email_ip, domain, rdns, email, emailName);
                             Message = new Message(rp);
                             Message.AddData(hd + "\n" + bd);

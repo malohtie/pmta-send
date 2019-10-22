@@ -17,9 +17,8 @@ namespace send.helpers
             encryptionKey = Convert.FromBase64String("OXzN4fxHHgcKtAt/SJ4UWtNiQlzno7II1gIBs24CWpY=");
             iv = Convert.FromBase64String("fdL8sKmhC8YIrYHMzoJJvQ==");
         }
-        public string encrypt(string plainText)
+        public string Encrypt(string plainText)
         {
-            string cipherText = "";
             //setting up AES Key
             KeyParameter aesKeyParam = ParameterUtilities.CreateKeyParameter(CRYPTO_ALGORITHM, encryptionKey);
             // Setting up the Initialization Vector. IV is used for encrypting the first block of input message
@@ -28,12 +27,12 @@ namespace send.helpers
             IBufferedCipher cipher = CipherUtilities.GetCipher(AES_ALGORITHM);
             cipher.Init(true, aesIVKeyParam);
             byte[] output = cipher.DoFinal(Encoding.UTF8.GetBytes(plainText));
-            cipherText = BitConverter.ToString(output).Replace("-", string.Empty).ToLower();
-            
+            string cipherText = BitConverter.ToString(output).Replace("-", string.Empty).ToLower();
+
             return cipherText;
         }
 
-        public string decrypt(string cipherText)
+        public string Decrypt(string cipherText)
         {
             //setting up AES Key
             KeyParameter aesKeyParam = ParameterUtilities.CreateKeyParameter(CRYPTO_ALGORITHM, encryptionKey);

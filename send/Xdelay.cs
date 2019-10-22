@@ -115,10 +115,10 @@ namespace send
 
                                             foreach (string[] email in emails)
                                             {
-                                                string redirect = enc.encrypt($"r!!{Id}!!{ip["idi"]}!!{ip["idd"]}!!{email[0]}!!{redirect_link}!!{platform}"); //r_idc_idi_idd_ide_link_platform
-                                                string unsubscribe = enc.encrypt($"u!!{Id}!!{ip["idi"]}!!{ip["idd"]}!!{email[0]}!!{unsubscribe_link}"); //u_idc_idi_idd_ide_link
-                                                string open = enc.encrypt($"o!!{Id}!!{ip["idi"]}!!{ip["idd"]}!!{email[0]}"); //o_idc_idi_idd_ide
-                                                string optout = enc.encrypt($"out!!{new Random().Next(5, 15)}"); // out_random
+                                                string redirect = enc.Encrypt($"r!!{Id}!!{ip["idi"]}!!{ip["idd"]}!!{email[0]}!!{redirect_link}!!{platform}"); //r_idc_idi_idd_ide_link_platform
+                                                string unsubscribe = enc.Encrypt($"u!!{Id}!!{ip["idi"]}!!{ip["idd"]}!!{email[0]}!!{unsubscribe_link}"); //u_idc_idi_idd_ide_link
+                                                string open = enc.Encrypt($"o!!{Id}!!{ip["idi"]}!!{ip["idd"]}!!{email[0]}"); //o_idc_idi_idd_ide
+                                                string optout = enc.Encrypt($"out!!{new Random().Next(5, 15)}"); // out_random
 
                                                 string boundary = Text.Random("[rndlu/30]");
                                                 string emailName = email[1].Split('@')[0];
@@ -137,7 +137,7 @@ namespace send
                                                 p.Send(message);
                                                 total_send++;
                                                 c_seed++;
-                                                campaign.Campaign_update_send(Id, total_send + total_sended);
+                                                
 
                                                 if (Seed != 0 && c_seed % Seed == 0)
                                                 {
@@ -146,11 +146,11 @@ namespace send
                                                     {
                                                         foreach (string test_email in seed_emails)
                                                         {
-                                                            string tredirect = enc.encrypt($"r!!{Id}!!{ip["idi"]}!!{ip["idd"]}!!0!!{redirect_link}!!{platform}"); //r_idc_idi_idd_ide_link_platform
-                                                            string tunsubscribe = enc.encrypt($"u!!{Id}!!{ip["idi"]}!!{ip["idd"]}!!0!!{unsubscribe_link}"); //u_idc_idi_idd_ide_link
-                                                            string topen = enc.encrypt($"o!!{Id}!!{ip["idi"]}!!{ip["idd"]}!!0");//o_idc_idi_idd_ide
-                                                            string toptout = enc.encrypt($"out!!{new Random().Next(5, 15)}"); // out_random
-                                                            string shortf = enc.encrypt(""); //shortlink
+                                                            string tredirect = enc.Encrypt($"r!!{Id}!!{ip["idi"]}!!{ip["idd"]}!!0!!{redirect_link}!!{platform}"); //r_idc_idi_idd_ide_link_platform
+                                                            string tunsubscribe = enc.Encrypt($"u!!{Id}!!{ip["idi"]}!!{ip["idd"]}!!0!!{unsubscribe_link}"); //u_idc_idi_idd_ide_link
+                                                            string topen = enc.Encrypt($"o!!{Id}!!{ip["idi"]}!!{ip["idd"]}!!0");//o_idc_idi_idd_ide
+                                                            string toptout = enc.Encrypt($"out!!{new Random().Next(5, 15)}"); // out_random
+                                                            string shortf = enc.Encrypt(""); //shortlink
 
                                                             string tboundary = Text.Random("[rndlu/30]");
                                                             string temailName = test_email.Split('@')[0];
@@ -171,6 +171,8 @@ namespace send
                                                     }
                                                 }
                                             }
+
+                                            campaign.Campaign_update_send(Id, total_send + total_sended);
                                         }
                                         else
                                         {
