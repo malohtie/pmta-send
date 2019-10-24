@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace send
 {
@@ -137,8 +138,7 @@ namespace send
                                                 p.Send(message);
                                                 total_send++;
                                                 c_seed++;
-                                                
-
+                                                Task.Run(() => campaign.Campaign_update_send(Id, total_send + total_sended));
                                                 if (Seed != 0 && c_seed % Seed == 0)
                                                 {
                                                     Console.WriteLine("Seed : " + c_seed);
@@ -172,7 +172,7 @@ namespace send
                                                 }
                                             }
 
-                                            campaign.Campaign_update_send(Id, total_send + total_sended);
+                                            
                                         }
                                         else
                                         {
