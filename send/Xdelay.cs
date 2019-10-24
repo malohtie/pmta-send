@@ -120,6 +120,7 @@ namespace send
                                                 string unsubscribe = enc.Encrypt($"u!!{Id}!!{ip["idi"]}!!{ip["idd"]}!!{email[0]}!!{unsubscribe_link}"); //u_idc_idi_idd_ide_link
                                                 string open = enc.Encrypt($"o!!{Id}!!{ip["idi"]}!!{ip["idd"]}!!{email[0]}"); //o_idc_idi_idd_ide
                                                 string optout = enc.Encrypt($"out!!{new Random().Next(5, 15)}"); // out_random
+                                                string shortt = enc.Encrypt(email[0]); // track_shortlink email
 
                                                 string boundary = Text.Random("[rndlu/30]");
                                                 string emailName = email[1].Split('@')[0];
@@ -127,7 +128,7 @@ namespace send
                                                 string hd = Text.Build_header(raw_hd, email_ip, domain, rdns, email[1], emailName, boundary);
                                                 hd = Text.Inject_header(hd, "x", Id.ToString(), Username, ip["ip"], ip["idd"], email[0]);
                                                 string bd = Text.Build_body(raw_bd, email_ip, domain, rdns, email[1], emailName, boundary);
-                                                bd = Text.Generate_links(bd, redirect, unsubscribe, open, optout);
+                                                bd = Text.Generate_links(bd, redirect, unsubscribe, open, optout, shortt);
                                                 message = new Message(rp);
                                                 message.AddData(hd + "\n" + bd);
                                                 message.AddRecipient(new Recipient(email[1]));
