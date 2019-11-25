@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 
 namespace send.helpers
@@ -112,7 +113,43 @@ namespace send.helpers
                     {"idd", item[3] },
                 }).ToList());
         }
+        public static object Bulk_split(string ips)
+        {
+            return ips.Trim().Split('\n').Select(t => t.Trim().Split(','))
+                .Where(item => item.Length == 5)
+                .ToList();
 
+        }
+        public int CountLinesLINQ(string path) => File.ReadLines(path).Count();
+
+        public static IEnumerable<int> DistributeInteger(int total, int divider)
+        {
+            if (divider == 0)
+            {
+                yield return 0;
+            }
+            else
+            {
+                int rest = total % divider;
+                double result = total / (double)divider;
+
+                for (int i = 0; i < divider; i++)
+                {
+                    if (rest-- > 0)
+                        yield return (int)Math.Ceiling(result);
+                    else
+                        yield return (int)Math.Floor(result);
+                }
+
+                //int rem; v2
+                //int div = Math.DivRem(numerator, denominator, out rem);
+
+                //for (int i = 0; i < denominator; i++)
+                //{
+                //    yield return i < rem ? div + 1 : div;
+                //}
+            }
+        }
         public static string[] Convert_emails(string emails)
         {
             return emails.Trim().Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);

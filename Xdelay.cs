@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace send
 {
-    class NormalM
+    class Xdelay
     {
         private static readonly Logger logger = LogManager.GetCurrentClassLogger();
         public int Id { get; set; }
@@ -25,7 +25,7 @@ namespace send
         public string Password { get; set; }
         public string Username { get; set; }
 
-        public NormalM(dynamic data)
+        public Xdelay(dynamic data)
         {
             Id = int.Parse((string)data.campaign);
             Fraction = int.Parse((string)data.fraction);
@@ -84,7 +84,7 @@ namespace send
                                         {
                                             if (total_sended - file_count <= 0)
                                             {
-                                                campaign.Campaign_update_progress(Id, "finished", true, 0);
+                                                campaign.Campaign_update_progress(Id, "finish", true, 0);
                                                 Result.Add("Campaign Ended" + Id);
                                                 p.Close(); //close
                                                 return Result;
@@ -112,72 +112,68 @@ namespace send
                                             string rdns = Text.Rdns(email_ip, domain);
                                             string vmta_ip = email_ip.Replace(':', '.');
                                             string vmta = Mta.ToLower() == "none" ? $"mta-{vmta_ip}" : (Mta == "vmta" ? $"vmta-{vmta_ip}-{Username}" : $"smtp-{vmta_ip}-{Username}");
-                                            string job = $"{Id}";
-
-                                            string rp = Text.Build_rp(raw_rp, domain, rdns, "reply");
-                                            message = new Message(rp);
-                                            string header = Text.Header_normal(raw_hd);
-                                            message.AddMergeData(Text.Generate(header + "\n" + raw_bd));
-                                            message.VirtualMTA = vmta;
-                                            message.JobID = Id.ToString();
-                                            message.Verp = false;
-                                            message.Encoding = Encoding.EightBit;                                          
+                                            
 
                                             foreach (string[] email in emails)
                                             {
-                                                Recipient r = new Recipient(email[1]);
-                                                //links
-                                                r["red"] = enc.Encrypt($"r!!{Id}!!{ip["idi"]}!!{ip["idd"]}!!{email[0]}!!{redirect_link}!!{platform}");
-                                                r["unsub"] = enc.Encrypt($"u!!{Id}!!{ip["idi"]}!!{ip["idd"]}!!{email[0]}!!{unsubscribe_link}");
-                                                r["opn"] = enc.Encrypt($"o!!{Id}!!{ip["idi"]}!!{ip["idd"]}!!{email[0]}");
-                                                r["out"] = enc.Encrypt($"out!!{new Random().Next(5, 15)}");
-                                                r["short"] = enc.Encrypt(email[0]); //shortlink 
-                                                //header body
-                                                r["pe"] = $"n,{Id},{Username},{ip["ip"]},{ip["idd"]},{email[0]}";
-                                                r["ip"] = email_ip;
-                                                r["domain"] = domain;
-                                                r["rdns"] = rdns;
-                                                r["name"] = email[1].Split('@')[0];
-                                                r["to"] = email[1];                                                
-                                                r["date"] = Text.GetRFC822Date();
-                                                r["boundary"] = Text.Random("[rndlu/30]");
-                                                r["*parts"] = "1";
+                                                string redirect = enc.Encrypt($"r!!{Id}!!{ip["idi"]}!!{ip["idd"]}!!{email[0]}!!{redirect_link}!!{platform}"); //r_idc_idi_idd_ide_link_platform
+                                                string unsubscribe = enc.Encrypt($"u!!{Id}!!{ip["idi"]}!!{ip["idd"]}!!{email[0]}!!{unsubscribe_link}"); //u_idc_idi_idd_ide_link
+                                                string open = enc.Encrypt($"o!!{Id}!!{ip["idi"]}!!{ip["idd"]}!!{email[0]}"); //o_idc_idi_idd_ide
+                                                string optout = enc.Encrypt($"out!!{new Random().Next(5, 15)}"); // out_random
+                                                string shortt = enc.Encrypt(email[0]); // track_shortlink email
 
-                                                message.AddRecipient(r);
-                                               
+                                                string boundary = Text.Random("[rndlu/30]");
+                                                string emailName = email[1].Split('@')[0];
+                                                string rp = Text.Build_rp(raw_rp, domain, rdns, emailName);
+                                                string hd = Text.Build_header(raw_hd, email_ip, domain, rdns, email[1], emailName, boundary);
+                                                hd = Text.Inject_header(hd, "x", Id.ToString(), Username, ip["ip"], ip["idd"], email[0]);
+                                                string bd = Text.Build_body(raw_bd, email_ip, domain, rdns, email[1], emailName, boundary);
+                                                bd = Text.Generate_links(bd, redirect, unsubscribe, open, optout, shortt);
+                                                message = new Message(rp);
+                                                message.AddData(hd + "\n" + bd);
+                                                message.AddRecipient(new Recipient(email[1]));
+                                                message.VirtualMTA = vmta;
+                                                message.JobID = Id.ToString();
+                                                message.Verp = false;
+                                                message.Encoding = Encoding.EightBit;
+                                                p.Send(message);
                                                 total_send++;
                                                 c_seed++;
-                                               
+                                                Task.Run(() => campaign.Campaign_update_send(Id, total_send + total_sended));
                                                 if (Seed != 0 && c_seed % Seed == 0)
                                                 {
+                                                    Console.WriteLine("Seed : " + c_seed);
                                                     if (seed_emails.Length > 0)
                                                     {
                                                         foreach (string test_email in seed_emails)
                                                         {
-                                                            Recipient t = new Recipient(email[1]);
-                                                            //links
-                                                            t["red"] = enc.Encrypt($"r!!{Id}!!{ip["idi"]}!!{ip["idd"]}!!0!!{redirect_link}!!{platform}");
-                                                            t["unsub"] = enc.Encrypt($"u!!{Id}!!{ip["idi"]}!!{ip["idd"]}!!0!!{unsubscribe_link}");
-                                                            t["opn"] = enc.Encrypt($"o!!{Id}!!{ip["idi"]}!!{ip["idd"]}!!0");
-                                                            t["out"] = enc.Encrypt($"out!!{new Random().Next(5, 15)}");
-                                                            t["short"] = enc.Encrypt("0"); //shortlink 
-                                                            //header body
-                                                            t["pe"] = $"t,{Id},{Username},{ip["ip"]},{ip["idd"]},0";
-                                                            t["ip"] = email_ip;
-                                                            t["domain"] = domain;
-                                                            t["rdns"] = rdns;
-                                                            t["name"] = test_email.Split('@')[0];
-                                                            t["to"] = email[1];
-                                                            t["date"] = Text.GetRFC822Date();
-                                                            t["boundary"] = Text.Random("[rndlu/30]");
-                                                            t["*parts"] = "1";
-                                                            message.AddRecipient(t);    
+                                                            string tredirect = enc.Encrypt($"r!!{Id}!!{ip["idi"]}!!{ip["idd"]}!!0!!{redirect_link}!!{platform}"); //r_idc_idi_idd_ide_link_platform
+                                                            string tunsubscribe = enc.Encrypt($"u!!{Id}!!{ip["idi"]}!!{ip["idd"]}!!0!!{unsubscribe_link}"); //u_idc_idi_idd_ide_link
+                                                            string topen = enc.Encrypt($"o!!{Id}!!{ip["idi"]}!!{ip["idd"]}!!0");//o_idc_idi_idd_ide
+                                                            string toptout = enc.Encrypt($"out!!{new Random().Next(5, 15)}"); // out_random
+                                                            string shortf = enc.Encrypt(""); //shortlink
+
+                                                            string tboundary = Text.Random("[rndlu/30]");
+                                                            string temailName = test_email.Split('@')[0];
+                                                            string trp = Text.Build_rp(raw_rp, domain, rdns, temailName);
+                                                            string thd = Text.Build_header(raw_hd, email_ip, domain, rdns, test_email, temailName, tboundary);
+                                                            thd = Text.Inject_header(thd, "x", Id.ToString(), Username, ip["ip"], ip["idd"]);
+                                                            string tbd = Text.Build_body(raw_bd, email_ip, domain, rdns, test_email, temailName, tboundary);
+                                                            tbd = Text.Generate_links(tbd, tredirect, tunsubscribe, topen, toptout);
+                                                            message = new Message(trp);
+                                                            message.AddData(thd + "\n" + tbd);
+                                                            message.AddRecipient(new Recipient(test_email));
+                                                            message.VirtualMTA = vmta;
+                                                            message.JobID = Id.ToString();
+                                                            message.Verp = false;
+                                                            message.Encoding = Encoding.EightBit;
+                                                            p.Send(message);
                                                         }
                                                     }
                                                 }
                                             }
-                                            p.Send(message);
-                                            Task.Run(() => campaign.Campaign_update_send(Id, total_send + total_sended));
+
+                                            
                                         }
                                         else
                                         {
@@ -198,6 +194,7 @@ namespace send
                                     }
                                     Thread.Sleep(Delay * 1000); //sleep delay
                                 }
+
                                 p.Close(); //close pmta connection
                             }
                             else
@@ -219,16 +216,13 @@ namespace send
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"ERR {ex.Message} -- {ex.StackTrace}");
+                    //Console.WriteLine($"ERR {ex.Message} -- {ex.StackTrace}");
                     logger.Error($"ERR {ex.Message} -- {ex.StackTrace}");
                 }
                 Thread.Sleep(Sleep * 1000);
             }
-
             campaign.Campaign_update_progress(Id, "start", true, 0);
             return Result;
         }
-
-
     }
 }

@@ -1,14 +1,15 @@
 ﻿using Newtonsoft.Json;
 using NLog;
+using send;
 using send.helpers;
 using System;
-using System.Text;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.IO;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace send
+namespace Send
 {
     class Program
     {
@@ -68,6 +69,14 @@ namespace send
                                 Console.Write(string.Join("<br>", normal_result) + "<br>TOOK : " + stopwatch.Elapsed.ToString());
                                 Console.ReadLine();
                                 break;
+                            case "bulk":
+                                dynamic bulk_data = JsonConvert.DeserializeObject<dynamic>(Text.Base64Decode(args[1]));
+                                BulkM bulk_send = new BulkM(bulk_data);
+                                List<string> bulk_result = bulk_send.Send();
+                                stopwatch.Stop();
+                                Console.Write(string.Join("<br>", bulk_result) + "<br>TOOK : " + stopwatch.Elapsed.ToString());
+                                Console.ReadLine();
+                                break;
                             default:
                                 Console.Write("UNKNOW ACTION");
                                 break;
@@ -86,9 +95,9 @@ namespace send
                     logger.Warn("BAD ARGUMENTS PASSED");
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                Console.Write("EXEPTION "+ex.Message);
+                Console.Write("EXEPTION " + ex.Message);
                 logger.Error($"{ex.Message}_{ex.StackTrace}");
             }
         }
