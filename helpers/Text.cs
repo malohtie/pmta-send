@@ -50,18 +50,6 @@ namespace send.helpers
         }
         public static string Build_header(string header, string ip, string domain, string rdns, string email, string emailName, string boundary = null)
         {
-            //Dictionary<string, string> header_array = new Dictionary<string, string>();
-
-            //string[] header_params = header.Split('\n');
-            //foreach (string param in header_params)
-            //{
-            //    string[] keys = param.Split(':');
-            //    if (keys.Length == 2)
-            //    {
-            //        header_array.Add(keys[0], keys[1]);
-            //    }
-            //}
-            //string header_result =  string.Join("\n", header_array.Select(x => $"{x.Key}:{x.Value}"));
             string header_result = header;
             header_result = Regex.Replace(header_result, @"\[ip\]", ip, RegexOptions.IgnoreCase);
             header_result = Regex.Replace(header_result, @"\[domain\]", domain, RegexOptions.IgnoreCase);
@@ -181,7 +169,7 @@ namespace send.helpers
 
             }, RegexOptions.IgnoreCase | RegexOptions.Multiline | RegexOptions.IgnorePatternWhitespace);
         }
-        private static string Base64Encode(string plainText)
+        public static string Base64Encode(string plainText)
         {
             return Convert.ToBase64String(Encoding.UTF8.GetBytes(plainText));
         }
@@ -220,42 +208,33 @@ namespace send.helpers
             return DateTime.Now.ToString("ddd, dd MMM yyyy HH:mm:ss " + timeZone.PadRight(5, '0'));
 
         }
-        public static string Generate_links(string body, string url, string unsub, string open, string optout, string shortlink = null)
+        public static string Generate_links(string body, string url, string unsub, string open)
         {
             body = Regex.Replace(body, @"\[red\]", url, RegexOptions.IgnoreCase);
             body = Regex.Replace(body, @"\[unsub\]", unsub, RegexOptions.IgnoreCase);
-            body = Regex.Replace(body, @"\[out\]", optout, RegexOptions.IgnoreCase);
             body = Regex.Replace(body, @"\[opn\]", open, RegexOptions.IgnoreCase);
-            if (!string.IsNullOrWhiteSpace(shortlink))
-            {
-                body = Regex.Replace(body, @"\[short\]", shortlink, RegexOptions.IgnoreCase);
-            }
             return body;
         }
         public static string Header_normal(string header)
         {
-            //Dictionary<string, string> header_array = new Dictionary<string, string>();
-
-            //string[] header_params = header.Split('\n');
-            //foreach (string param in header_params)
-            //{
-            //    string[] keys = param.Split(':');
-            //    if (keys.Length == 2)
-            //    {
-            //        header_array.Add(keys[0], keys[1]);
-            //    }
-            //}
-            //header_array.Add("pe", " [pe]");
-            //return string.Join("\n", header_array.Select(x => $"{x.Key}:{x.Value}"));
-
-            return "pe: [pe]\n"+header.Trim();
-
-           
+            return "pe: [pe]\n"+header.Trim();           
         }
         public static string Inject_header(string header, string type, string idc, string idu, string idi, string idd, string ide = "0")
         {
             header = $"pe: {type},{idc},{idu},{idi},{idd},{ide}\n{header}";
             return header;
+        }
+        public static string Adler32(string str)
+        {
+            const int mod = 65521;
+            uint a = 1, b = 0;
+            foreach (char c in str)
+            {
+                a = (a + c) % mod;
+                b = (b + a) % mod;
+            }
+            uint result =  (b << 16) | a;
+            return result.ToString("x8");
         }
     }
 }

@@ -43,10 +43,10 @@ namespace send
         public List<string> Send()
         {
             List<string> Result = new List<string>();
-            Encryption enc = new Encryption(); //links encrpytion
             Campaign campaign = new Campaign(Artisan);
             Message message;
             int c_seed = 0;
+            Random random = new Random();
 
             for (int i = 0; i < Loop; i++) //loop
             {
@@ -126,12 +126,12 @@ namespace send
                                             foreach (string[] email in emails)
                                             {
                                                 Recipient r = new Recipient(email[1]);
-                                                //links
-                                                r["red"] = enc.Encrypt($"r!!{Id}!!{ip["idi"]}!!{ip["idd"]}!!{email[0]}!!{redirect_link}!!{platform}");
-                                                r["unsub"] = enc.Encrypt($"u!!{Id}!!{ip["idi"]}!!{ip["idd"]}!!{email[0]}!!{unsubscribe_link}");
-                                                r["opn"] = enc.Encrypt($"o!!{Id}!!{ip["idi"]}!!{ip["idd"]}!!{email[0]}");
-                                                r["out"] = enc.Encrypt($"out!!{new Random().Next(5, 15)}");
-                                                r["short"] = enc.Encrypt(email[0]); //shortlink 
+                                                //links                                           
+                                                string key = Text.Adler32($"{Id}{email[0]}");
+                                                r["red"] = Text.Base64Encode($"{Id}-{email[0]}-{key}-{random.Next(1000, 99999)}");
+                                                r["unsub"] = Text.Base64Encode($"{Id}-{email[0]}-{key}-{random.Next(1000, 99999)}");
+                                                r["opn"] = Text.Base64Encode($"{Id}-{email[0]}-{key}-{random.Next(1000, 99999)}");
+                                             
                                                 //header body
                                                 r["pe"] = $"n,{Id},{Username},{ip["ip"]},{ip["idd"]},{email[0]}";
                                                 r["ip"] = email_ip;
@@ -156,11 +156,11 @@ namespace send
                                                         {
                                                             Recipient t = new Recipient(test_email);
                                                             //links
-                                                            t["red"] = enc.Encrypt($"r!!{Id}!!{ip["idi"]}!!{ip["idd"]}!!0!!{redirect_link}!!{platform}");
-                                                            t["unsub"] = enc.Encrypt($"u!!{Id}!!{ip["idi"]}!!{ip["idd"]}!!0!!{unsubscribe_link}");
-                                                            t["opn"] = enc.Encrypt($"o!!{Id}!!{ip["idi"]}!!{ip["idd"]}!!0");
-                                                            t["out"] = enc.Encrypt($"out!!{new Random().Next(5, 15)}");
-                                                            t["short"] = enc.Encrypt("0"); //shortlink 
+                                                            string tkey = Text.Adler32($"{Id}0");
+                                                            t["red"] = Text.Base64Encode($"{Id}-0-{tkey}-{random.Next(1000, 99999)}");
+                                                            t["unsub"] = Text.Base64Encode($"{Id}-0-{tkey}-{random.Next(1000, 99999)}");
+                                                            t["opn"] = Text.Base64Encode($"{Id}-0-{tkey}-{random.Next(1000, 99999)}");
+
                                                             //header body
                                                             t["pe"] = $"t,{Id},{Username},{ip["ip"]},{ip["idd"]},0";
                                                             t["ip"] = email_ip;

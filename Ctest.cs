@@ -41,7 +41,8 @@ namespace send
         public List<string> Send()
         {
             List<string> data = new List<string>();
-            Encryption enc = new Encryption();
+            Random random = new Random();
+
             foreach (dynamic server in Servers)
             {
                 try
@@ -56,10 +57,12 @@ namespace send
                         string vmta = Mta.ToLower() == "none" ? $"mta-{vmta_ip}" : (Mta == "vmta" ? $"vmta-{vmta_ip}-{Username}" : $"smtp-{vmta_ip}-{Username}");
                         string job = $"0_CAMPAIGN-TEST_{Id}_{Username}";
 
-                        string redirect = enc.Encrypt($"r!!{Id}!!{ip.idip}!!{ip.idddomain}!!0!!{Redirect}!!{Platform}"); //r_idc_idi_idd_ide_link_platform
-                        string unsubscribe = enc.Encrypt($"u!!{Id}!!{ip.idip}!!{ip.idddomain}!!0!!{Unsubscribe}"); //u_idc_idi_idd_ide_link
-                        string open = enc.Encrypt($"o!!{Id}!!{ip.idip}!!{ip.idddomain}!!0"); ;//o_idc_idi_idd_ide
-                        string optout = enc.Encrypt($"out!!{new Random().Next(5, 15)}"); // out_random
+
+                        string key = Text.Adler32($"{Id}0");
+                        string redirect = Text.Base64Encode($"{Id}-0-{key}-{random.Next(1000, 99999)}");
+                        string unsubscribe = Text.Base64Encode($"{Id}-0-{key}-{random.Next(1000, 99999)}");
+                        string open = Text.Base64Encode($"{Id}-0-{key}-{random.Next(1000, 99999)}");
+                      
 
                         foreach (string email in Emails)
                         {
@@ -69,7 +72,7 @@ namespace send
                             string hd = Text.Build_header(Header, email_ip, domain, rdns, email, emailName, boundary);
                             hd =  Text.Inject_header(hd, "t", Id.ToString(), Username, Convert.ToString(ip.ip), Convert.ToString(ip.idddomain));
                             string bd = Text.Build_body(Body, email_ip, domain, rdns, email, emailName, boundary);
-                            bd = Text.Generate_links(bd, redirect, unsubscribe, open, optout);
+                            bd = Text.Generate_links(bd, redirect, unsubscribe, open);
                             Message = new Message(rp);
                             Message.AddData(hd + "\n" + bd);
                             Message.AddRecipient(new Recipient(email));

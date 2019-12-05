@@ -43,10 +43,10 @@ namespace send
         public List<string> Send()
         {
             List<string> Result = new List<string>();
-            Encryption enc = new Encryption(); //links encrpytion
             Campaign campaign = new Campaign(Artisan);
             Message message;
             int c_seed = 0;
+            Random random = new Random();
 
             for (int i = 0; i < Loop; i++) //loop
             {
@@ -62,9 +62,7 @@ namespace send
                         string raw_bd = Text.Base64Decode(Convert.ToString(cdata.body));
                         var servers = Campaign.Convert_ips(Convert.ToString(cdata.ips));
                         string file = "/" + Convert.ToString(cdata.send_file);
-                        //string platform = Convert.ToString(cdata.platform);
-                        //string redirect_link = Convert.ToString(cdata.redirect_link);
-                        //string unsubscribe_link = Convert.ToString(cdata.unsubscribe_link);
+                       
 
                         foreach (var server in servers)
                         {
@@ -116,12 +114,12 @@ namespace send
 
                                             foreach (string[] email in emails)
                                             {
-                                                string redirect = 
-                                                string redirect = enc.Encrypt($"r!!{Id}!!{ip["idi"]}!!{ip["idd"]}!!{email[0]}!!{redirect_link}!!{platform}"); //r_idc_idi_idd_ide_link_platform
-                                                string unsubscribe = enc.Encrypt($"u!!{Id}!!{ip["idi"]}!!{ip["idd"]}!!{email[0]}!!{unsubscribe_link}"); //u_idc_idi_idd_ide_link
-                                                string open = enc.Encrypt($"o!!{Id}!!{ip["idi"]}!!{ip["idd"]}!!{email[0]}"); //o_idc_idi_idd_ide
-                                                string optout = enc.Encrypt($"out!!{new Random().Next(5, 15)}"); // out_random
-                                                string shortt = enc.Encrypt(email[0]); // track_shortlink email
+                                                string key = Text.Adler32($"{Id}{email[0]}");
+
+                                                string redirect = Text.Base64Encode($"{Id}-{email[0]}-{key}-{random.Next(1000,99999)}");
+                                                string unsubscribe = Text.Base64Encode($"{Id}-{email[0]}-{key}-{random.Next(1000,99999)}");
+                                                string open = Text.Base64Encode($"{Id}-{email[0]}-{key}-{random.Next(1000,99999)}");                                        
+                                             
 
                                                 string boundary = Text.Random("[rndlu/30]");
                                                 string emailName = email[1].Split('@')[0];
@@ -129,7 +127,7 @@ namespace send
                                                 string hd = Text.Build_header(raw_hd, email_ip, domain, rdns, email[1], emailName, boundary);
                                                 hd = Text.Inject_header(hd, "x", Id.ToString(), Username, ip["ip"], ip["idd"], email[0]);
                                                 string bd = Text.Build_body(raw_bd, email_ip, domain, rdns, email[1], emailName, boundary);
-                                                bd = Text.Generate_links(bd, redirect, unsubscribe, open, optout, shortt);
+                                                bd = Text.Generate_links(bd, redirect, unsubscribe, open);
                                                 message = new Message(rp);
                                                 message.AddData(hd + "\n" + bd);
                                                 message.AddRecipient(new Recipient(email[1]));
@@ -148,11 +146,10 @@ namespace send
                                                     {
                                                         foreach (string test_email in seed_emails)
                                                         {
-                                                            string tredirect = enc.Encrypt($"r!!{Id}!!{ip["idi"]}!!{ip["idd"]}!!0!!{redirect_link}!!{platform}"); //r_idc_idi_idd_ide_link_platform
-                                                            string tunsubscribe = enc.Encrypt($"u!!{Id}!!{ip["idi"]}!!{ip["idd"]}!!0!!{unsubscribe_link}"); //u_idc_idi_idd_ide_link
-                                                            string topen = enc.Encrypt($"o!!{Id}!!{ip["idi"]}!!{ip["idd"]}!!0");//o_idc_idi_idd_ide
-                                                            string toptout = enc.Encrypt($"out!!{new Random().Next(5, 15)}"); // out_random
-                                                            string shortf = enc.Encrypt("0"); //shortlink
+                                                            string tkey = Text.Adler32($"{Id}0");
+                                                            string tredirect = Text.Base64Encode($"{Id}-0-{tkey}-{random.Next(1000, 99999)}");
+                                                            string tunsubscribe = Text.Base64Encode($"{Id}-0-{tkey}-{random.Next(1000, 99999)}");
+                                                            string topen = Text.Base64Encode($"{Id}-0-{tkey}-{random.Next(1000, 99999)}");
 
                                                             string tboundary = Text.Random("[rndlu/30]");
                                                             string temailName = test_email.Split('@')[0];
@@ -160,7 +157,7 @@ namespace send
                                                             string thd = Text.Build_header(raw_hd, email_ip, domain, rdns, test_email, temailName, tboundary);
                                                             thd = Text.Inject_header(thd, "x", Id.ToString(), Username, ip["ip"], ip["idd"]);
                                                             string tbd = Text.Build_body(raw_bd, email_ip, domain, rdns, test_email, temailName, tboundary);
-                                                            tbd = Text.Generate_links(tbd, tredirect, tunsubscribe, topen, toptout);
+                                                            tbd = Text.Generate_links(tbd, tredirect, tunsubscribe, topen);
                                                             message = new Message(trp);
                                                             message.AddData(thd + "\n" + tbd);
                                                             message.AddRecipient(new Recipient(test_email));

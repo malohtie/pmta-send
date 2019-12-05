@@ -45,7 +45,7 @@ namespace Send
             List<string> Result = new List<string>();
             Encryption enc = new Encryption(); //links encrpytion
             Campaign campaign = new Campaign(Artisan);
-            int c_seed = 0;
+            //int c_seed = 0;
 
             dynamic cdata = campaign.Campaign_info(Id); //get info campaign
 
