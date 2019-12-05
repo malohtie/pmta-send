@@ -49,7 +49,7 @@
       <HintPath>packages\NLog.4.6.8\lib\net45\NLog.dll</HintPath>
     </Reference>
     <Reference Include="port25.pmta.api.submitter">
-      <HintPath>..\..\..\Desktop\api PMTA\dotnet\port25.pmta.api.submitter.dll</HintPath>
+      <HintPath>..\..\..\Desktop\port25.pmta.api.submitter.dll</HintPath>
     </Reference>
     <Reference Include="Renci.SshNet, Version=2016.1.0.0, Culture=neutral, PublicKeyToken=1cee9f8bde3db106, processorArchitecture=MSIL">
       <HintPath>packages\SSH.NET.2016.1.0\lib\net40\Renci.SshNet.dll</HintPath>

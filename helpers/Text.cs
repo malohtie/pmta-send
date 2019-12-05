@@ -50,19 +50,19 @@ namespace send.helpers
         }
         public static string Build_header(string header, string ip, string domain, string rdns, string email, string emailName, string boundary = null)
         {
-            Dictionary<string, string> header_array = new Dictionary<string, string>();
+            //Dictionary<string, string> header_array = new Dictionary<string, string>();
 
-            string[] header_params = header.Split('\n');
-            foreach (string param in header_params)
-            {
-                string[] keys = param.Split(':');
-                if (keys.Length == 2)
-                {
-                    header_array.Add(keys[0], keys[1]);
-                }
-            }
-
-            string header_result = string.Join("\n", header_array.Select(x => $"{x.Key}:{x.Value}"));
+            //string[] header_params = header.Split('\n');
+            //foreach (string param in header_params)
+            //{
+            //    string[] keys = param.Split(':');
+            //    if (keys.Length == 2)
+            //    {
+            //        header_array.Add(keys[0], keys[1]);
+            //    }
+            //}
+            //string header_result =  string.Join("\n", header_array.Select(x => $"{x.Key}:{x.Value}"));
+            string header_result = header;
             header_result = Regex.Replace(header_result, @"\[ip\]", ip, RegexOptions.IgnoreCase);
             header_result = Regex.Replace(header_result, @"\[domain\]", domain, RegexOptions.IgnoreCase);
             header_result = Regex.Replace(header_result, @"\[rdns\]", rdns, RegexOptions.IgnoreCase);
@@ -234,20 +234,23 @@ namespace send.helpers
         }
         public static string Header_normal(string header)
         {
-            Dictionary<string, string> header_array = new Dictionary<string, string>();
+            //Dictionary<string, string> header_array = new Dictionary<string, string>();
 
-            string[] header_params = header.Split('\n');
-            foreach (string param in header_params)
-            {
-                string[] keys = param.Split(':');
-                if (keys.Length == 2)
-                {
-                    header_array.Add(keys[0], keys[1]);
-                }
-            }
-            header_array.Add("pe", " [pe]");
+            //string[] header_params = header.Split('\n');
+            //foreach (string param in header_params)
+            //{
+            //    string[] keys = param.Split(':');
+            //    if (keys.Length == 2)
+            //    {
+            //        header_array.Add(keys[0], keys[1]);
+            //    }
+            //}
+            //header_array.Add("pe", " [pe]");
+            //return string.Join("\n", header_array.Select(x => $"{x.Key}:{x.Value}"));
 
-            return string.Join("\n", header_array.Select(x => $"{x.Key}:{x.Value}"));
+            return "pe: [pe]\n"+header.Trim();
+
+           
         }
         public static string Inject_header(string header, string type, string idc, string idu, string idi, string idd, string ide = "0")
         {

@@ -56,15 +56,15 @@ namespace send
                     dynamic cdata = campaign.Campaign_info(Id);
                     if (cdata != null)
                     {
-                        string raw_rp = Convert.ToString(cdata.return_path);
+                        string raw_rp = Convert.ToString(cdata.return_path) ?? "";
                         string[] seed_emails = Campaign.Convert_emails(Convert.ToString(cdata.email_test));
                         string raw_hd = Text.Base64Decode(Convert.ToString(cdata.header));
                         string raw_bd = Text.Base64Decode(Convert.ToString(cdata.body));
                         var servers = Campaign.Convert_ips(Convert.ToString(cdata.ips));
                         string file = "/" + Convert.ToString(cdata.send_file);
-                        string platform = Convert.ToString(cdata.platform);
-                        string redirect_link = Convert.ToString(cdata.redirect_link);
-                        string unsubscribe_link = Convert.ToString(cdata.unsubscribe_link);
+                        //string platform = Convert.ToString(cdata.platform);
+                        //string redirect_link = Convert.ToString(cdata.redirect_link);
+                        //string unsubscribe_link = Convert.ToString(cdata.unsubscribe_link);
 
                         foreach (var server in servers)
                         {
@@ -82,7 +82,7 @@ namespace send
                                         int file_count = int.Parse((string)info_send.send_count);
                                         if (total_sended + Fraction >= file_count)
                                         {
-                                            if (total_sended - file_count <= 0)
+                                            if (file_count - total_sended  <= 0)
                                             {
                                                 campaign.Campaign_update_progress(Id, "finish", true, 0);
                                                 Result.Add("Campaign Ended" + Id);
@@ -116,6 +116,7 @@ namespace send
 
                                             foreach (string[] email in emails)
                                             {
+                                                string redirect = 
                                                 string redirect = enc.Encrypt($"r!!{Id}!!{ip["idi"]}!!{ip["idd"]}!!{email[0]}!!{redirect_link}!!{platform}"); //r_idc_idi_idd_ide_link_platform
                                                 string unsubscribe = enc.Encrypt($"u!!{Id}!!{ip["idi"]}!!{ip["idd"]}!!{email[0]}!!{unsubscribe_link}"); //u_idc_idi_idd_ide_link
                                                 string open = enc.Encrypt($"o!!{Id}!!{ip["idi"]}!!{ip["idd"]}!!{email[0]}"); //o_idc_idi_idd_ide
@@ -151,7 +152,7 @@ namespace send
                                                             string tunsubscribe = enc.Encrypt($"u!!{Id}!!{ip["idi"]}!!{ip["idd"]}!!0!!{unsubscribe_link}"); //u_idc_idi_idd_ide_link
                                                             string topen = enc.Encrypt($"o!!{Id}!!{ip["idi"]}!!{ip["idd"]}!!0");//o_idc_idi_idd_ide
                                                             string toptout = enc.Encrypt($"out!!{new Random().Next(5, 15)}"); // out_random
-                                                            string shortf = enc.Encrypt(""); //shortlink
+                                                            string shortf = enc.Encrypt("0"); //shortlink
 
                                                             string tboundary = Text.Random("[rndlu/30]");
                                                             string temailName = test_email.Split('@')[0];

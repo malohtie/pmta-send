@@ -20,7 +20,7 @@ namespace send
 
         public GlobalTest(dynamic data)
         {
-            this.Return_path = !string.IsNullOrWhiteSpace((string)data.return_path) ? (string)data.return_path : "[rnd]@[domain]"; 
+            this.Return_path = !string.IsNullOrWhiteSpace((string)data.return_path) ? (string)data.return_path : ""; 
             this.Emails = data.test_emails.ToObject<string[]>() ?? throw new ArgumentNullException(nameof(data.emails));
             this.Header = Text.Base64Decode(Convert.ToString(data.header)) ?? throw new ArgumentNullException(nameof(data.header));
             this.Body = Text.Base64Decode(Convert.ToString(data.body)) ?? "";
@@ -31,7 +31,7 @@ namespace send
 
         public GlobalTest(string return_path, string[] emails, string header, string body, string mta, string username, dynamic servers)
         {
-            this.Return_path = !string.IsNullOrWhiteSpace(return_path) ? return_path : "[rnd]@[domain]";
+            this.Return_path = !string.IsNullOrWhiteSpace(return_path) ? return_path : "";
             this.Emails = emails ?? throw new ArgumentNullException(nameof(emails));
             this.Header = Text.Base64Decode(header) ?? throw new ArgumentNullException(nameof(header));
             this.Body = Text.Base64Decode(body) ?? "";

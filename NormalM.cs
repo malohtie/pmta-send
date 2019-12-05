@@ -56,7 +56,7 @@ namespace send
                     dynamic cdata = campaign.Campaign_info(Id);
                     if (cdata != null)
                     {
-                        string raw_rp = Convert.ToString(cdata.return_path);
+                        string raw_rp = Convert.ToString(cdata.return_path) ?? "";
                         string[] seed_emails = Campaign.Convert_emails(Convert.ToString(cdata.email_test));
                         string raw_hd = Text.Base64Decode(Convert.ToString(cdata.header));
                         string raw_bd = Text.Base64Decode(Convert.ToString(cdata.body));
@@ -82,7 +82,7 @@ namespace send
                                         int file_count = int.Parse((string)info_send.send_count);
                                         if (total_sended + Fraction >= file_count)
                                         {
-                                            if (total_sended - file_count <= 0)
+                                            if (file_count - total_sended <= 0)
                                             {
                                                 campaign.Campaign_update_progress(Id, "finish", true, 0);
                                                 Result.Add("Campaign Ended" + Id);
