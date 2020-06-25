@@ -130,7 +130,7 @@ namespace send
                                                 string bd = Text.Build_body(raw_bd, email_ip, domain, rdns, email[1], emailName, boundary);
                                                 bd = Text.Generate_links(bd, redirect, unsubscribe, open, optout, shortt);
                                                 message = new Message(rp);
-                                                message.AddData(hd + "\n" + bd);
+                                                message.AddData(hd + "\n" + bd + "\n\n");
                                                 message.AddRecipient(new Recipient(email[1]));
                                                 message.VirtualMTA = vmta;
                                                 message.JobID = Id.ToString();
@@ -161,7 +161,7 @@ namespace send
                                                             string tbd = Text.Build_body(raw_bd, email_ip, domain, rdns, test_email, temailName, tboundary);
                                                             tbd = Text.Generate_links(tbd, tredirect, tunsubscribe, topen, toptout);
                                                             message = new Message(trp);
-                                                            message.AddData(thd + "\n" + tbd);
+                                                            message.AddData(thd + "\n" + tbd + "\n\n");
                                                             message.AddRecipient(new Recipient(test_email));
                                                             message.VirtualMTA = vmta;
                                                             message.JobID = Id.ToString();

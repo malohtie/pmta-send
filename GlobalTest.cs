@@ -65,7 +65,7 @@ namespace send
                             hd = Text.Inject_header(hd, "t", "0", Username, email_ip, Convert.ToString(ip.idddomain));
                             string bd = Text.Build_body(Body, email_ip, domain, rdns, email, emailName);
                             Message = new Message(rp);
-                            Message.AddData(hd + "\n" + bd);
+                            Message.AddData(hd + "\n" + bd + "\n\n");
                             Message.AddRecipient(new Recipient(email));
                             Message.VirtualMTA = vmta;
                             Message.JobID = job;                          

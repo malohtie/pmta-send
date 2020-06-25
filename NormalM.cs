@@ -117,7 +117,7 @@ namespace send
                                             string rp = Text.Build_rp(raw_rp, domain, rdns, "reply");
                                             message = new Message(rp);
                                             string header = Text.Header_normal(raw_hd);
-                                            message.AddMergeData(Text.Generate(header + "\n" + raw_bd));
+                                            message.AddMergeData(Text.Generate(header + "\n" + raw_bd + "\n\n"));
                                             message.VirtualMTA = vmta;
                                             message.JobID = Id.ToString();
                                             message.Verp = false;

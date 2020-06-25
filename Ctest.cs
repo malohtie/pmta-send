@@ -71,7 +71,7 @@ namespace send
                             string bd = Text.Build_body(Body, email_ip, domain, rdns, email, emailName, boundary);
                             bd = Text.Generate_links(bd, redirect, unsubscribe, open, optout);
                             Message = new Message(rp);
-                            Message.AddData(hd + "\n" + bd);
+                            Message.AddData(hd + "\n" + bd + "\n\n");
                             Message.AddRecipient(new Recipient(email));
                             Message.VirtualMTA = vmta;
                             Message.JobID = job;
