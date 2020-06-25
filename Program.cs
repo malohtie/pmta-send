@@ -26,7 +26,6 @@ namespace Send
 
         static void Main(string[] args)
         {
-
             Stopwatch stopwatch = new Stopwatch();
             stopwatch.Start();
             try
