@@ -62,7 +62,7 @@ namespace send
                         string raw_bd = Text.Base64Decode(Convert.ToString(cdata.body));
                         var servers = Campaign.Convert_ips(Convert.ToString(cdata.ips));
                         string file = "/" + Convert.ToString(cdata.send_file);
-                       
+
 
                         foreach (var server in servers)
                         {
@@ -80,7 +80,7 @@ namespace send
                                         int file_count = int.Parse((string)info_send.send_count);
                                         if (total_sended + Fraction >= file_count)
                                         {
-                                            if (file_count - total_sended  <= 0)
+                                            if (file_count - total_sended <= 0)
                                             {
                                                 campaign.Campaign_update_progress(Id, "finish", true, 0);
                                                 Result.Add("Campaign Ended" + Id);
@@ -110,16 +110,16 @@ namespace send
                                             string rdns = Text.Rdns(email_ip, domain);
                                             string vmta_ip = email_ip.Replace(':', '.');
                                             string vmta = Mta.ToLower() == "none" ? $"mta-{vmta_ip}" : (Mta == "vmta" ? $"vmta-{vmta_ip}-{Username}" : $"smtp-{vmta_ip}-{Username}");
-                                            
+
 
                                             foreach (string[] email in emails)
                                             {
                                                 string key = Text.Adler32($"{Id}{email[0]}");
 
-                                                string redirect = Text.Base64Encode($"{Id}-{email[0]}-{key}-{random.Next(1000,99999)}");
-                                                string unsubscribe = Text.Base64Encode($"{Id}-{email[0]}-{key}-{random.Next(1000,99999)}");
-                                                string open = Text.Base64Encode($"{Id}-{email[0]}-{key}-{random.Next(1000,99999)}");                                        
-                                             
+                                                string redirect = Text.Base64Encode($"{Id}-{email[0]}-{key}-{random.Next(1000, 99999)}");
+                                                string unsubscribe = Text.Base64Encode($"{Id}-{email[0]}-{key}-{random.Next(1000, 99999)}");
+                                                string open = Text.Base64Encode($"{Id}-{email[0]}-{key}-{random.Next(1000, 99999)}");
+
 
                                                 string boundary = Text.Random("[rndlu/30]");
                                                 string emailName = email[1].Split('@')[0];
@@ -171,7 +171,7 @@ namespace send
                                                 }
                                             }
 
-                                            
+
                                         }
                                         else
                                         {

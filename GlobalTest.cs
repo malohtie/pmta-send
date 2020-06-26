@@ -20,7 +20,7 @@ namespace send
 
         public GlobalTest(dynamic data)
         {
-            this.Return_path = !string.IsNullOrWhiteSpace((string)data.return_path) ? (string)data.return_path : ""; 
+            this.Return_path = !string.IsNullOrWhiteSpace((string)data.return_path) ? (string)data.return_path : "";
             this.Emails = data.test_emails.ToObject<string[]>() ?? throw new ArgumentNullException(nameof(data.emails));
             this.Header = Text.Base64Decode(Convert.ToString(data.header)) ?? throw new ArgumentNullException(nameof(data.header));
             this.Body = Text.Base64Decode(Convert.ToString(data.body)) ?? "";
@@ -42,7 +42,7 @@ namespace send
 
         public List<string> Send()
         {
-            List<string> data = new List<string>(); 
+            List<string> data = new List<string>();
             foreach (dynamic server in Servers)
             {
                 try
@@ -68,11 +68,11 @@ namespace send
                             Message.AddData(hd + "\n" + bd + "\n\n");
                             Message.AddRecipient(new Recipient(email));
                             Message.VirtualMTA = vmta;
-                            Message.JobID = job;                          
+                            Message.JobID = job;
                             Message.Verp = false;
                             Message.Encoding = Encoding.EightBit;
                             p.Send(Message);
-                        } 
+                        }
                     }
                     data.Add($"SERVER {server.mainip} OK");
                     p.Close();

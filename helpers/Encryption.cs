@@ -28,7 +28,7 @@ namespace send.helpers
             cipher.Init(true, aesIVKeyParam);
             byte[] output = cipher.DoFinal(Encoding.UTF8.GetBytes(plainText));
             string cipherText = BitConverter.ToString(output).Replace("-", string.Empty).ToLower();
-            if(cipherText.Length > 255)
+            if (cipherText.Length > 255)
             {
                 cipherText = cipherText.Insert(250, "/");
             }

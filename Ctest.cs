@@ -62,7 +62,7 @@ namespace send
                         string redirect = Text.Base64Encode($"{Id}-0-{key}-{random.Next(1000, 99999)}");
                         string unsubscribe = Text.Base64Encode($"{Id}-0-{key}-{random.Next(1000, 99999)}");
                         string open = Text.Base64Encode($"{Id}-0-{key}-{random.Next(1000, 99999)}");
-                      
+
 
                         foreach (string email in Emails)
                         {
@@ -70,7 +70,7 @@ namespace send
                             string emailName = email.Split('@')[0];
                             string rp = Text.Build_rp(Return_path, domain, rdns, emailName);
                             string hd = Text.Build_header(Header, email_ip, domain, rdns, email, emailName, boundary);
-                            hd =  Text.Inject_header(hd, "t", Id.ToString(), Username, Convert.ToString(ip.ip), Convert.ToString(ip.idddomain));
+                            hd = Text.Inject_header(hd, "t", Id.ToString(), Username, Convert.ToString(ip.ip), Convert.ToString(ip.idddomain));
                             string bd = Text.Build_body(Body, email_ip, domain, rdns, email, emailName, boundary);
                             bd = Text.Generate_links(bd, redirect, unsubscribe, open);
                             Message = new Message(rp);

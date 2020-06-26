@@ -121,7 +121,7 @@ namespace send
                                             message.VirtualMTA = vmta;
                                             message.JobID = Id.ToString();
                                             message.Verp = false;
-                                            message.Encoding = Encoding.EightBit;                                          
+                                            message.Encoding = Encoding.EightBit;
 
                                             foreach (string[] email in emails)
                                             {
@@ -131,23 +131,23 @@ namespace send
                                                 r["red"] = Text.Base64Encode($"{Id}-{email[0]}-{key}-{random.Next(1000, 99999)}");
                                                 r["unsub"] = Text.Base64Encode($"{Id}-{email[0]}-{key}-{random.Next(1000, 99999)}");
                                                 r["opn"] = Text.Base64Encode($"{Id}-{email[0]}-{key}-{random.Next(1000, 99999)}");
-                                             
+
                                                 //header body
                                                 r["pe"] = $"n,{Id},{Username},{ip["ip"]},{ip["idd"]},{email[0]}";
                                                 r["ip"] = email_ip;
                                                 r["domain"] = domain;
                                                 r["rdns"] = rdns;
                                                 r["name"] = email[1].Split('@')[0];
-                                                r["to"] = email[1];                                                
+                                                r["to"] = email[1];
                                                 r["date"] = Text.GetRFC822Date();
                                                 r["boundary"] = Text.Random("[rndlu/30]");
                                                 r["*parts"] = "1";
 
                                                 message.AddRecipient(r);
-                                               
+
                                                 total_send++;
                                                 c_seed++;
-                                               
+
                                                 if (Seed != 0 && c_seed % Seed == 0)
                                                 {
                                                     if (seed_emails.Length > 0)
@@ -171,7 +171,7 @@ namespace send
                                                             t["date"] = Text.GetRFC822Date();
                                                             t["boundary"] = Text.Random("[rndlu/30]");
                                                             t["*parts"] = "1";
-                                                            message.AddRecipient(t);    
+                                                            message.AddRecipient(t);
                                                         }
                                                     }
                                                 }

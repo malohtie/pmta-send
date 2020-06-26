@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Send
@@ -49,7 +48,7 @@ namespace Send
 
             dynamic cdata = campaign.Campaign_info(Id); //get info campaign
 
-            if(cdata != null)
+            if (cdata != null)
             {
                 string raw_rp = Convert.ToString(cdata.return_path);
                 string[] seed_emails = Campaign.Convert_emails(Convert.ToString(cdata.email_test));
@@ -102,7 +101,7 @@ namespace Send
                                  {
                                      try
                                      {
-                                         if(ipLimit[current] > 0)
+                                         if (ipLimit[current] > 0)
                                          {
                                              var details_server = campaign.Server_info(int.Parse(servers[current][4]));
                                              if (details_server != null)
@@ -119,7 +118,7 @@ namespace Send
                                              }
                                          }
                                      }
-                                     catch(Exception ex)
+                                     catch (Exception ex)
                                      {
                                          logger.Error($"ERR {ex.Message} -- {ex.StackTrace}");
                                          Console.WriteLine($"ERR {ex.Message} -- {ex.StackTrace}");
@@ -129,7 +128,7 @@ namespace Send
                         }
 
                         Task.WaitAll(tasks.ToArray());
-                        campaign.Campaign_update_send(Id, value_to_send+total_sended);
+                        campaign.Campaign_update_send(Id, value_to_send + total_sended);
                         campaign.Campaign_update_progress(Id, "start", true, 0);
 
                     }

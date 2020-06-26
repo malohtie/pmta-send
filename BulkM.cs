@@ -41,8 +41,8 @@ namespace send
 
 
             dynamic cdata = campaign.Campaign_info(Id); //get info campaign
-               
-            if(cdata != null)
+
+            if (cdata != null)
             {
                 string raw_rp = Convert.ToString(cdata.return_path);
                 string[] seed_emails = Campaign.Convert_emails(Convert.ToString(cdata.email_test));
@@ -59,7 +59,7 @@ namespace send
 
                 List<int> ipLimit = Campaign.DistributeInteger(countlines, countIps).ToList();
 
-                List<Task> tasks = new List<Task>();   
+                List<Task> tasks = new List<Task>();
                 for (int i = 0; i < countIps; i++)
                 {
                     int current = i;
@@ -175,7 +175,7 @@ namespace send
                     );
                 }
 
-                Task.WaitAll(tasks.ToArray());                
+                Task.WaitAll(tasks.ToArray());
                 campaign.Campaign_update_send(Id, countlines);
                 campaign.Campaign_update_progress(Id, "start", true, 0);
                 return Result;
@@ -186,7 +186,7 @@ namespace send
                 logger.Debug("Campaign Not Found " + Id);
                 campaign.Campaign_update_progress(Id, "start", true, 0);
                 return Result;
-            }              
+            }
         }
     }
 }

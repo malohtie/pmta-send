@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
@@ -117,14 +116,14 @@ namespace send.helpers
         {
             return Regex.Replace(text, @"\[(rnd.*?)\]", delegate (Match match)
             {
-                
+
                 string[] data = match.Groups[1].Value.Split('/');
 
-                if(data.Length == 1 && data[0].Equals("rnd"))
+                if (data.Length == 1 && data[0].Equals("rnd"))
                 {
                     return RandomString(18);
                 }
-                else if(data.Length == 2 && int.TryParse(data[1], out int n))
+                else if (data.Length == 2 && int.TryParse(data[1], out int n))
                 {
                     if (data[0].Equals("rndn")) //number
                     {
@@ -153,7 +152,7 @@ namespace send.helpers
                     else if (data[0].Equals("rndun") || data[0].Equals("rndnu")) //number upper
                     {
                         return RandomString(int.Parse(data[1]), 2);
-                    }    
+                    }
                 }
                 return match.ToString();
 
@@ -188,7 +187,7 @@ namespace send.helpers
                 Random rnd = new Random();
                 string[] words = match.Groups[1].Value.ToString().Split('|');
                 words = words.Where(y => !string.IsNullOrWhiteSpace(y)).ToArray();
-                if(words.Length > 0)
+                if (words.Length > 0)
                 {
                     return words[rnd.Next(words.Length)];
                 }
@@ -217,7 +216,7 @@ namespace send.helpers
         }
         public static string Header_normal(string header)
         {
-            return "pe: [pe]\n"+header.Trim();           
+            return "pe: [pe]\n" + header.Trim();
         }
         public static string Inject_header(string header, string type, string idc, string idu, string idi, string idd, string ide = "0")
         {
@@ -233,7 +232,7 @@ namespace send.helpers
                 a = (a + c) % mod;
                 b = (b + a) % mod;
             }
-            uint result =  (b << 16) | a;
+            uint result = (b << 16) | a;
             return result.ToString("x8");
         }
     }
