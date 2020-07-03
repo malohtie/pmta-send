@@ -125,31 +125,31 @@ namespace send.helpers
                 }
                 else if (data.Length == 2 && int.TryParse(data[1], out int n))
                 {
-                    if (data[0].Equals("rndn")) //number
+                    if (data[0].Equals("rndn", StringComparison.OrdinalIgnoreCase)) //number
                     {
                         return RandomString(int.Parse(data[1]), 4);
                     }
-                    else if (data[0].Equals("rnda")) //all
+                    else if (data[0].Equals("rnda", StringComparison.OrdinalIgnoreCase)) //all
                     {
                         return RandomString(int.Parse(data[1]));
                     }
-                    else if (data[0].Equals("rndl")) //lower
+                    else if (data[0].Equals("rndl", StringComparison.OrdinalIgnoreCase)) //lower
                     {
                         return RandomString(int.Parse(data[1]), 5);
                     }
-                    else if (data[0].Equals("rndu")) //upper
+                    else if (data[0].Equals("rndu", StringComparison.OrdinalIgnoreCase)) //upper
                     {
                         return RandomString(int.Parse(data[1]), 5);
                     }
-                    else if (data[0].Equals("rndul") || data[0].Equals("rndlu")) //upper lower
+                    else if (data[0].Equals("rndul", StringComparison.OrdinalIgnoreCase) || data[0].Equals("rndlu", StringComparison.OrdinalIgnoreCase)) //upper lower
                     {
                         return RandomString(int.Parse(data[1]), 1);
                     }
-                    else if (data[0].Equals("rndln") || data[0].Equals("rndnl")) //number lower
+                    else if (data[0].Equals("rndln", StringComparison.OrdinalIgnoreCase) || data[0].Equals("rndnl", StringComparison.OrdinalIgnoreCase)) //number lower
                     {
                         return RandomString(int.Parse(data[1]), 3);
                     }
-                    else if (data[0].Equals("rndun") || data[0].Equals("rndnu")) //number upper
+                    else if (data[0].Equals("rndun", StringComparison.OrdinalIgnoreCase) || data[0].Equals("rndnu", StringComparison.OrdinalIgnoreCase)) //number upper
                     {
                         return RandomString(int.Parse(data[1]), 2);
                     }
