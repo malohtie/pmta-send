@@ -20,6 +20,7 @@ namespace send.helpers
         {
             try
             {
+                string data = null;
                 var proc = new Process
                 {
                     StartInfo = new ProcessStartInfo
@@ -28,12 +29,14 @@ namespace send.helpers
                         Arguments = $"{Path} {cmd}",
                         UseShellExecute = false,
                         RedirectStandardOutput = true,
+                        //RedirectStandardError = true,                     
                         CreateNoWindow = false
                     }
                 };
                 proc.Start();
-                proc.WaitForExit();
-                return proc.StandardOutput.ReadToEnd().Trim();
+                data = proc.StandardOutput.ReadToEnd().Trim();
+                proc.Close();               
+                return data;
             }
             catch (Exception)
             {
