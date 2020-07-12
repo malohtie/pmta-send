@@ -67,14 +67,17 @@ namespace send
                         foreach (string email in Emails)
                         {
                             string boundary = Text.Random("[rndlu/30]");
+                            string bnd = Text.boundary(Header);
+                            string hd = Text.replaceBoundary(Header);
+                            string bd = Text.replaceBoundary(Body);
                             string emailName = email.Split('@')[0];
                             string rp = Text.Build_rp(Return_path, domain, rdns, emailName);
-                            string hd = Text.Build_header(Header, email_ip, domain, rdns, email, emailName, boundary);
+                            hd = Text.Build_header(hd, email_ip, domain, rdns, email, emailName, boundary);
                             hd = Text.Inject_header(hd, "t", Id.ToString(), Username, Convert.ToString(ip.ip), Convert.ToString(ip.idddomain));
-                            string bd = Text.Build_body(Body, email_ip, domain, rdns, email, emailName, boundary);
+                            bd = Text.Build_body(bd, email_ip, domain, rdns, email, emailName, boundary);
                             bd = Text.Generate_links(bd, redirect, unsubscribe, open);
                             Message = new Message(rp);
-                            Message.AddData(hd + "\n" + bd + "\n\n");
+                            Message.AddData(Text.replaceBoundary(hd + "\n" + bd + "\n\n", bnd));
                             Message.AddRecipient(new Recipient(email));
                             Message.VirtualMTA = vmta;
                             Message.JobID = job;

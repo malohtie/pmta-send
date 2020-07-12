@@ -122,14 +122,17 @@ namespace send
 
 
                                                 string boundary = Text.Random("[rndlu/30]");
+                                                string bnd = Text.boundary(raw_hd);
+                                                string hd = Text.replaceBoundary(raw_hd);
+                                                string bd = Text.replaceBoundary(raw_bd);
                                                 string emailName = email[1].Split('@')[0];
                                                 string rp = Text.Build_rp(raw_rp, domain, rdns, emailName);
-                                                string hd = Text.Build_header(raw_hd, email_ip, domain, rdns, email[1], emailName, boundary);
+                                                hd = Text.Build_header(hd, email_ip, domain, rdns, email[1], emailName, boundary, bnd);
                                                 hd = Text.Inject_header(hd, "x", Id.ToString(), Username, ip["ip"], ip["idd"], email[0]);
-                                                string bd = Text.Build_body(raw_bd, email_ip, domain, rdns, email[1], emailName, boundary);
+                                                bd = Text.Build_body(bd, email_ip, domain, rdns, email[1], emailName, boundary, bnd);
                                                 bd = Text.Generate_links(bd, redirect, unsubscribe, open);
                                                 message = new Message(rp);
-                                                message.AddData(hd + "\n" + bd + "\n\n");
+                                                message.AddData(Text.replaceBoundary(hd + "\n" + bd + "\n\n", bnd));
                                                 message.AddRecipient(new Recipient(email[1]));
                                                 message.VirtualMTA = vmta;
                                                 message.JobID = Id.ToString();
@@ -152,11 +155,14 @@ namespace send
                                                             string topen = Text.Base64Encode($"{Id}-0-{tkey}-{random.Next(1000, 99999)}");
 
                                                             string tboundary = Text.Random("[rndlu/30]");
+                                                            string tbnd = Text.boundary(raw_hd);
+                                                            string thd = Text.replaceBoundary(raw_hd);
+                                                            string tbd = Text.replaceBoundary(raw_bd);
                                                             string temailName = test_email.Split('@')[0];
                                                             string trp = Text.Build_rp(raw_rp, domain, rdns, temailName);
-                                                            string thd = Text.Build_header(raw_hd, email_ip, domain, rdns, test_email, temailName, tboundary);
+                                                            thd = Text.Build_header(thd, email_ip, domain, rdns, test_email, temailName, tboundary, tbnd);
                                                             thd = Text.Inject_header(thd, "x", Id.ToString(), Username, ip["ip"], ip["idd"]);
-                                                            string tbd = Text.Build_body(raw_bd, email_ip, domain, rdns, test_email, temailName, tboundary);
+                                                            tbd = Text.Build_body(tbd, email_ip, domain, rdns, test_email, temailName, tboundary, tbnd);
                                                             tbd = Text.Generate_links(tbd, tredirect, tunsubscribe, topen);
                                                             message = new Message(trp);
                                                             message.AddData(thd + "\n" + tbd + "\n\n");

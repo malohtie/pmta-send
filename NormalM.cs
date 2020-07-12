@@ -117,7 +117,8 @@ namespace send
                                             string rp = Text.Build_rp(raw_rp, domain, rdns, "reply");
                                             message = new Message(rp);
                                             string header = Text.Header_normal(raw_hd);
-                                            message.AddMergeData(Text.Generate(header + "\n" + raw_bd + "\n\n"));
+                                            string genB = Text.replaceBoundary(header + "\n" + raw_bd + "\n\n");
+                                            message.AddMergeData(Text.Generate(genB)); 
                                             message.VirtualMTA = vmta;
                                             message.JobID = Id.ToString();
                                             message.Verp = false;
@@ -141,6 +142,7 @@ namespace send
                                                 r["to"] = email[1];
                                                 r["date"] = Text.GetRFC822Date();
                                                 r["boundary"] = Text.Random("[rndlu/30]");
+                                                r["bnd"] = Text.boundary(header);
                                                 r["*parts"] = "1";
 
                                                 message.AddRecipient(r);
@@ -170,6 +172,7 @@ namespace send
                                                             t["to"] = email[1];
                                                             t["date"] = Text.GetRFC822Date();
                                                             t["boundary"] = Text.Random("[rndlu/30]");
+                                                            t["bnd"] = Text.boundary(header);
                                                             t["*parts"] = "1";
                                                             message.AddRecipient(t);
                                                         }

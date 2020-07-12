@@ -47,7 +47,7 @@ namespace send.helpers
             return_path = Regex.Replace(return_path, @"\[name\]", emailName, RegexOptions.IgnoreCase);
             return Generate(return_path);
         }
-        public static string Build_header(string header, string ip, string domain, string rdns, string email, string emailName, string boundary = null)
+        public static string Build_header(string header, string ip, string domain, string rdns, string email, string emailName, string boundary = null, string bnd = null)
         {
             string header_result = header;
             header_result = Regex.Replace(header_result, @"\[ip\]", ip, RegexOptions.IgnoreCase);
@@ -60,9 +60,13 @@ namespace send.helpers
             {
                 header_result = Regex.Replace(header_result, @"\[boundary\]", boundary, RegexOptions.IgnoreCase);
             }
+            if (!string.IsNullOrWhiteSpace(bnd))
+            {
+                header_result = Regex.Replace(header_result, @"\[bnd\]", bnd, RegexOptions.IgnoreCase);
+            }
             return Generate(header_result);
         }
-        public static string Build_body(string body, string ip, string domain, string rdns, string email, string emailName, string boundary = null)
+        public static string Build_body(string body, string ip, string domain, string rdns, string email, string emailName, string boundary = null, string bnd = null)
         {
             body = Regex.Replace(body, @"\[ip\]", ip, RegexOptions.IgnoreCase);
             body = Regex.Replace(body, @"\[domain\]", domain, RegexOptions.IgnoreCase);
@@ -73,6 +77,10 @@ namespace send.helpers
             if (!string.IsNullOrWhiteSpace(boundary))
             {
                 body = Regex.Replace(body, @"\[boundary\]", boundary, RegexOptions.IgnoreCase);
+            }
+            if (!string.IsNullOrWhiteSpace(bnd))
+            {
+                body = Regex.Replace(body, @"\[bnd\]", bnd, RegexOptions.IgnoreCase);
             }
             return Generate(body);
         }
@@ -114,7 +122,7 @@ namespace send.helpers
         }
         public static string Random(string text)
         {
-            return Regex.Replace(text, @"\[(rnd.*?)\]", delegate (Match match)
+            return Regex.Replace(text, @"(?:\[|\{)(rnd.*?)(?:\]|\})", delegate (Match match)
             {
 
                 string[] data = match.Groups[1].Value.Split('/');
@@ -165,6 +173,24 @@ namespace send.helpers
             {
                 string data = match.Groups[1].Value.ToString() ?? "";
                 return Base64Encode(data);
+
+            }, RegexOptions.IgnoreCase | RegexOptions.Multiline | RegexOptions.IgnorePatternWhitespace);
+        }
+        public static string boundary(string text)
+        {
+            Match match = Regex.Match(text, @"\[bnd:([^\]]*)\]", RegexOptions.IgnoreCase);
+            if(match.Success)
+            {
+                return Random(match.Groups[1].Value.ToString() ?? "");
+            }
+            return "";
+        }
+
+        public static string replaceBoundary(string text, string value = null)
+        {
+            return Regex.Replace(text, @"\[bnd:([^\]]*)\]", delegate (Match match)
+            {
+                return value ?? "[bnd]";
 
             }, RegexOptions.IgnoreCase | RegexOptions.Multiline | RegexOptions.IgnorePatternWhitespace);
         }
