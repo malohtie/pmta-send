@@ -4,7 +4,7 @@ using send.helpers;
 using System;
 using System.Collections.Generic;
 
-namespace send
+namespace Send.modes
 {
     class GlobalTest
     {

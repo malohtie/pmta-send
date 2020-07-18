@@ -1,6 +1,6 @@
 ﻿using port25.pmta.api.submitter;
 
-namespace send
+namespace send.helpers
 {
     class Pmta
     {

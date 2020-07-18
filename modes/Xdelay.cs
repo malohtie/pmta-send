@@ -8,7 +8,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace send
+namespace Send.modes
 {
     class Xdelay
     {
@@ -129,8 +129,7 @@ namespace send
                                                 string rp = Text.Build_rp(raw_rp, domain, rdns, emailName);
                                                 hd = Text.Build_header(hd, email_ip, domain, rdns, email[1], emailName, boundary, bnd);
                                                 hd = Text.Inject_header(hd, "x", Id.ToString(), Username, ip["ip"], ip["idd"], email[0]);
-                                                bd = Text.Build_body(bd, email_ip, domain, rdns, email[1], emailName, boundary, bnd);
-                                                bd = Text.Generate_links(bd, redirect, unsubscribe, open);
+                                                bd = Text.Build_body(bd, email_ip, domain, rdns, email[1], emailName, redirect, unsubscribe, open, boundary, bnd);
                                                 message = new Message(rp);
                                                 message.AddData(Text.replaceBoundary(hd + "\n" + bd + "\n\n", bnd));
                                                 message.AddRecipient(new Recipient(email[1]));
@@ -162,8 +161,7 @@ namespace send
                                                             string trp = Text.Build_rp(raw_rp, domain, rdns, temailName);
                                                             thd = Text.Build_header(thd, email_ip, domain, rdns, test_email, temailName, tboundary, tbnd);
                                                             thd = Text.Inject_header(thd, "x", Id.ToString(), Username, ip["ip"], ip["idd"]);
-                                                            tbd = Text.Build_body(tbd, email_ip, domain, rdns, test_email, temailName, tboundary, tbnd);
-                                                            tbd = Text.Generate_links(tbd, tredirect, tunsubscribe, topen);
+                                                            tbd = Text.Build_body(tbd, email_ip, domain, rdns, test_email, temailName, tredirect, tunsubscribe, topen, tboundary, tbnd);                                                           
                                                             message = new Message(trp);
                                                             message.AddData(thd + "\n" + tbd + "\n\n");
                                                             message.AddRecipient(new Recipient(test_email));

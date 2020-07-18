@@ -4,7 +4,7 @@ using send.helpers;
 using System;
 using System.Collections.Generic;
 
-namespace send
+namespace Send.modes
 {
     class Ctest
     {
@@ -72,10 +72,9 @@ namespace send
                             string bd = Text.replaceBoundary(Body);
                             string emailName = email.Split('@')[0];
                             string rp = Text.Build_rp(Return_path, domain, rdns, emailName);
-                            hd = Text.Build_header(hd, email_ip, domain, rdns, email, emailName, boundary);
+                            hd = Text.Build_header(hd, email_ip, domain, rdns, email, emailName, boundary, bnd);
                             hd = Text.Inject_header(hd, "t", Id.ToString(), Username, Convert.ToString(ip.ip), Convert.ToString(ip.idddomain));
-                            bd = Text.Build_body(bd, email_ip, domain, rdns, email, emailName, boundary);
-                            bd = Text.Generate_links(bd, redirect, unsubscribe, open);
+                            bd = Text.Build_body(bd, email_ip, domain, rdns, email, emailName, redirect, unsubscribe, open, boundary, bnd);
                             Message = new Message(rp);
                             Message.AddData(Text.replaceBoundary(hd + "\n" + bd + "\n\n", bnd));
                             Message.AddRecipient(new Recipient(email));

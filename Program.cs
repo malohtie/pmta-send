@@ -2,6 +2,7 @@
 using NLog;
 using send;
 using send.helpers;
+using Send.modes;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -60,7 +61,7 @@ namespace Send
                                     List<string> delay_result = delay_send.Send();
                                     stopwatch.Stop();
                                     Console.Write(string.Join("<br>", delay_result) + "<br>TOOK : " + stopwatch.Elapsed.ToString());
-                                    break;
+                                    break;                              
                                 case "normal":
                                     dynamic normal_data = JsonConvert.DeserializeObject<dynamic>(Text.Base64Decode(data));
                                     NormalM normal_send = new NormalM(normal_data);

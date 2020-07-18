@@ -10,7 +10,7 @@ namespace send.helpers
     {
         public static string Generate(string text)
         {
-            return Random(Spintax(Base64(text)));
+            return Base64(Random(Spintax(text)));
         }
         public static string Rdns(string ip, string domain)
         {
@@ -66,7 +66,7 @@ namespace send.helpers
             }
             return Generate(header_result);
         }
-        public static string Build_body(string body, string ip, string domain, string rdns, string email, string emailName, string boundary = null, string bnd = null)
+        public static string Build_body(string body, string ip, string domain, string rdns, string email, string emailName, string url = null, string unsub = null, string open = null, string boundary = null, string bnd = null)
         {
             body = Regex.Replace(body, @"\[ip\]", ip, RegexOptions.IgnoreCase);
             body = Regex.Replace(body, @"\[domain\]", domain, RegexOptions.IgnoreCase);
@@ -82,6 +82,19 @@ namespace send.helpers
             {
                 body = Regex.Replace(body, @"\[bnd\]", bnd, RegexOptions.IgnoreCase);
             }
+
+            if (!string.IsNullOrWhiteSpace(url))
+            {
+                body = Regex.Replace(body, @"\[red\]", url, RegexOptions.IgnoreCase);
+            }
+            if (!string.IsNullOrWhiteSpace(unsub))
+            {
+                body = Regex.Replace(body, @"\[unsub\]", unsub, RegexOptions.IgnoreCase);
+            }
+            if (!string.IsNullOrWhiteSpace(open))
+            {
+                body = Regex.Replace(body, @"\[opn\]", open, RegexOptions.IgnoreCase);
+            }           
             return Generate(body);
         }
         private static string RandomString(int length, int option = 0)
@@ -169,12 +182,12 @@ namespace send.helpers
         }
         private static string Base64(string text)
         {
-            return Regex.Replace(text, @"\[base64:([^\]]*)\]", delegate (Match match)
+            return Regex.Replace(text, @"\[base64:(.*)\]", delegate (Match match)
             {
                 string data = match.Groups[1].Value.ToString() ?? "";
                 return Base64Encode(data);
 
-            }, RegexOptions.IgnoreCase | RegexOptions.Multiline | RegexOptions.IgnorePatternWhitespace);
+            }, RegexOptions.IgnoreCase | RegexOptions.Singleline | RegexOptions.IgnorePatternWhitespace);
         }
         public static string boundary(string text)
         {
@@ -233,13 +246,7 @@ namespace send.helpers
             return DateTime.Now.ToString("ddd, dd MMM yyyy HH:mm:ss " + timeZone.PadRight(5, '0'));
 
         }
-        public static string Generate_links(string body, string url, string unsub, string open)
-        {
-            body = Regex.Replace(body, @"\[red\]", url, RegexOptions.IgnoreCase);
-            body = Regex.Replace(body, @"\[unsub\]", unsub, RegexOptions.IgnoreCase);
-            body = Regex.Replace(body, @"\[opn\]", open, RegexOptions.IgnoreCase);
-            return body;
-        }
+
         public static string Header_normal(string header)
         {
             return "pe: [pe]\n" + header.Trim();
