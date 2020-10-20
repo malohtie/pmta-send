@@ -16,6 +16,7 @@ namespace Send.modes
         public string Body { get; set; }
         public string Mta { get; set; }
         public string Username { get; set; }
+        public int Repeat { get; set; }
         public dynamic Servers { get; set; }
 
         public GlobalTest(dynamic data)
@@ -26,10 +27,11 @@ namespace Send.modes
             this.Body = Text.Base64Decode(Convert.ToString(data.body)) ?? "";
             this.Mta = data.mta ?? throw new ArgumentNullException(nameof(data.mta));
             this.Username = data.username ?? throw new ArgumentNullException(nameof(data.username));
+            this.Repeat = data.repeat ?? 1;
             this.Servers = data.servers ?? throw new ArgumentNullException(nameof(data.servers));
         }
 
-        public GlobalTest(string return_path, string[] emails, string header, string body, string mta, string username, dynamic servers)
+        public GlobalTest(string return_path, string[] emails, string header, string body, string mta, string username, dynamic servers, int repeat = 1)
         {
             this.Return_path = !string.IsNullOrWhiteSpace(return_path) ? return_path : "";
             this.Emails = emails ?? throw new ArgumentNullException(nameof(emails));
@@ -37,6 +39,7 @@ namespace Send.modes
             this.Body = Text.Base64Decode(body) ?? "";
             this.Mta = mta ?? throw new ArgumentNullException(nameof(mta));
             this.Username = username ?? throw new ArgumentNullException(nameof(username));
+            this.Repeat = repeat;
             this.Servers = servers ?? throw new ArgumentNullException(nameof(servers));
         }
 
@@ -57,22 +60,26 @@ namespace Send.modes
                         string vmta = Mta.ToLower() == "none" ? $"mta-{vmta_ip}" : (Mta == "vmta" ? $"vmta-{vmta_ip}-{Username}" : $"smtp-{vmta_ip}-{Username}");
                         string job = $"0_GLOBAL-TEST_{Username}";
 
-                        foreach (string email in Emails)
+                        for (int i = 0; i < this.Repeat; i++)
                         {
-                            string emailName = email.Split('@')[0];
-                            string rp = Text.Build_rp(Return_path, domain, rdns, emailName);
-                            string hd = Text.Build_header(Header, email_ip, domain, rdns, email, emailName);
-                            hd = Text.Inject_header(hd, "t", "0", Username, email_ip, Convert.ToString(ip.idddomain));
-                            string bd = Text.Build_body(Body, email_ip, domain, rdns, email, emailName);
-                            Message = new Message(rp);
-                            Message.AddData(hd + "\n" + bd + "\n\n");
-                            Message.AddRecipient(new Recipient(email));
-                            Message.VirtualMTA = vmta;
-                            Message.JobID = job;
-                            Message.Verp = false;
-                            Message.Encoding = Encoding.EightBit;
-                            p.Send(Message);
+                            foreach (string email in Emails)
+                            {
+                                string emailName = email.Split('@')[0];
+                                string rp = Text.Build_rp(Return_path, domain, rdns, emailName);
+                                string hd = Text.Build_header(Header, email_ip, domain, rdns, email, emailName);
+                                hd = Text.Inject_header(hd, "t", "0", Username, email_ip, Convert.ToString(ip.idddomain));
+                                string bd = Text.Build_body(Body, email_ip, domain, rdns, email, emailName);
+                                Message = new Message(rp);
+                                Message.AddData(hd + "\n" + bd + "\n\n");
+                                Message.AddRecipient(new Recipient(email));
+                                Message.VirtualMTA = vmta;
+                                Message.JobID = job;
+                                Message.Verp = false;
+                                Message.Encoding = Encoding.EightBit;
+                                p.Send(Message);
+                            }
                         }
+                        
                     }
                     data.Add($"SERVER {server.mainip} OK");
                     p.Close();
