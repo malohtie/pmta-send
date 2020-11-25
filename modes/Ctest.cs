@@ -26,7 +26,7 @@ namespace Send.modes
         public Ctest(dynamic data)
         {
             Id = data.id ?? 0;
-            Return_path = !string.IsNullOrWhiteSpace((string)data.return_path) ? (string)data.return_path : "[rnd]@[domain]";
+            Return_path = !string.IsNullOrWhiteSpace((string)data.return_path) ? (string)data.return_path : "";
             Emails = data.test_emails.ToObject<string[]>() ?? throw new ArgumentNullException(nameof(data.emails));
             Header = Text.Base64Decode(Convert.ToString(data.header)) ?? throw new ArgumentNullException(nameof(data.header));
             Body = Text.Base64Decode(Convert.ToString(data.body)) ?? "";
