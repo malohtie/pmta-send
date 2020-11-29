@@ -15,6 +15,7 @@ namespace Send.modes
         public string Header { get; set; }
         public string Body { get; set; }
         public string Mta { get; set; }
+        public string Option { get; set; }
         public string Username { get; set; }
         public int Repeat { get; set; }
         public dynamic Servers { get; set; }
@@ -26,18 +27,20 @@ namespace Send.modes
             this.Header = Text.Base64Decode(Convert.ToString(data.header)) ?? throw new ArgumentNullException(nameof(data.header));
             this.Body = Text.Base64Decode(Convert.ToString(data.body)) ?? "";
             this.Mta = data.mta ?? throw new ArgumentNullException(nameof(data.mta));
+            this.Option = !string.IsNullOrWhiteSpace((string)data.option) ? (string)data.option : "ip";
             this.Username = data.username ?? throw new ArgumentNullException(nameof(data.username));
             this.Repeat = data.repeat ?? 1;
             this.Servers = data.servers ?? throw new ArgumentNullException(nameof(data.servers));
         }
 
-        public GlobalTest(string return_path, string[] emails, string header, string body, string mta, string username, dynamic servers, int repeat = 1)
+        public GlobalTest(string return_path, string[] emails, string header, string body, string mta, string option, string username, dynamic servers, int repeat = 1)
         {
             this.Return_path = !string.IsNullOrWhiteSpace(return_path) ? return_path : "";
             this.Emails = emails ?? throw new ArgumentNullException(nameof(emails));
             this.Header = Text.Base64Decode(header) ?? throw new ArgumentNullException(nameof(header));
             this.Body = Text.Base64Decode(body) ?? "";
             this.Mta = mta ?? throw new ArgumentNullException(nameof(mta));
+            this.Option = !string.IsNullOrWhiteSpace(option) ? option : "ip";
             this.Username = username ?? throw new ArgumentNullException(nameof(username));
             this.Repeat = repeat;
             this.Servers = servers ?? throw new ArgumentNullException(nameof(servers));
@@ -58,6 +61,9 @@ namespace Send.modes
                         string rdns = Text.Rdns(email_ip, domain);
                         string vmta_ip = email_ip.Replace(':', '.');
                         string vmta = Mta.ToLower() == "none" ? $"mta-{vmta_ip}" : (Mta == "vmta" ? $"vmta-{vmta_ip}-{Username}" : $"smtp-{vmta_ip}-{Username}");
+                        if (this.Option == "vmta") {
+                            vmta = $"mta-{vmta_ip}-{ip.cmta}";
+                        }
                         string job = $"0_GLOBAL-TEST_{Username}";
 
                         for (int i = 0; i < this.Repeat; i++)

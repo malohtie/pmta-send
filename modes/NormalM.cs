@@ -20,6 +20,7 @@ namespace Send.modes
         public int Sleep { get; set; }
         public int Seed { get; set; }
         public string Mta { get; set; }
+        public string Option { get; set; }
         public string Artisan { get; set; }
         public string Storage { get; set; }
         public string Password { get; set; }
@@ -34,6 +35,7 @@ namespace Send.modes
             Sleep = int.Parse((string)data.sleep);
             Seed = int.Parse((string)data.seed);
             Mta = Convert.ToString(data.mta) ?? "none";
+            Option = Convert.ToString(data.option) ?? "ip";
             Artisan = Convert.ToString(data.artisan) ?? throw new ArgumentNullException(nameof(Artisan));
             Storage = Convert.ToString(data.storage) ?? throw new ArgumentNullException(nameof(Storage));
             Password = Convert.ToString(data.password) ?? throw new ArgumentNullException(nameof(Password));
@@ -60,7 +62,7 @@ namespace Send.modes
                         string[] seed_emails = Campaign.Convert_emails(Convert.ToString(cdata.email_test));
                         string raw_hd = Text.Base64Decode(Convert.ToString(cdata.header));
                         string raw_bd = Text.Base64Decode(Convert.ToString(cdata.body));
-                        var servers = Campaign.Convert_ips(Convert.ToString(cdata.ips));
+                        var servers = Campaign.Convert_ips(Convert.ToString(cdata.ips), Option);
                         string file = "/" + Convert.ToString(cdata.send_file);
                         string platform = Convert.ToString(cdata.platform);
                         string redirect_link = Convert.ToString(cdata.redirect_link);
@@ -112,6 +114,10 @@ namespace Send.modes
                                             string rdns = Text.Rdns(email_ip, domain);
                                             string vmta_ip = email_ip.Replace(':', '.');
                                             string vmta = Mta.ToLower() == "none" ? $"mta-{vmta_ip}" : (Mta == "vmta" ? $"vmta-{vmta_ip}-{Username}" : $"smtp-{vmta_ip}-{Username}");
+                                            if (Option == "vmta")
+                                            {
+                                                vmta = $"mta-{vmta_ip}-"+ ip["cmta"];
+                                            }
                                             string job = $"{Id}";
 
                                             string rp = Text.Build_rp(raw_rp, domain, rdns, "reply");

@@ -104,8 +104,21 @@ namespace send.helpers
 
             return false;
         }
-        public static object Convert_ips(string ips)
+        public static object Convert_ips(string ips, string option = "ip")
         {
+            if(option == "vmta")
+            {
+                return ips.Trim().Split('\n').Select(t => t.Trim().Split(','))
+               .Where(item => item.Length == 6)
+               .GroupBy(item => item[4])
+               .ToDictionary(i => i.Key, i => i.Select(item => new Dictionary<string, string> {
+                    {"ip", item[0] },
+                    {"domain", item[1] },
+                    {"idi", item[2] },
+                    {"idd", item[3] },
+                    {"cmta", item[5] },
+               }).ToList());
+            }
             return ips.Trim().Split('\n').Select(t => t.Trim().Split(','))
                 .Where(item => item.Length == 5)
                 .GroupBy(item => item[4])

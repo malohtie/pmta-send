@@ -15,6 +15,7 @@ namespace Send.modes
         public string Header { get; set; }
         public string Body { get; set; }
         public string Mta { get; set; }
+        public string Option { get; set; }
         public string Username { get; set; }
         public string Redirect { get; set; }
         public string Unsubscribe { get; set; }
@@ -31,6 +32,7 @@ namespace Send.modes
             Header = Text.Base64Decode(Convert.ToString(data.header)) ?? throw new ArgumentNullException(nameof(data.header));
             Body = Text.Base64Decode(Convert.ToString(data.body)) ?? "";
             Mta = data.mta ?? throw new ArgumentNullException(nameof(data.mta));
+            Option = !string.IsNullOrWhiteSpace(data.option) ? data.option : "ip";
             Username = data.username ?? throw new ArgumentNullException(nameof(data.username));
             Servers = data.servers ?? throw new ArgumentNullException(nameof(data.servers));
             Redirect = data.redirect ?? throw new ArgumentNullException(nameof(data.redirect));
@@ -55,6 +57,10 @@ namespace Send.modes
                         string rdns = Text.Rdns(email_ip, domain);
                         string vmta_ip = email_ip.Replace(':', '.');
                         string vmta = Mta.ToLower() == "none" ? $"mta-{vmta_ip}" : (Mta == "vmta" ? $"vmta-{vmta_ip}-{Username}" : $"smtp-{vmta_ip}-{Username}");
+                        if (Option == "vmta")
+                        {
+                            vmta = $"mta-{vmta_ip}-{ip.cmta}";
+                        }
                         string job = $"0_CAMPAIGN-TEST_{Id}_{Username}";
 
 
