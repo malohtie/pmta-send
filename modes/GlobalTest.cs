@@ -27,7 +27,7 @@ namespace Send.modes
             this.Header = Text.Base64Decode(Convert.ToString(data.header)) ?? throw new ArgumentNullException(nameof(data.header));
             this.Body = Text.Base64Decode(Convert.ToString(data.body)) ?? "";
             this.Mta = data.mta ?? throw new ArgumentNullException(nameof(data.mta));
-            this.Option = !string.IsNullOrWhiteSpace((string)data.option) ? (string)data.option : "ip";
+            this.Option = Convert.ToString(data.option) ?? "ip";
             this.Username = data.username ?? throw new ArgumentNullException(nameof(data.username));
             this.Repeat = data.repeat ?? 1;
             this.Servers = data.servers ?? throw new ArgumentNullException(nameof(data.servers));

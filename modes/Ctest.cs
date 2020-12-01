@@ -32,7 +32,7 @@ namespace Send.modes
             Header = Text.Base64Decode(Convert.ToString(data.header)) ?? throw new ArgumentNullException(nameof(data.header));
             Body = Text.Base64Decode(Convert.ToString(data.body)) ?? "";
             Mta = data.mta ?? throw new ArgumentNullException(nameof(data.mta));
-            Option = !string.IsNullOrWhiteSpace(data.option) ? data.option : "ip";
+            Option = Convert.ToString(data.option) ?? "ip";
             Username = data.username ?? throw new ArgumentNullException(nameof(data.username));
             Servers = data.servers ?? throw new ArgumentNullException(nameof(data.servers));
             Redirect = data.redirect ?? throw new ArgumentNullException(nameof(data.redirect));
