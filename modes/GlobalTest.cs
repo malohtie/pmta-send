@@ -71,12 +71,15 @@ namespace Send.modes
                             foreach (string email in Emails)
                             {
                                 string emailName = email.Split('@')[0];
+                                string boundary = Text.Random("[rndlu/30]");
+                                string bnd = Text.boundary(Header);
+                                string hd = Text.replaceBoundary(Header);
                                 string rp = Text.Build_rp(Return_path, domain, rdns, emailName);
-                                string hd = Text.Build_header(Header, email_ip, domain, rdns, email, emailName);
+                                hd = Text.Build_header(Header, email_ip, domain, rdns, email, emailName, boundary, bnd);
                                 hd = Text.Inject_header(hd, "t", "0", Username, email_ip, Convert.ToString(ip.idddomain));
-                                string bd = Text.Build_body(Body, email_ip, domain, rdns, email, emailName);
+                                string bd = Text.Build_body(Body, email_ip, domain, rdns, email, emailName, null, null, null, boundary, bnd);
                                 Message = new Message(rp);
-                                Message.AddData(hd + "\n" + bd + "\n\n");
+                                Message.AddData(Text.replaceBoundary(hd + "\n" + bd + "\n\n", bnd));
                                 Message.AddRecipient(new Recipient(email));
                                 Message.VirtualMTA = vmta;
                                 Message.JobID = job;
@@ -84,8 +87,7 @@ namespace Send.modes
                                 Message.Encoding = Encoding.EightBit;
                                 p.Send(Message);
                             }
-                        }
-                        
+                        }  
                     }
                     data.Add($"SERVER {server.mainip} OK");
                     p.Close();
@@ -98,6 +100,5 @@ namespace Send.modes
             }
             return data;
         }
-
     }
 }
