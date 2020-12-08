@@ -10,7 +10,7 @@ namespace send.helpers
     {
         public static string Generate(string text)
         {
-            return Printable(Base64(Random(Spintax(text))));
+            return Base64(Printable(Random(Spintax(text))));
         }
         public static string Rdns(string ip, string domain)
         {
@@ -281,32 +281,30 @@ namespace send.helpers
         {
             if (string.IsNullOrEmpty(value))
                 return value;
-            StringBuilder builder = new StringBuilder();
             byte[] bytes = Encoding.UTF8.GetBytes(value);
-            foreach (byte v in bytes)
+            StringBuilder sbInner = new StringBuilder();
+            StringBuilder sbOuter = new StringBuilder();
+
+            foreach (byte byt in bytes)
             {
-                // The following are not required to be encoded:
-                // - Tab (ASCII 9)
-                // - Space (ASCII 32)
-                // - Characters 33 to 126, except for the equal sign (61).
-                if ((v == 9) || ((v >= 32) && (v <= 60)) || ((v >= 62) && (v <= 126)))
+                int charLenQP = (byt >= 33 && byt <= 126 && byt != 61) ? 1 : 3;
+                if (sbInner.Length + charLenQP > 75)
                 {
-                    builder.Append(Convert.ToChar(v));
+                    sbOuter.Append(sbInner + "=\r\n");
+                    sbInner = new StringBuilder();
+                }
+
+                if (1 == charLenQP)
+                {
+                    sbInner.Append((char)byt);
                 }
                 else
                 {
-                    builder.Append('=');
-                    builder.Append(v.ToString("X2"));
+                    sbInner.Append("=" + byt.ToString("X2"));
                 }
             }
-            char lastChar = builder[builder.Length - 1];
-            if (char.IsWhiteSpace(lastChar))
-            {
-                builder.Remove(builder.Length - 1, 1);
-                builder.Append('=');
-                builder.Append(((int)lastChar).ToString("X2"));
-            }
-            return builder.ToString();
+            sbOuter.Append(sbInner);
+            return sbOuter.ToString();
         }
     }
 }
