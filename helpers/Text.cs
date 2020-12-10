@@ -326,7 +326,7 @@ namespace send.helpers
             if (foldWidth > 0)
             {
                 for (int idx = foldWidth - 1; idx < sb.Length; idx += foldWidth + 2)
-                    sb.Insert(idx, "\r\n ");
+                    sb.Insert(idx, "\r\n");
             }
             return sb.ToString();
         }
