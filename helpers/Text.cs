@@ -16,7 +16,6 @@ namespace send.helpers
         {
             try
             {
-
                 var proc = new Process
                 {
                     StartInfo = new ProcessStartInfo
@@ -180,15 +179,6 @@ namespace send.helpers
             }, RegexOptions.IgnoreCase | RegexOptions.Multiline | RegexOptions.IgnorePatternWhitespace);
 
         }
-        private static string Base64(string text)
-        {
-            return Regex.Replace(text, @"\[base64:(.*)\]", delegate (Match match)
-            {
-                string data = match.Groups[1].Value.ToString() ?? "";
-                return Base64Encode(data);
-
-            }, RegexOptions.IgnoreCase | RegexOptions.Singleline | RegexOptions.IgnorePatternWhitespace);
-        }
         public static string boundary(string text)
         {
             Match match = Regex.Match(text, @"\[bnd:([^\]]*)\]", RegexOptions.IgnoreCase);
@@ -277,34 +267,68 @@ namespace send.helpers
 
             }, RegexOptions.IgnoreCase | RegexOptions.Singleline | RegexOptions.IgnorePatternWhitespace);
         }
-        public static string PrintableEncode(string value)
+        public static string PrintableEncode(string encode, int foldWidth = 76)
         {
-            if (string.IsNullOrEmpty(value))
-                return value;
-            byte[] bytes = Encoding.UTF8.GetBytes(value);
-            StringBuilder sbInner = new StringBuilder();
-            StringBuilder sbOuter = new StringBuilder();
+            // Don't bother if there's nothing to encode
+            if (encode == null || encode.Length == 0)
+                return encode;
 
-            foreach (byte byt in bytes)
+            StringBuilder sb = new StringBuilder(encode.Length + 100);
+            foldWidth--;    // Account for soft line break character
+            for (int idx = 0, len = 0; idx < encode.Length; idx++)
             {
-                int charLenQP = (byt >= 33 && byt <= 126 && byt != 61) ? 1 : 3;
-                if (sbInner.Length + charLenQP > 75)
+                // Characters 9, 32-60, and 62-126 go through as-is as do any Unicode characters
+                if (encode[idx] == '\t' || (encode[idx] > '\x1F' && encode[idx] < '=') || (encode[idx] > '=' && encode[idx] < '\x7F') || (int)encode[idx] > 255)
                 {
-                    sbOuter.Append(sbInner + "=\r\n");
-                    sbInner = new StringBuilder();
-                }
-
-                if (1 == charLenQP)
-                {
-                    sbInner.Append((char)byt);
+                    if (foldWidth > 0 && len + 1 > foldWidth)
+                    {
+                        sb.Append("=\r\n");     // Soft line break
+                        len = 0;
+                    }
+                    sb.Append(encode[idx]);
+                    len++;
                 }
                 else
                 {
-                    sbInner.Append("=" + byt.ToString("X2"));
+                    // All others encode as =XX where XX is the 2 digit hex value of the character
+                    if (foldWidth > 0 && len + 3 > foldWidth)
+                    {
+                        sb.Append("=\r\n");     // Soft line break
+                        len = 0;
+                    }
+                    sb.AppendFormat("={0:X2}", (int)encode[idx]);
+                    len += 3;
                 }
             }
-            sbOuter.Append(sbInner);
-            return sbOuter.ToString();
+            return sb.ToString();
+        }
+        private static string Base64(string text)
+        {
+            return Regex.Replace(text, @"\[base64:(.*)\]", delegate (Match match)
+            {
+                string data = match.Groups[1].Value.ToString() ?? "";
+                return Base64EncodeMail(data);
+
+            }, RegexOptions.IgnoreCase | RegexOptions.Singleline | RegexOptions.IgnorePatternWhitespace);
+        }
+        public static string Base64EncodeMail(string encode, int foldWidth = 76)
+        {
+            // Don't bother if there is nothing to encode
+            if (encode == null || encode.Length == 0)
+                return encode;
+
+            Encoding enc = Encoding.GetEncoding("iso-8859-1");
+            byte[] ba = enc.GetBytes(encode);
+
+            StringBuilder sb = new StringBuilder(Convert.ToBase64String(ba));
+
+            // Insert line folds where necessary if requested.
+            if (foldWidth > 0)
+            {
+                for (int idx = foldWidth - 1; idx < sb.Length; idx += foldWidth + 2)
+                    sb.Insert(idx, "\r\n ");
+            }
+            return sb.ToString();
         }
     }
 }
