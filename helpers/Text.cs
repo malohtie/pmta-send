@@ -46,10 +46,11 @@ namespace send.helpers
             return_path = Regex.Replace(return_path, @"\[name\]", emailName, RegexOptions.IgnoreCase);
             return Generate(return_path);
         }
-        public static string Build_header(string header, string ip, string domain, string rdns, string email, string emailName, string boundary = null, string bnd = null)
+        public static string Build_header(string header, string ip, string server, string domain, string rdns, string email, string emailName, string boundary = null, string bnd = null)
         {
             string header_result = header;
             header_result = Regex.Replace(header_result, @"\[ip\]", ip, RegexOptions.IgnoreCase);
+            header_result = Regex.Replace(header_result, @"\[server\]", server, RegexOptions.IgnoreCase);
             header_result = Regex.Replace(header_result, @"\[domain\]", domain, RegexOptions.IgnoreCase);
             header_result = Regex.Replace(header_result, @"\[rdns\]", rdns, RegexOptions.IgnoreCase);
             header_result = Regex.Replace(header_result, @"\[name\]", emailName, RegexOptions.IgnoreCase);
@@ -65,9 +66,10 @@ namespace send.helpers
             }
             return Generate(header_result);
         }
-        public static string Build_body(string body, string ip, string domain, string rdns, string email, string emailName, string url = null, string unsub = null, string open = null, string boundary = null, string bnd = null)
+        public static string Build_body(string body, string ip, string server, string domain, string rdns, string email, string emailName, string url = null, string unsub = null, string open = null, string boundary = null, string bnd = null)
         {
             body = Regex.Replace(body, @"\[ip\]", ip, RegexOptions.IgnoreCase);
+            body = Regex.Replace(body, @"\[server\]", server, RegexOptions.IgnoreCase);
             body = Regex.Replace(body, @"\[domain\]", domain, RegexOptions.IgnoreCase);
             body = Regex.Replace(body, @"\[rdns\]", rdns, RegexOptions.IgnoreCase);
             body = Regex.Replace(body, @"\[name\]", emailName, RegexOptions.IgnoreCase);

@@ -111,6 +111,7 @@ namespace Send.modes
                                         {
                                             string email_ip = ip["ip"];
                                             string domain = ip["domain"];
+                                            string ids = ip["ids"];
                                             string rdns = Text.Rdns(email_ip, domain);
                                             string vmta_ip = email_ip.Replace(':', '.');
                                             string vmta = Mta.ToLower() == "none" ? $"mta-{vmta_ip}" : (Mta == "vmta" ? $"vmta-{vmta_ip}-{Username}" : $"smtp-{vmta_ip}-{Username}");
@@ -142,6 +143,7 @@ namespace Send.modes
                                                 //header body
                                                 r["pe"] = $"n,{Id},{Username},{ip["ip"]},{ip["idd"]},{email[0]}";
                                                 r["ip"] = email_ip;
+                                                r["server"] = ids;
                                                 r["domain"] = domain;
                                                 r["rdns"] = rdns;
                                                 r["name"] = email[1].Split('@')[0];
@@ -172,6 +174,7 @@ namespace Send.modes
                                                             //header body
                                                             t["pe"] = $"t,{Id},{Username},{ip["ip"]},{ip["idd"]},0";
                                                             t["ip"] = email_ip;
+                                                            t["server"] = ids;
                                                             t["domain"] = domain;
                                                             t["rdns"] = rdns;
                                                             t["name"] = test_email.Split('@')[0];

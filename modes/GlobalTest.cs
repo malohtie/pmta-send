@@ -75,9 +75,9 @@ namespace Send.modes
                                 string bnd = Text.boundary(Header);
                                 string hd = Text.replaceBoundary(Header);
                                 string rp = Text.Build_rp(Return_path, domain, rdns, emailName);
-                                hd = Text.Build_header(Header, email_ip, domain, rdns, email, emailName, boundary, bnd);
+                                hd = Text.Build_header(Header, email_ip, (string)server.id, domain, rdns, email, emailName, boundary, bnd);
                                 hd = Text.Inject_header(hd, "t", "0", Username, email_ip, Convert.ToString(ip.idddomain));
-                                string bd = Text.Build_body(Body, email_ip, domain, rdns, email, emailName, null, null, null, boundary, bnd);
+                                string bd = Text.Build_body(Body, email_ip, (string)server.id, domain, rdns, email, emailName, null, null, null, boundary, bnd);
                                 Message = new Message(rp);
                                 Message.AddData(Text.replaceBoundary(hd + "\n" + bd + "\n\n", bnd));
                                 Message.AddRecipient(new Recipient(email));

@@ -116,6 +116,7 @@ namespace send.helpers
                     {"domain", item[1] },
                     {"idi", item[2] },
                     {"idd", item[3] },
+                    {"ids", item[4] },
                     {"cmta", item[5] },
                }).ToList());
             }
@@ -127,6 +128,7 @@ namespace send.helpers
                     {"domain", item[1] },
                     {"idi", item[2] },
                     {"idd", item[3] },
+                    {"ids", item[4] }
                 }).ToList());
         }
         public static object Bulk_split(string ips)

@@ -108,6 +108,7 @@ namespace Send.modes
                                         if (emails.Count > 0)
                                         {
                                             string email_ip = ip["ip"];
+                                            string ids = ip["ids"];
                                             string domain = ip["domain"];
                                             string rdns = Text.Rdns(email_ip, domain);
                                             string vmta_ip = email_ip.Replace(':', '.');
@@ -132,9 +133,9 @@ namespace Send.modes
                                                 string bd = Text.replaceBoundary(raw_bd);
                                                 string emailName = email[1].Split('@')[0];
                                                 string rp = Text.Build_rp(raw_rp, domain, rdns, emailName);
-                                                hd = Text.Build_header(hd, email_ip, domain, rdns, email[1], emailName, boundary, bnd);
+                                                hd = Text.Build_header(hd, email_ip, ids, domain, rdns, email[1], emailName, boundary, bnd);
                                                 hd = Text.Inject_header(hd, "x", Id.ToString(), Username, ip["ip"], ip["idd"], email[0]);
-                                                bd = Text.Build_body(bd, email_ip, domain, rdns, email[1], emailName, redirect, unsubscribe, open, boundary, bnd);
+                                                bd = Text.Build_body(bd, email_ip, ids, domain, rdns, email[1], emailName, redirect, unsubscribe, open, boundary, bnd);
                                                 message = new Message(rp);
                                                 message.AddData(Text.replaceBoundary(hd + "\n" + bd + "\n\n", bnd));
                                                 message.AddRecipient(new Recipient(email[1]));
@@ -164,9 +165,9 @@ namespace Send.modes
                                                             string tbd = Text.replaceBoundary(raw_bd);
                                                             string temailName = test_email.Split('@')[0];
                                                             string trp = Text.Build_rp(raw_rp, domain, rdns, temailName);
-                                                            thd = Text.Build_header(thd, email_ip, domain, rdns, test_email, temailName, tboundary, tbnd);
+                                                            thd = Text.Build_header(thd, email_ip, ids, domain, rdns, test_email, temailName, tboundary, tbnd);
                                                             thd = Text.Inject_header(thd, "x", Id.ToString(), Username, ip["ip"], ip["idd"]);
-                                                            tbd = Text.Build_body(tbd, email_ip, domain, rdns, test_email, temailName, tredirect, tunsubscribe, topen, tboundary, tbnd);                                                           
+                                                            tbd = Text.Build_body(tbd, email_ip, ids, domain, rdns, test_email, temailName, tredirect, tunsubscribe, topen, tboundary, tbnd);                                                           
                                                             message = new Message(trp);
                                                             message.AddData(thd + "\n" + tbd + "\n\n");
                                                             message.AddRecipient(new Recipient(test_email));
