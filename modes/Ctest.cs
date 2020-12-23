@@ -3,6 +3,7 @@ using port25.pmta.api.submitter;
 using send.helpers;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Send.modes
 {
@@ -43,63 +44,70 @@ namespace Send.modes
         public List<string> Send()
         {
             List<string> data = new List<string>();
+            List<Task> tasks = new List<Task>();
             Random random = new Random();
 
             foreach (dynamic server in Servers)
             {
-                try
-                {
-                    Pmta p = new Pmta((string)server.mainip, (string)server.password, (string)server.username, (int)server.port);
-                    foreach (dynamic ip in server.ips)
+                tasks.Add(
+                    Task.Factory.StartNew(() =>
                     {
-                        string email_ip = ip.ip;
-                        string domain = ip.domain;
-                        string rdns = Text.Rdns(email_ip, domain);
-                        string vmta_ip = email_ip.Replace(':', '.');
-                        string vmta = Mta.ToLower() == "none" ? $"mta-{vmta_ip}" : (Mta == "vmta" ? $"vmta-{vmta_ip}-{Username}" : $"smtp-{vmta_ip}-{Username}");
-                        if (Option == "vmta")
+                        try
                         {
-                            vmta = $"mta-{vmta_ip}-{ip.cmta}";
+                            Pmta p = new Pmta((string)server.mainip, (string)server.password, (string)server.username, (int)server.port);
+                            foreach (dynamic ip in server.ips)
+                            {
+                                string email_ip = ip.ip;
+                                string domain = ip.domain;
+                                string rdns = Text.Rdns(email_ip, domain);
+                                string vmta_ip = email_ip.Replace(':', '.');
+                                string vmta = Mta.ToLower() == "none" ? $"mta-{vmta_ip}" : (Mta == "vmta" ? $"vmta-{vmta_ip}-{Username}" : $"smtp-{vmta_ip}-{Username}");
+                                if (Option == "vmta")
+                                {
+                                    vmta = $"mta-{vmta_ip}-{ip.cmta}";
+                                }
+                                string job = $"0_CAMPAIGN-TEST_{Id}_{Username}";
+
+
+                                string key = Text.Adler32($"{Id}0");
+                                string redirect = Text.Base64Encode($"{Id}-0-{key}-{random.Next(1000, 99999)}");
+                                string unsubscribe = Text.Base64Encode($"{Id}-0-{key}-{random.Next(1000, 99999)}");
+                                string open = Text.Base64Encode($"{Id}-0-{key}-{random.Next(1000, 99999)}");
+
+
+                                foreach (string email in Emails)
+                                {
+                                    string boundary = Text.Random("[rndlu/30]");
+                                    string bnd = Text.boundary(Header);
+                                    string hd = Text.replaceBoundary(Header);
+                                    string bd = Text.replaceBoundary(Body);
+                                    string emailName = email.Split('@')[0];
+                                    string rp = Text.Build_rp(Return_path, domain, rdns, emailName);
+                                    hd = Text.Build_header(hd, email_ip, (string)server.id, domain, rdns, email, emailName, boundary, bnd);
+                                    hd = Text.Inject_header(hd, "t", Id.ToString(), Username, Convert.ToString(ip.ip), Convert.ToString(ip.idddomain));
+                                    bd = Text.Build_body(bd, email_ip, (string)server.id, domain, rdns, email, emailName, redirect, unsubscribe, open, boundary, bnd);
+                                    Message = new Message(rp);
+                                    Message.AddData(Text.replaceBoundary(hd + "\n" + bd + "\n\n", bnd));
+                                    Message.AddRecipient(new Recipient(email));
+                                    Message.VirtualMTA = vmta;
+                                    Message.JobID = job;
+                                    Message.Verp = false;
+                                    Message.Encoding = Encoding.EightBit;
+                                    p.Send(Message);
+                                }
+                            }
+                            data.Add($"SERVER {server.mainip} OK");
+                            p.Close();
                         }
-                        string job = $"0_CAMPAIGN-TEST_{Id}_{Username}";
-
-
-                        string key = Text.Adler32($"{Id}0");
-                        string redirect = Text.Base64Encode($"{Id}-0-{key}-{random.Next(1000, 99999)}");
-                        string unsubscribe = Text.Base64Encode($"{Id}-0-{key}-{random.Next(1000, 99999)}");
-                        string open = Text.Base64Encode($"{Id}-0-{key}-{random.Next(1000, 99999)}");
-
-
-                        foreach (string email in Emails)
+                        catch (Exception ex)
                         {
-                            string boundary = Text.Random("[rndlu/30]");
-                            string bnd = Text.boundary(Header);
-                            string hd = Text.replaceBoundary(Header);
-                            string bd = Text.replaceBoundary(Body);
-                            string emailName = email.Split('@')[0];
-                            string rp = Text.Build_rp(Return_path, domain, rdns, emailName);
-                            hd = Text.Build_header(hd, email_ip, (string)server.id, domain, rdns, email, emailName, boundary, bnd);
-                            hd = Text.Inject_header(hd, "t", Id.ToString(), Username, Convert.ToString(ip.ip), Convert.ToString(ip.idddomain));
-                            bd = Text.Build_body(bd, email_ip, (string)server.id, domain, rdns, email, emailName, redirect, unsubscribe, open, boundary, bnd);
-                            Message = new Message(rp);
-                            Message.AddData(Text.replaceBoundary(hd + "\n" + bd + "\n\n", bnd));
-                            Message.AddRecipient(new Recipient(email));
-                            Message.VirtualMTA = vmta;
-                            Message.JobID = job;
-                            Message.Verp = false;
-                            Message.Encoding = Encoding.EightBit;
-                            p.Send(Message);
+                            data.Add($"ERROR SERVER {server.mainip} - {ex.Message}");
+                            logger.Error(ex.Message);
                         }
-                    }
-                    data.Add($"SERVER {server.mainip} OK");
-                    p.Close();
-                }
-                catch (Exception ex)
-                {
-                    data.Add($"ERROR SERVER {server.mainip} - {ex.Message}");
-                    logger.Error(ex.Message);
-                }
+                    })
+                );
             }
+            Task.WaitAll(tasks.ToArray());
             return data;
         }
 
