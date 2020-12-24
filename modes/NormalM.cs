@@ -46,7 +46,7 @@ namespace Send.modes
         {
             List<string> Result = new List<string>();
             Campaign campaign = new Campaign(Artisan);
-            Message message;
+         
             int c_seed = 0;
             Random random = new Random();
 
@@ -122,7 +122,7 @@ namespace Send.modes
                                             string job = $"{Id}";
 
                                             string rp = Text.Build_rp(raw_rp, domain, rdns, "reply");
-                                            message = new Message(rp);
+                                            Message message = new Message(rp);
                                             string header = Text.Header_normal(raw_hd);
                                             string genB = Text.replaceBoundary(header + "\n" + raw_bd + "\n\n");
                                             message.AddMergeData(Text.Generate(genB)); 

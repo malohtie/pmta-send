@@ -46,7 +46,6 @@ namespace Send.modes
         {
             List<string> Result = new List<string>();
             Campaign campaign = new Campaign(Artisan);
-            Message message;
             int c_seed = 0;
             Random random = new Random();
 
@@ -136,7 +135,7 @@ namespace Send.modes
                                                 hd = Text.Build_header(hd, email_ip, ids, domain, rdns, email[1], emailName, boundary, bnd);
                                                 hd = Text.Inject_header(hd, "x", Id.ToString(), Username, ip["ip"], ip["idd"], email[0]);
                                                 bd = Text.Build_body(bd, email_ip, ids, domain, rdns, email[1], emailName, redirect, unsubscribe, open, boundary, bnd);
-                                                message = new Message(rp);
+                                                Message message = new Message(rp);
                                                 message.AddData(Text.replaceBoundary(hd + "\n" + bd + "\n\n", bnd));
                                                 message.AddRecipient(new Recipient(email[1]));
                                                 message.VirtualMTA = vmta;
