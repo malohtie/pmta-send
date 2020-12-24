@@ -50,62 +50,57 @@ namespace Send.modes
         public List<string> Send()
         {
             List<string> data = new List<string>();
-            List<Task> tasks = new List<Task>();
-            foreach (dynamic server in Servers)
+            
+            Parallel.ForEach((IEnumerable<dynamic>)Servers, (server) =>
             {
-                tasks.Add(
-                    Task.Factory.StartNew(() => {
-                        try
+                try
+                {
+                    Pmta p = new Pmta((string)server.mainip, (string)server.password, (string)server.username, (int)server.port);
+                    foreach (dynamic ip in server.ips)
+                    {
+                        string email_ip = ip.ip;
+                        string domain = ip.domain;
+                        string rdns = Text.Rdns(email_ip, domain);
+                        string vmta_ip = email_ip.Replace(':', '.');
+                        string vmta = Mta.ToLower() == "none" ? $"mta-{vmta_ip}" : (Mta == "vmta" ? $"vmta-{vmta_ip}-{Username}" : $"smtp-{vmta_ip}-{Username}");
+                        if (this.Option == "vmta")
                         {
-                            Pmta p = new Pmta((string)server.mainip, (string)server.password, (string)server.username, (int)server.port);
-                            foreach (dynamic ip in server.ips)
-                            {
-                                string email_ip = ip.ip;
-                                string domain = ip.domain;
-                                string rdns = Text.Rdns(email_ip, domain);
-                                string vmta_ip = email_ip.Replace(':', '.');
-                                string vmta = Mta.ToLower() == "none" ? $"mta-{vmta_ip}" : (Mta == "vmta" ? $"vmta-{vmta_ip}-{Username}" : $"smtp-{vmta_ip}-{Username}");
-                                if (this.Option == "vmta")
-                                {
-                                    vmta = $"mta-{vmta_ip}-{ip.cmta}";
-                                }
-                                string job = $"0_GLOBAL-TEST_{Username}";
+                            vmta = $"mta-{vmta_ip}-{ip.cmta}";
+                        }
+                        string job = $"0_GLOBAL-TEST_{Username}";
 
-                                for (int i = 0; i < this.Repeat; i++)
-                                {
-                                    foreach (string email in Emails)
-                                    {
-                                        string emailName = email.Split('@')[0];
-                                        string boundary = Text.Random("[rndlu/30]");
-                                        string bnd = Text.boundary(Header);
-                                        string hd = Text.replaceBoundary(Header);
-                                        string rp = Text.Build_rp(Return_path, domain, rdns, emailName);
-                                        hd = Text.Build_header(Header, email_ip, (string)server.id, domain, rdns, email, emailName, boundary, bnd);
-                                        hd = Text.Inject_header(hd, "t", "0", Username, email_ip, Convert.ToString(ip.idddomain));
-                                        string bd = Text.Build_body(Body, email_ip, (string)server.id, domain, rdns, email, emailName, null, null, null, boundary, bnd);
-                                        Message = new Message(rp);
-                                        Message.AddData(Text.replaceBoundary(hd + "\n" + bd + "\n\n", bnd));
-                                        Message.AddRecipient(new Recipient(email));
-                                        Message.VirtualMTA = vmta;
-                                        Message.JobID = job;
-                                        Message.Verp = false;
-                                        Message.Encoding = Encoding.EightBit;
-                                        p.Send(Message);
-                                    }
-                                }
-                            }
-                            data.Add($"SERVER {server.mainip} OK");
-                            p.Close();
-                        }
-                        catch (Exception ex)
+                        for (int i = 0; i < this.Repeat; i++)
                         {
-                            data.Add($"ERROR SERVER {server.mainip} - {ex.Message}");
-                            logger.Error(ex.Message);
+                            foreach (string email in Emails)
+                            {
+                                string emailName = email.Split('@')[0];
+                                string boundary = Text.Random("[rndlu/30]");
+                                string bnd = Text.boundary(Header);
+                                string hd = Text.replaceBoundary(Header);
+                                string rp = Text.Build_rp(Return_path, domain, rdns, emailName);
+                                hd = Text.Build_header(Header, email_ip, (string)server.id, domain, rdns, email, emailName, boundary, bnd);
+                                hd = Text.Inject_header(hd, "t", "0", Username, email_ip, Convert.ToString(ip.idddomain));
+                                string bd = Text.Build_body(Body, email_ip, (string)server.id, domain, rdns, email, emailName, null, null, null, boundary, bnd);
+                                Message = new Message(rp);
+                                Message.AddData(Text.replaceBoundary(hd + "\n" + bd + "\n\n", bnd));
+                                Message.AddRecipient(new Recipient(email));
+                                Message.VirtualMTA = vmta;
+                                Message.JobID = job;
+                                Message.Verp = false;
+                                Message.Encoding = Encoding.EightBit;
+                                p.Send(Message);
+                            }
                         }
-                    })
-                );
-            }
-            Task.WaitAll(tasks.ToArray());
+                    }
+                    data.Add($"SERVER {server.mainip} OK");
+                    p.Close();
+                }
+                catch (Exception ex)
+                {
+                    data.Add($"ERROR SERVER {server.mainip} - {ex.Message}");
+                    logger.Error(ex.Message);
+                }
+            });
             return data;
         }
     }
