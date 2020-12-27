@@ -1,6 +1,7 @@
 ﻿using NLog;
 using port25.pmta.api.submitter;
 using send.helpers;
+using Send.helpers;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -25,6 +26,7 @@ namespace Send.modes
         public string Storage { get; set; }
         public string Password { get; set; }
         public string Username { get; set; }
+        public Rotation Rotation { get; set; }
 
         public Xdelay(dynamic data)
         {
@@ -40,6 +42,7 @@ namespace Send.modes
             Storage = Convert.ToString(data.storage) ?? throw new ArgumentNullException(nameof(Storage));
             Password = Convert.ToString(data.password) ?? throw new ArgumentNullException(nameof(Password));
             Username = Convert.ToString(data.username) ?? throw new ArgumentNullException(nameof(Username));
+
         }
 
         public List<string> Send()
@@ -63,6 +66,11 @@ namespace Send.modes
                         string raw_bd = Text.Base64Decode(Convert.ToString(cdata.body));
                         var servers = Campaign.Convert_ips(Convert.ToString(cdata.ips), Option);
                         string file = "/" + Convert.ToString(cdata.send_file);
+                        bool IsAutoReply = Convert.ToString(cdata.is_auto_reply) == "1";
+                        if(IsAutoReply)
+                        {
+                            Rotation = new Rotation(cdata.auto_reply_data, (int)cdata.auto_reply_every);
+                        }
 
 
                         foreach (var server in servers)
@@ -119,6 +127,7 @@ namespace Send.modes
 
                                             foreach (string[] email in emails)
                                             {
+                                                string currentEmail = IsAutoReply ? Rotation.GetAndRotate() : email[1];
                                                 string key = Text.Adler32($"{Id}{email[0]}");
 
                                                 string redirect = Text.Base64Encode($"{Id}-{email[0]}-{key}-{random.Next(1000, 99999)}");
@@ -131,13 +140,13 @@ namespace Send.modes
                                                 string hd = Text.replaceBoundary(raw_hd);
                                                 string bd = Text.replaceBoundary(raw_bd);
                                                 string emailName = email[1].Split('@')[0];
-                                                string rp = Text.Build_rp(raw_rp, domain, rdns, emailName);
-                                                hd = Text.Build_header(hd, email_ip, ids, domain, rdns, email[1], emailName, boundary, bnd);
+                                                string rp = Text.Build_rp(raw_rp, domain, rdns, emailName, currentEmail);
+                                                hd = Text.Build_header(hd, email_ip, ids, domain, rdns, email[1], emailName, boundary, bnd, currentEmail);
                                                 hd = Text.Inject_header(hd, "x", Id.ToString(), Username, ip["ip"], ip["idd"], email[0]);
-                                                bd = Text.Build_body(bd, email_ip, ids, domain, rdns, email[1], emailName, redirect, unsubscribe, open, boundary, bnd);
+                                                bd = Text.Build_body(bd, email_ip, ids, domain, rdns, email[1], emailName, redirect, unsubscribe, open, boundary, bnd, currentEmail);
                                                 Message message = new Message(rp);
                                                 message.AddData(Text.replaceBoundary(hd + "\n" + bd + "\n\n", bnd));
-                                                message.AddRecipient(new Recipient(email[1]));
+                                                message.AddRecipient(new Recipient(currentEmail));
                                                 message.VirtualMTA = vmta;
                                                 message.JobID = Id.ToString();
                                                 message.Verp = false;
@@ -153,6 +162,7 @@ namespace Send.modes
                                                     {
                                                         foreach (string test_email in seed_emails)
                                                         {
+                                                            string currentTest = IsAutoReply ? Rotation.GetCurrent() : test_email;
                                                             string tkey = Text.Adler32($"{Id}0");
                                                             string tredirect = Text.Base64Encode($"{Id}-0-{tkey}-{random.Next(1000, 99999)}");
                                                             string tunsubscribe = Text.Base64Encode($"{Id}-0-{tkey}-{random.Next(1000, 99999)}");
@@ -163,18 +173,18 @@ namespace Send.modes
                                                             string thd = Text.replaceBoundary(raw_hd);
                                                             string tbd = Text.replaceBoundary(raw_bd);
                                                             string temailName = test_email.Split('@')[0];
-                                                            string trp = Text.Build_rp(raw_rp, domain, rdns, temailName);
-                                                            thd = Text.Build_header(thd, email_ip, ids, domain, rdns, test_email, temailName, tboundary, tbnd);
+                                                            string trp = Text.Build_rp(raw_rp, domain, rdns, temailName, currentTest);
+                                                            thd = Text.Build_header(thd, email_ip, ids, domain, rdns, test_email, temailName, tboundary, tbnd, currentTest);
                                                             thd = Text.Inject_header(thd, "x", Id.ToString(), Username, ip["ip"], ip["idd"]);
-                                                            tbd = Text.Build_body(tbd, email_ip, ids, domain, rdns, test_email, temailName, tredirect, tunsubscribe, topen, tboundary, tbnd);                                                           
-                                                            message = new Message(trp);
-                                                            message.AddData(thd + "\n" + tbd + "\n\n");
-                                                            message.AddRecipient(new Recipient(test_email));
-                                                            message.VirtualMTA = vmta;
-                                                            message.JobID = Id.ToString();
-                                                            message.Verp = false;
-                                                            message.Encoding = Encoding.EightBit;
-                                                            p.Send(message);
+                                                            tbd = Text.Build_body(tbd, email_ip, ids, domain, rdns, test_email, temailName, tredirect, tunsubscribe, topen, tboundary, tbnd, currentTest);                                                           
+                                                            Message testMessage = new Message(trp);
+                                                            testMessage.AddData(thd + "\n" + tbd + "\n\n");
+                                                            testMessage.AddRecipient(new Recipient(currentTest));
+                                                            testMessage.VirtualMTA = vmta;
+                                                            testMessage.JobID = Id.ToString();
+                                                            testMessage.Verp = false;
+                                                            testMessage.Encoding = Encoding.EightBit;
+                                                            p.Send(testMessage);
                                                         }
                                                     }
                                                 }

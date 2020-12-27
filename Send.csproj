@@ -66,6 +66,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="helpers\Rotation.cs" />
     <Compile Include="modes\BulkM.cs" />
     <Compile Include="modes\Ctest.cs" />
     <Compile Include="modes\GlobalTest.cs" />

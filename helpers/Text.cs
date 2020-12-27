@@ -39,14 +39,18 @@ namespace send.helpers
                 return domain;
             }
         }
-        public static string Build_rp(string return_path, string domain, string rdns, string emailName)
+        public static string Build_rp(string return_path, string domain, string rdns, string emailName, string reply = null)
         {
             return_path = Regex.Replace(return_path, @"\[domain\]", domain, RegexOptions.IgnoreCase);
             return_path = Regex.Replace(return_path, @"\[rdns\]", rdns, RegexOptions.IgnoreCase);
             return_path = Regex.Replace(return_path, @"\[name\]", emailName, RegexOptions.IgnoreCase);
+            if (!string.IsNullOrWhiteSpace(reply))
+            {
+                return_path = Regex.Replace(return_path, @"\[reply\]", reply, RegexOptions.IgnoreCase);
+            }
             return Generate(return_path);
         }
-        public static string Build_header(string header, string ip, string server, string domain, string rdns, string email, string emailName, string boundary = null, string bnd = null)
+        public static string Build_header(string header, string ip, string server, string domain, string rdns, string email, string emailName, string boundary = null, string bnd = null, string reply = null)
         {
             string header_result = header;
             header_result = Regex.Replace(header_result, @"\[ip\]", ip, RegexOptions.IgnoreCase);
@@ -64,9 +68,13 @@ namespace send.helpers
             {
                 header_result = Regex.Replace(header_result, @"\[bnd\]", bnd, RegexOptions.IgnoreCase);
             }
+            if (!string.IsNullOrWhiteSpace(reply))
+            {
+                header_result = Regex.Replace(header_result, @"\[reply\]", reply, RegexOptions.IgnoreCase);
+            }
             return Generate(header_result);
         }
-        public static string Build_body(string body, string ip, string server, string domain, string rdns, string email, string emailName, string url = null, string unsub = null, string open = null, string boundary = null, string bnd = null)
+        public static string Build_body(string body, string ip, string server, string domain, string rdns, string email, string emailName, string url = null, string unsub = null, string open = null, string boundary = null, string bnd = null, string reply = null)
         {
             body = Regex.Replace(body, @"\[ip\]", ip, RegexOptions.IgnoreCase);
             body = Regex.Replace(body, @"\[server\]", server, RegexOptions.IgnoreCase);
@@ -95,7 +103,11 @@ namespace send.helpers
             if (!string.IsNullOrWhiteSpace(open))
             {
                 body = Regex.Replace(body, @"\[opn\]", open, RegexOptions.IgnoreCase);
-            }           
+            }
+            if (!string.IsNullOrWhiteSpace(reply))
+            {
+                body = Regex.Replace(body, @"\[reply\]", reply, RegexOptions.IgnoreCase);
+            }
             return Generate(body);
         }
         private static string RandomString(int length, int option = 0)

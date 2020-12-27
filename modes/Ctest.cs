@@ -1,6 +1,7 @@
 ﻿using NLog;
 using port25.pmta.api.submitter;
 using send.helpers;
+using Send.helpers;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -21,7 +22,8 @@ namespace Send.modes
         public string Unsubscribe { get; set; }
         public string Platform { get; set; }
         public List<dynamic> Servers { get; set; }
-
+        public bool IsAutoReply { get; set; }
+        public Rotation Rotation { get; set; }
         public int Id { get; set; }
 
         public Ctest(dynamic data)
@@ -38,6 +40,11 @@ namespace Send.modes
             Redirect = data.redirect ?? throw new ArgumentNullException(nameof(data.redirect));
             Unsubscribe = data.unsubscribe ?? throw new ArgumentNullException(nameof(data.unsubscribe));
             Platform = data.platform ?? throw new ArgumentNullException(nameof(data.platform));
+            IsAutoReply = Convert.ToString(data.is_auto_reply) == "1";
+            if (IsAutoReply)
+            {
+                Rotation = new Rotation(data.auto_reply_data, (int)data.auto_reply_every);
+            }
         }
 
         public List<string> Send()
@@ -73,21 +80,21 @@ namespace Send.modes
                                 string unsubscribe = Text.Base64Encode($"{Id}-0-{key}-{random.Next(1000, 99999)}");
                                 string open = Text.Base64Encode($"{Id}-0-{key}-{random.Next(1000, 99999)}");
 
-
                                 foreach (string email in Emails)
                                 {
+                                    string currentEmail = IsAutoReply ? Rotation.GetAndRotate() : email;
                                     string boundary = Text.Random("[rndlu/30]");
                                     string bnd = Text.boundary(Header);
                                     string hd = Text.replaceBoundary(Header);
                                     string bd = Text.replaceBoundary(Body);
                                     string emailName = email.Split('@')[0];
                                     string rp = Text.Build_rp(Return_path, domain, rdns, emailName);
-                                    hd = Text.Build_header(hd, email_ip, (string)server.id, domain, rdns, email, emailName, boundary, bnd);
+                                    hd = Text.Build_header(hd, email_ip, (string)server.id, domain, rdns, email, emailName, boundary, bnd, currentEmail);
                                     hd = Text.Inject_header(hd, "t", Id.ToString(), Username, Convert.ToString(ip.ip), Convert.ToString(ip.idddomain));
-                                    bd = Text.Build_body(bd, email_ip, (string)server.id, domain, rdns, email, emailName, redirect, unsubscribe, open, boundary, bnd);
+                                    bd = Text.Build_body(bd, email_ip, (string)server.id, domain, rdns, email, emailName, redirect, unsubscribe, open, boundary, bnd, currentEmail);
                                     Message Message = new Message(rp);
                                     Message.AddData(Text.replaceBoundary(hd + "\n" + bd + "\n\n", bnd));
-                                    Message.AddRecipient(new Recipient(email));
+                                    Message.AddRecipient(new Recipient(currentEmail));
                                     Message.VirtualMTA = vmta;
                                     Message.JobID = job;
                                     Message.Verp = false;
