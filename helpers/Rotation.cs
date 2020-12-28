@@ -29,7 +29,7 @@ namespace Send.helpers
 
             if (Conter % RotateEvery == 0)
             {
-                if (Index > Data.Count)
+                if (Index >= (Data.Count - 1))
                 {
                     Index = 0;
                 }

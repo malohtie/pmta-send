@@ -82,7 +82,7 @@ namespace Send.modes
 
                                 foreach (string email in Emails)
                                 {
-                                    string currentEmail = IsAutoReply ? Rotation.GetAndRotate() : email;
+                                    string currentEmail = IsAutoReply ? Rotation.GetAndRotate() : email;  
                                     string boundary = Text.Random("[rndlu/30]");
                                     string bnd = Text.boundary(Header);
                                     string hd = Text.replaceBoundary(Header);
