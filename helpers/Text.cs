@@ -118,7 +118,7 @@ namespace Send.helpers
             }
             if (!string.IsNullOrWhiteSpace(placeholder))
             {
-                body = Regex.Replace(body, @"\[placeholder\]", reply, RegexOptions.IgnoreCase);
+                body = Regex.Replace(body, @"\[placeholder\]", placeholder, RegexOptions.IgnoreCase);
             }
             return Generate(body);
         }
