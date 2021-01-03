@@ -5,7 +5,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 
-namespace send.helpers
+namespace Send.helpers
 {
     class Campaign
     {
@@ -136,7 +136,6 @@ namespace send.helpers
             return ips.Trim().Split('\n').Select(t => t.Trim().Split(','))
                 .Where(item => item.Length == 5)
                 .ToList();
-
         }
         public int CountLinesLINQ(string path) => File.ReadLines(path).Count();
 

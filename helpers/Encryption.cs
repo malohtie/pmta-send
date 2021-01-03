@@ -4,7 +4,7 @@ using Org.BouncyCastle.Security;
 using System;
 using System.Text;
 
-namespace send.helpers
+namespace Send.helpers
 {
     class Encryption
     {

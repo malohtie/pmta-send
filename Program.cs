@@ -1,7 +1,6 @@
 ﻿using Newtonsoft.Json;
 using NLog;
-using send;
-using send.helpers;
+using Send.helpers;
 using Send.modes;
 using System;
 using System.Collections.Generic;
@@ -81,7 +80,6 @@ namespace Send
                                 default:
                                     Console.Write("UNKNOW ACTION");
                                     break;
-
                             }
                         }
                         else

@@ -1,6 +1,6 @@
 ﻿using NLog;
 using port25.pmta.api.submitter;
-using send.helpers;
+using Send.helpers;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -25,6 +25,8 @@ namespace Send.modes
         public string Storage { get; set; }
         public string Password { get; set; }
         public string Username { get; set; }
+        public Rotation Reply { get; set; }
+        public Rotation Placeholder { get; set; }
 
         public NormalM(dynamic data)
         {
@@ -67,6 +69,16 @@ namespace Send.modes
                         string platform = Convert.ToString(cdata.platform);
                         string redirect_link = Convert.ToString(cdata.redirect_link);
                         string unsubscribe_link = Convert.ToString(cdata.unsubscribe_link);
+                        bool IsPlaceholder = Convert.ToString(cdata.is_placeholder) == "1";
+                        if (IsPlaceholder)
+                        {
+                            Placeholder = new Rotation(cdata.placeholder_data, (int)cdata.placeholder_every);
+                        }
+                        bool IsAutoReply = Convert.ToString(cdata.is_auto_reply) == "1";
+                        if (IsAutoReply)
+                        {
+                            Reply = new Rotation(cdata.auto_reply_data, (int)cdata.auto_reply_every);
+                        }
 
                         foreach (var server in servers)
                         {
@@ -133,7 +145,10 @@ namespace Send.modes
 
                                             foreach (string[] email in emails)
                                             {
-                                                Recipient r = new Recipient(email[1]);
+                                                string currentEmail = IsAutoReply ? Reply.GetAndRotate() : email[1];
+                                                string placeHolder = IsPlaceholder ? Placeholder.GetAndRotate() : "";
+
+                                                Recipient r = new Recipient(currentEmail);
                                                 //links                                           
                                                 string key = Text.Adler32($"{Id}{email[0]}");
                                                 r["red"] = Text.Base64Encode($"{Id}-{email[0]}-{key}-{random.Next(1000, 99999)}");
@@ -146,8 +161,10 @@ namespace Send.modes
                                                 r["server"] = ids;
                                                 r["domain"] = domain;
                                                 r["rdns"] = rdns;
-                                                r["name"] = email[1].Split('@')[0];
-                                                r["to"] = email[1];
+                                                r["name"] = currentEmail.Split('@')[0];
+                                                r["to"] = currentEmail;
+                                                r["reply"] = currentEmail;
+                                                r["placeholder"] = placeHolder;
                                                 r["date"] = Text.GetRFC822Date();
                                                 r["boundary"] = Text.Random("[rndlu/30]");
                                                 r["bnd"] = Text.boundary(header);
@@ -164,7 +181,10 @@ namespace Send.modes
                                                     {
                                                         foreach (string test_email in seed_emails)
                                                         {
-                                                            Recipient t = new Recipient(test_email);
+                                                            string currentTest = IsAutoReply ? Reply.GetCurrent() : test_email;
+                                                            string placeholderTest = IsPlaceholder ? Placeholder.GetCurrent() : "";
+
+                                                            Recipient t = new Recipient(currentTest);
                                                             //links
                                                             string tkey = Text.Adler32($"{Id}0");
                                                             t["red"] = Text.Base64Encode($"{Id}-0-{tkey}-{random.Next(1000, 99999)}");
@@ -177,8 +197,10 @@ namespace Send.modes
                                                             t["server"] = ids;
                                                             t["domain"] = domain;
                                                             t["rdns"] = rdns;
-                                                            t["name"] = test_email.Split('@')[0];
-                                                            t["to"] = email[1];
+                                                            t["name"] = currentTest.Split('@')[0];
+                                                            t["to"] = currentTest;
+                                                            t["reply"] = currentTest;
+                                                            t["placeholder"] = placeholderTest;
                                                             t["date"] = Text.GetRFC822Date();
                                                             t["boundary"] = Text.Random("[rndlu/30]");
                                                             t["bnd"] = Text.boundary(header);
