@@ -55,7 +55,7 @@ namespace Send.helpers
             return null;
         } 
         
-        public string Campaign_negative(int id)
+        public string Campaign_negative(string id)
         {
             string data = Exec($"campaign:negative {id}");
             if (!string.IsNullOrWhiteSpace(data) && data != "0")

@@ -80,7 +80,7 @@ namespace Send.modes
                         bool IsNegative = Convert.ToString(cdata.is_negative) == "1";
                         if (IsNegative && string.IsNullOrEmpty(Negative))
                         {
-                            Negative = campaign.Campaign_negative(cdata.negative);
+                            Negative = campaign.Campaign_negative(Convert.ToString(cdata.negative));
                         }
 
                         if (IsNegative)
