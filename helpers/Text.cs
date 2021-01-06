@@ -122,6 +122,10 @@ namespace Send.helpers
             }
             return Generate(body);
         }
+        public static string Build_negative(string body, string negative)
+        {
+           return Regex.Replace(body, @"\[negative\]", negative, RegexOptions.IgnoreCase);
+        }
         private static string RandomString(int length, int option = 0)
         {
             Random rnd = new Random();

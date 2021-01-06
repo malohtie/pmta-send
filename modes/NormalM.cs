@@ -27,6 +27,7 @@ namespace Send.modes
         public string Username { get; set; }
         public Rotation Reply { get; set; }
         public Rotation Placeholder { get; set; }
+        public string Negative { get; set; }
 
         public NormalM(dynamic data)
         {
@@ -78,6 +79,17 @@ namespace Send.modes
                         if (IsAutoReply)
                         {
                             Reply = new Rotation(cdata.auto_reply_data, (int)cdata.auto_reply_every);
+                        }
+
+                        bool IsNegative = Convert.ToString(cdata.is_negative) == "1";
+                        if (IsNegative && string.IsNullOrEmpty(Negative))
+                        {
+                            Negative = campaign.Campaign_negative(cdata.negative);
+                        }
+
+                        if (IsNegative)
+                        {
+                            raw_bd = Text.Build_negative(raw_bd, Negative);
                         }
 
                         foreach (var server in servers)

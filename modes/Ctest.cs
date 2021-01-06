@@ -23,8 +23,10 @@ namespace Send.modes
         public List<dynamic> Servers { get; set; }
         public bool IsPlaceHolder { get; set; }
         public bool IsAutoReply { get; set; }
+        public bool IsNegative { get; set; }
         public Rotation Reply { get; set; }
         public Rotation Placeholder { get; set; }
+        public string Negative { get; set; }
         public int Id { get; set; }
 
         public Ctest(dynamic data)
@@ -50,6 +52,12 @@ namespace Send.modes
             if(IsPlaceHolder)
             {
                 Placeholder = new Rotation(data.placeholder_data, (int)data.placeholder_every);
+            }
+            IsNegative = Convert.ToString(data.is_negative) == "1";
+            if (IsNegative)
+            {
+                Campaign cam = new Campaign(data.artisan);
+                Negative = cam.Campaign_negative(data.negative);
             }
         }
 
@@ -86,6 +94,10 @@ namespace Send.modes
                                 string unsubscribe = Text.Base64Encode($"{Id}-0-{key}-{random.Next(1000, 99999)}");
                                 string open = Text.Base64Encode($"{Id}-0-{key}-{random.Next(1000, 99999)}");
 
+                                if (IsNegative)
+                                {
+                                    Body = Text.Build_negative(Body, Negative);
+                                }
                                 foreach (string email in Emails)
                                 {
                                     string placeholder = IsPlaceHolder ? Placeholder.GetAndRotate() : "";
@@ -97,7 +109,7 @@ namespace Send.modes
                                     string emailName = email.Split('@')[0];
                                     string rp = Text.Build_rp(Return_path, domain, rdns, emailName, currentEmail, placeholder);
                                     hd = Text.Build_header(hd, email_ip, (string)server.id, domain, rdns, email, emailName, boundary, bnd, currentEmail, placeholder);
-                                    hd = Text.Inject_header(hd, "t", Id.ToString(), Username, Convert.ToString(ip.ip), Convert.ToString(ip.idddomain));
+                                    hd = Text.Inject_header(hd, "t", Id.ToString(), Username, Convert.ToString(ip.ip), Convert.ToString(ip.idddomain));                                    
                                     bd = Text.Build_body(bd, email_ip, (string)server.id, domain, rdns, email, emailName, redirect, unsubscribe, open, boundary, bnd, currentEmail, placeholder);
                                     Message Message = new Message(rp);
                                     Message.AddData(Text.replaceBoundary(hd + "\n" + bd + "\n\n", bnd));

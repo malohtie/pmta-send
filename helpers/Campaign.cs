@@ -53,6 +53,21 @@ namespace Send.helpers
             }
 
             return null;
+        } 
+        
+        public string Campaign_negative(int id)
+        {
+            string data = Exec($"campaign:negative {id}");
+            if (!string.IsNullOrWhiteSpace(data) && data != "0")
+            {
+                try
+                {
+                    return File.ReadAllText(data);
+                }
+                catch { }
+                
+            }
+            return "";
         }
 
         public dynamic Campaign_send_info(int id)
