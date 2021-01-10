@@ -34,7 +34,7 @@ namespace Send.modes
             this.Repeat = data.repeat ?? 1;
             this.Servers = new List<dynamic>(data.servers) ?? throw new ArgumentNullException(nameof(data.servers));
             IsNegative = Convert.ToString(data.is_negative) == "1";
-            if (IsNegative && string.IsNullOrEmpty(Negative))
+            if (IsNegative)
             {
                 Campaign cam = new Campaign(Convert.ToString(data.artisan));
                 Negative = cam.Campaign_negative(Convert.ToString(data.negative));
