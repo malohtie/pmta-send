@@ -14,6 +14,8 @@ namespace Send.modes
         public string[] Emails { get; set; }
         public string Header { get; set; }
         public string Body { get; set; }
+        public bool IsNegative { get; set; }
+        public string Negative { get; set; }
         public string Mta { get; set; }
         public string Option { get; set; }
         public string Username { get; set; }
@@ -31,6 +33,12 @@ namespace Send.modes
             this.Username = data.username ?? throw new ArgumentNullException(nameof(data.username));
             this.Repeat = data.repeat ?? 1;
             this.Servers = new List<dynamic>(data.servers) ?? throw new ArgumentNullException(nameof(data.servers));
+            IsNegative = Convert.ToString(data.is_negative) == "1";
+            if (IsNegative && string.IsNullOrEmpty(Negative))
+            {
+                Campaign cam = new Campaign(Convert.ToString(data.artisan));
+                Negative = cam.Campaign_negative(Convert.ToString(data.negative));
+            }
         }
 
         public List<string> Send()
@@ -58,6 +66,11 @@ namespace Send.modes
                                     vmta = $"mta-{vmta_ip}-{ip.cmta}";
                                 }
                                 string job = $"0_GLOBAL-TEST_{Username}";
+
+                                if (IsNegative)
+                                {
+                                    Body = Text.Build_negative(Body, Negative);
+                                }
 
                                 for (int i = 0; i < this.Repeat; i++)
                                 {
