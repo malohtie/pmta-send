@@ -39,22 +39,52 @@ namespace Send.helpers
                 return domain;
             }
         }
-        public static string Build_rp(string return_path, string domain, string rdns, string emailName, string reply = null, string placeholder = null)
+        public static string Build_rp(
+            string return_path,
+            string domain,
+            string rdns,
+            string emailName,
+            string reply = null,
+            string placeholder = null,
+            string idi = null,
+            string idd = null,
+            string ids = null,
+            string server = null
+        )
         {
             return_path = Regex.Replace(return_path, @"\[domain\]", domain, RegexOptions.IgnoreCase);
             return_path = Regex.Replace(return_path, @"\[rdns\]", rdns, RegexOptions.IgnoreCase);
-            return_path = Regex.Replace(return_path, @"\[name\]", emailName, RegexOptions.IgnoreCase);
+            return_path = Regex.Replace(return_path, @"\[name\]", emailName, RegexOptions.IgnoreCase);         
+            return_path = Regex.Replace(return_path, @"\[idi\]", idi, RegexOptions.IgnoreCase);
+            return_path = Regex.Replace(return_path, @"\[idd\]", idd, RegexOptions.IgnoreCase);
+            return_path = Regex.Replace(return_path, @"\[ids\]", ids, RegexOptions.IgnoreCase);
+            return_path = Regex.Replace(return_path, @"\[server\]", server, RegexOptions.IgnoreCase);
             if (!string.IsNullOrWhiteSpace(reply))
             {
                 return_path = Regex.Replace(return_path, @"\[reply\]", reply, RegexOptions.IgnoreCase);
             }
             if (!string.IsNullOrWhiteSpace(placeholder))
             {
-                return_path = Regex.Replace(return_path, @"\[placeholder\]", reply, RegexOptions.IgnoreCase);
+                return_path = Regex.Replace(return_path, @"\[placeholder\]", placeholder, RegexOptions.IgnoreCase);
             }
             return Generate(return_path);
         }
-        public static string Build_header(string header, string ip, string server, string domain, string rdns, string email, string emailName, string boundary = null, string bnd = null, string reply = null, string placeholder = null)
+        public static string Build_header(
+            string header,
+            string ip,
+            string server,
+            string domain,
+            string rdns,
+            string email,
+            string emailName,
+            string boundary = null,
+            string bnd = null,
+            string reply = null,
+            string placeholder = null,
+            string idi = null,
+            string idd = null,
+            string ids = null
+        ) 
         {
             string header_result = header;
             header_result = Regex.Replace(header_result, @"\[ip\]", ip, RegexOptions.IgnoreCase);
@@ -64,6 +94,9 @@ namespace Send.helpers
             header_result = Regex.Replace(header_result, @"\[name\]", emailName, RegexOptions.IgnoreCase);
             header_result = Regex.Replace(header_result, @"\[to\]", email, RegexOptions.IgnoreCase);
             header_result = Regex.Replace(header_result, @"\[date\]", GetRFC822Date(), RegexOptions.IgnoreCase);
+            header_result = Regex.Replace(header_result, @"\[idi\]", idi, RegexOptions.IgnoreCase);
+            header_result = Regex.Replace(header_result, @"\[idd\]", idd, RegexOptions.IgnoreCase);
+            header_result = Regex.Replace(header_result, @"\[ids\]", ids, RegexOptions.IgnoreCase);
             if (!string.IsNullOrWhiteSpace(boundary))
             {
                 header_result = Regex.Replace(header_result, @"\[boundary\]", boundary, RegexOptions.IgnoreCase);
@@ -82,8 +115,25 @@ namespace Send.helpers
             }
             return Generate(header_result);
         }
-        public static string Build_body(string body, string ip, string server, string domain, string rdns, string email, string emailName, string url = null, string unsub = null, string open = null, string boundary = null, string bnd = null, string reply = null, string placeholder = null)
-        {
+        public static string Build_body(
+            string body,
+            string ip,
+            string server,
+            string domain,
+            string rdns,
+            string email,
+            string emailName,
+            string url = null,
+            string unsub = null,
+            string open = null,
+            string boundary = null,
+            string bnd = null,
+            string reply = null,
+            string placeholder = null,
+            string idi = null,
+            string idd = null,
+            string ids = null
+        ) {
             body = Regex.Replace(body, @"\[ip\]", ip, RegexOptions.IgnoreCase);
             body = Regex.Replace(body, @"\[server\]", server, RegexOptions.IgnoreCase);
             body = Regex.Replace(body, @"\[domain\]", domain, RegexOptions.IgnoreCase);
@@ -91,6 +141,9 @@ namespace Send.helpers
             body = Regex.Replace(body, @"\[name\]", emailName, RegexOptions.IgnoreCase);
             body = Regex.Replace(body, @"\[to\]", email, RegexOptions.IgnoreCase);
             body = Regex.Replace(body, @"\[date\]", GetRFC822Date(), RegexOptions.IgnoreCase);
+            body = Regex.Replace(body, @"\[idi\]", idi, RegexOptions.IgnoreCase);
+            body = Regex.Replace(body, @"\[idd\]", idd, RegexOptions.IgnoreCase);
+            body = Regex.Replace(body, @"\[ids\]", ids, RegexOptions.IgnoreCase);
             if (!string.IsNullOrWhiteSpace(boundary))
             {
                 body = Regex.Replace(body, @"\[boundary\]", boundary, RegexOptions.IgnoreCase);
@@ -124,7 +177,7 @@ namespace Send.helpers
         }
         public static string Build_negative(string body, string negative)
         {
-           return Regex.Replace(body, @"\[negative\]", negative, RegexOptions.IgnoreCase);
+            return Regex.Replace(body, @"\[negative\]", negative, RegexOptions.IgnoreCase);
         }
         private static string RandomString(int length, int option = 0)
         {
@@ -212,13 +265,12 @@ namespace Send.helpers
         public static string boundary(string text)
         {
             Match match = Regex.Match(text, @"\[bnd:([^\]]*)\]", RegexOptions.IgnoreCase);
-            if(match.Success)
+            if (match.Success)
             {
                 return Random(match.Groups[1].Value.ToString() ?? "");
             }
             return "";
         }
-
         public static string replaceBoundary(string text, string value = null)
         {
             return Regex.Replace(text, @"\[bnd:([^\]]*)\]", delegate (Match match)
@@ -266,7 +318,6 @@ namespace Send.helpers
             return DateTime.Now.ToString("ddd, dd MMM yyyy HH:mm:ss " + timeZone.PadRight(5, '0'));
 
         }
-
         public static string Header_normal(string header)
         {
             return "pe: [pe]\n" + header.Trim();
