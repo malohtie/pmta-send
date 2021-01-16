@@ -10,39 +10,32 @@ namespace Send.modes
     class Ctest
     {
         private static readonly Logger logger = LogManager.GetCurrentClassLogger();
+        public string Id { get; set; }
         public string Return_path { get; set; }
         public string[] Emails { get; set; }
         public string Header { get; set; }
         public string Body { get; set; }
-        public string Mta { get; set; }
-        public string Option { get; set; }
         public string Username { get; set; }
         public string Redirect { get; set; }
         public string Unsubscribe { get; set; }
         public string Platform { get; set; }
         public List<dynamic> Servers { get; set; }
         public bool IsPlaceHolder { get; set; }
-        public bool IsAutoReply { get; set; }
-        public bool IsNegative { get; set; }
-        public Rotation Reply { get; set; }
         public Rotation Placeholder { get; set; }
+        public bool IsAutoReply { get; set; }
+        public Rotation Reply { get; set; }       
+        public bool IsNegative { get; set; }
         public string Negative { get; set; }
-        public int Id { get; set; }
 
         public Ctest(dynamic data)
         {
-            Id = data.id ?? 0;
+            Id = data.id ?? throw new ArgumentNullException(nameof(data.id));
             Return_path = !string.IsNullOrWhiteSpace((string)data.return_path) ? (string)data.return_path : "";
             Emails = data.test_emails.ToObject<string[]>() ?? throw new ArgumentNullException(nameof(data.emails));
             Header = Text.Base64Decode(Convert.ToString(data.header)) ?? throw new ArgumentNullException(nameof(data.header));
             Body = Text.Base64Decode(Convert.ToString(data.body)) ?? "";
-            Mta = data.mta ?? throw new ArgumentNullException(nameof(data.mta));
-            Option = Convert.ToString(data.option) ?? "ip";
             Username = data.username ?? throw new ArgumentNullException(nameof(data.username));
             Servers = new List<dynamic>(data.servers) ?? throw new ArgumentNullException(nameof(data.servers));
-            Redirect = data.redirect ?? throw new ArgumentNullException(nameof(data.redirect));
-            Unsubscribe = data.unsubscribe ?? throw new ArgumentNullException(nameof(data.unsubscribe));
-            Platform = data.platform ?? throw new ArgumentNullException(nameof(data.platform));
             IsAutoReply = Convert.ToString(data.is_auto_reply) == "1";
             if (IsAutoReply)
             {
@@ -54,7 +47,7 @@ namespace Send.modes
                 Placeholder = new Rotation(data.placeholder_data, (int)data.placeholder_every);
             }
             IsNegative = Convert.ToString(data.is_negative) == "1";
-            if (IsNegative && string.IsNullOrEmpty(Negative))
+            if (IsNegative && string.IsNullOrEmpty(data.negative))
             {
                 Campaign cam = new Campaign(Convert.ToString(data.artisan));
                 Negative = cam.Campaign_negative(Convert.ToString(data.negative));
@@ -80,12 +73,7 @@ namespace Send.modes
                                 string email_ip = ip.ip;
                                 string domain = ip.domain;
                                 string rdns = Text.Rdns(email_ip, domain);
-                                string vmta_ip = email_ip.Replace(':', '.');
-                                string vmta = Mta.ToLower() == "none" ? $"mta-{vmta_ip}" : (Mta == "vmta" ? $"vmta-{vmta_ip}-{Username}" : $"smtp-{vmta_ip}-{Username}");
-                                if (Option == "vmta")
-                                {
-                                    vmta = $"mta-{vmta_ip}-{ip.cmta}";
-                                }
+                                string vmta = ip.vmta;
                                 string job = $"0_CAMPAIGN-TEST_{Id}_{Username}";
 
 
@@ -107,15 +95,16 @@ namespace Send.modes
                                     string hd = Text.replaceBoundary(Header);
                                     string bd = Text.replaceBoundary(Body);
                                     string emailName = email.Split('@')[0];
-                                    string rp = Text.Build_rp(Return_path, domain, rdns, emailName, currentEmail, placeholder);
-                                    hd = Text.Build_header(hd, email_ip, (string)server.id, domain, rdns, email, emailName, boundary, bnd, currentEmail, placeholder);
-                                    hd = Text.Inject_header(hd, "t", Id.ToString(), Username, Convert.ToString(ip.ip), Convert.ToString(ip.idddomain));                                    
-                                    bd = Text.Build_body(bd, email_ip, (string)server.id, domain, rdns, email, emailName, redirect, unsubscribe, open, boundary, bnd, currentEmail, placeholder);
+                                    string rp = Text.Build_rp(Return_path, domain, rdns, emailName, currentEmail, placeholder, (string)ip.idi, (string)ip.idd, (string)ip.ids, (string)server.name);
+                                    hd = Text.Build_header(hd, email_ip, (string)server.name, domain, rdns, email, emailName, boundary, bnd, currentEmail, placeholder, (string)ip.idi, (string)ip.idd, (string)ip.ids);
+                                    hd = Text.Inject_header(hd, "t", Id, Username, Convert.ToString(ip.ip), Convert.ToString(ip.idddomain));                                    
+                                    bd = Text.Build_body(bd, email_ip, (string)server.id, domain, rdns, email, emailName, redirect, unsubscribe, open, boundary, bnd, currentEmail, placeholder, (string)ip.idi, (string)ip.idd, (string)ip.ids);
                                     Message Message = new Message(rp);
                                     Message.AddData(Text.replaceBoundary(hd + "\n" + bd + "\n\n", bnd));
                                     Message.AddRecipient(new Recipient(currentEmail));
                                     Message.VirtualMTA = vmta;
                                     Message.JobID = job;
+                                    Message.EnvID = Id;
                                     Message.Verp = false;
                                     Message.Encoding = Encoding.EightBit;
                                     p.Send(Message);
