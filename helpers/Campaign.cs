@@ -35,7 +35,7 @@ namespace Send.helpers
                 };
                 proc.Start();
                 data = proc.StandardOutput.ReadToEnd().Trim();
-                proc.Close();               
+                proc.Close();
                 return data;
             }
             catch (Exception)
@@ -53,8 +53,8 @@ namespace Send.helpers
             }
 
             return null;
-        } 
-        
+        }
+
         public string Campaign_negative(string id)
         {
             string data = Exec($"campaign:negative {id}");
@@ -65,7 +65,7 @@ namespace Send.helpers
                     return File.ReadAllText(data);
                 }
                 catch { }
-                
+
             }
             return "";
         }
@@ -121,21 +121,9 @@ namespace Send.helpers
         }
         public static object Convert_ips(string ips, string option = "ip")
         {
-            if(option == "vmta")
+            if (option == "ip")
             {
                 return ips.Trim().Split('\n').Select(t => t.Trim().Split(','))
-               .Where(item => item.Length == 6)
-               .GroupBy(item => item[4])
-               .ToDictionary(i => i.Key, i => i.Select(item => new Dictionary<string, string> {
-                    {"ip", item[0] },
-                    {"domain", item[1] },
-                    {"idi", item[2] },
-                    {"idd", item[3] },
-                    {"ids", item[4] },
-                    {"cmta", item[5] },
-               }).ToList());
-            }
-            return ips.Trim().Split('\n').Select(t => t.Trim().Split(','))
                 .Where(item => item.Length == 5)
                 .GroupBy(item => item[4])
                 .ToDictionary(i => i.Key, i => i.Select(item => new Dictionary<string, string> {
@@ -143,8 +131,25 @@ namespace Send.helpers
                     {"domain", item[1] },
                     {"idi", item[2] },
                     {"idd", item[3] },
-                    {"ids", item[4] }
+                    {"ids", item[4] },
+                    {"vmta", "mta-"+item[0].Replace(":", ".")},
                 }).ToList());
+            }
+            else
+            {
+               return ips.Trim().Split('\n').Select(t => t.Trim().Split(','))
+              .Where(item => item.Length == 6)
+              .GroupBy(item => item[4])
+              .ToDictionary(i => i.Key, i => i.Select(item => new Dictionary<string, string> {
+                    {"ip", item[0] },
+                    {"domain", item[1] },
+                    {"idi", item[2] },
+                    {"idd", item[3] },
+                    {"ids", item[4] },
+                    {"vmta", $"{option}-{item[0].Replace(":", ".")}-{item[5]}"},
+              }).ToList());
+            }
+
         }
         public static object Bulk_split(string ips)
         {

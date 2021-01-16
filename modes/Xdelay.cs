@@ -19,8 +19,6 @@ namespace Send.modes
         public int Delay { get; set; }
         public int Sleep { get; set; }
         public int Seed { get; set; }
-        public string Mta { get; set; }
-        public string Option { get; set; }
         public string Artisan { get; set; }
         public string Storage { get; set; }
         public string Password { get; set; }
@@ -37,8 +35,7 @@ namespace Send.modes
             Delay = int.Parse((string)data.delay);
             Sleep = int.Parse((string)data.sleep);
             Seed = int.Parse((string)data.seed);
-            Mta = Convert.ToString(data.mta) ?? "none";
-            Option = Convert.ToString(data.option) ?? "ip";
+         
             Artisan = Convert.ToString(data.artisan) ?? throw new ArgumentNullException(nameof(Artisan));
             Storage = Convert.ToString(data.storage) ?? throw new ArgumentNullException(nameof(Storage));
             Password = Convert.ToString(data.password) ?? throw new ArgumentNullException(nameof(Password));
@@ -65,7 +62,7 @@ namespace Send.modes
                         string[] seed_emails = Campaign.Convert_emails(Convert.ToString(cdata.email_test));
                         string raw_hd = Text.Base64Decode(Convert.ToString(cdata.header));
                         string raw_bd = Text.Base64Decode(Convert.ToString(cdata.body));
-                        var servers = Campaign.Convert_ips(Convert.ToString(cdata.ips), Option);
+                        var servers = Campaign.Convert_ips(Convert.ToString(cdata.ips), Convert.ToString(cdata.option));
                         string file = "/" + Convert.ToString(cdata.send_file);
                         bool IsPlaceholder = Convert.ToString(cdata.is_placeholder) == "1";
                         if(IsPlaceholder)
@@ -93,7 +90,7 @@ namespace Send.modes
                             var details_server = campaign.Server_info(int.Parse((string)server.Key));
                             if (details_server != null)
                             {
-                                Pmta p = new Pmta(Convert.ToString(details_server.ip), Password); //load pmta
+                                Pmta p = new Pmta((string)details_server.ip, Password); //load pmta
                                 foreach (var ip in server.Value)
                                 {
                                     var info_send = campaign.Campaign_send_info(Id);
@@ -130,15 +127,9 @@ namespace Send.modes
                                         if (emails.Count > 0)
                                         {
                                             string email_ip = ip["ip"];
-                                            string ids = ip["ids"];
                                             string domain = ip["domain"];
-                                            string rdns = Text.Rdns(email_ip, domain);
-                                            string vmta_ip = email_ip.Replace(':', '.');
-                                            string vmta = Mta.ToLower() == "none" ? $"mta-{vmta_ip}" : (Mta == "vmta" ? $"vmta-{vmta_ip}-{Username}" : $"smtp-{vmta_ip}-{Username}");
-                                            if (Option == "vmta")
-                                            {
-                                                vmta = $"mta-{vmta_ip}-"+ ip["cmta"];
-                                            }
+                                            string rdns = Text.Rdns(email_ip, domain);                                          
+                                            string vmta = ip["vmta"];
 
                                             foreach (string[] email in emails)
                                             {
@@ -155,15 +146,16 @@ namespace Send.modes
                                                 string hd = Text.replaceBoundary(raw_hd);
                                                 string bd = Text.replaceBoundary(raw_bd);
                                                 string emailName = email[1].Split('@')[0];
-                                                string rp = Text.Build_rp(raw_rp, domain, rdns, emailName, currentEmail, placeHolder);
-                                                hd = Text.Build_header(hd, email_ip, ids, domain, rdns, email[1], emailName, boundary, bnd, currentEmail, placeHolder);
+                                                string rp = Text.Build_rp(raw_rp, domain, rdns, emailName, currentEmail, placeHolder, ip["idi"], ip["idd"], ip["ids"], (string)details_server.name + ip["ids"]);
+                                                hd = Text.Build_header(hd, email_ip, (string)details_server.name + ip["ids"], domain, rdns, email[1], emailName, boundary, bnd, currentEmail, placeHolder, ip["idi"], ip["idd"], ip["ids"]);
                                                 hd = Text.Inject_header(hd, "x", Id.ToString(), Username, ip["ip"], ip["idd"], email[0]);
-                                                bd = Text.Build_body(bd, email_ip, ids, domain, rdns, email[1], emailName, redirect, unsubscribe, open, boundary, bnd, currentEmail, placeHolder);
+                                                bd = Text.Build_body(bd, email_ip, (string)details_server.name + ip["ids"], domain, rdns, email[1], emailName, redirect, unsubscribe, open, boundary, bnd, currentEmail, placeHolder, ip["idi"], ip["idd"], ip["ids"]);
                                                 Message message = new Message(rp);
                                                 message.AddData(Text.replaceBoundary(hd + "\n" + bd + "\n\n", bnd));
                                                 message.AddRecipient(new Recipient(currentEmail));
                                                 message.VirtualMTA = vmta;
                                                 message.JobID = Id.ToString();
+                                                message.EnvID = Id.ToString();
                                                 message.Verp = false;
                                                 message.Encoding = Encoding.EightBit;
                                                 p.Send(message);
@@ -190,15 +182,17 @@ namespace Send.modes
                                                             string thd = Text.replaceBoundary(raw_hd);
                                                             string tbd = Text.replaceBoundary(raw_bd);
                                                             string temailName = test_email.Split('@')[0];
-                                                            string trp = Text.Build_rp(raw_rp, domain, rdns, temailName, currentTest, placeholderTest);
-                                                            thd = Text.Build_header(thd, email_ip, ids, domain, rdns, test_email, temailName, tboundary, tbnd, currentTest, placeholderTest);
+                                                            string trp = Text.Build_rp(raw_rp, domain, rdns, temailName, currentTest, placeholderTest, ip["idi"], ip["idd"], ip["ids"], (string)details_server.name + ip["ids"]);
+                                                            thd = Text.Build_header(thd, email_ip, (string)details_server.name + ip["ids"], domain, rdns, test_email, temailName, tboundary, tbnd, currentTest, placeholderTest, ip["idi"], ip["idd"], ip["ids"]);
                                                             thd = Text.Inject_header(thd, "x", Id.ToString(), Username, ip["ip"], ip["idd"]);
-                                                            tbd = Text.Build_body(tbd, email_ip, ids, domain, rdns, test_email, temailName, tredirect, tunsubscribe, topen, tboundary, tbnd, currentTest, placeholderTest);                                                           
+                                                            tbd = Text.Build_body(tbd, email_ip, (string)details_server.name + ip["ids"], domain, rdns, test_email, temailName, tredirect, tunsubscribe, topen, tboundary, tbnd, currentTest, placeholderTest, ip["idi"], ip["idd"], ip["ids"]);
+
                                                             Message testMessage = new Message(trp);
                                                             testMessage.AddData(thd + "\n" + tbd + "\n\n");
                                                             testMessage.AddRecipient(new Recipient(currentTest));
                                                             testMessage.VirtualMTA = vmta;
                                                             testMessage.JobID = Id.ToString();
+                                                            testMessage.EnvID = Id.ToString();
                                                             testMessage.Verp = false;
                                                             testMessage.Encoding = Encoding.EightBit;
                                                             p.Send(testMessage);
@@ -206,8 +200,6 @@ namespace Send.modes
                                                     }
                                                 }
                                             }
-
-
                                         }
                                         else
                                         {
