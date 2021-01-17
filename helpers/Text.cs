@@ -44,12 +44,12 @@ namespace Send.helpers
             string domain,
             string rdns,
             string emailName,
-            string reply = null,
-            string placeholder = null,
-            string idi = null,
-            string idd = null,
-            string ids = null,
-            string server = null
+            string reply = "",
+            string placeholder = "",
+            string idi = "",
+            string idd = "",
+            string ids = "",
+            string server = ""
         )
         {
             return_path = Regex.Replace(return_path, @"\[domain\]", domain, RegexOptions.IgnoreCase);
@@ -77,13 +77,13 @@ namespace Send.helpers
             string rdns,
             string email,
             string emailName,
-            string boundary = null,
-            string bnd = null,
-            string reply = null,
-            string placeholder = null,
-            string idi = null,
-            string idd = null,
-            string ids = null
+            string boundary = "",
+            string bnd = "",
+            string reply = "",
+            string placeholder = "",
+            string idi = "",
+            string idd = "",
+            string ids = ""
         ) 
         {
             string header_result = header;
@@ -262,7 +262,7 @@ namespace Send.helpers
             }, RegexOptions.IgnoreCase | RegexOptions.Multiline | RegexOptions.IgnorePatternWhitespace);
 
         }
-        public static string boundary(string text)
+        public static string Boundary(string text)
         {
             Match match = Regex.Match(text, @"\[bnd:([^\]]*)\]", RegexOptions.IgnoreCase);
             if (match.Success)
@@ -271,7 +271,7 @@ namespace Send.helpers
             }
             return "";
         }
-        public static string replaceBoundary(string text, string value = null)
+        public static string ReplaceBoundary(string text, string value = null)
         {
             return Regex.Replace(text, @"\[bnd:([^\]]*)\]", delegate (Match match)
             {

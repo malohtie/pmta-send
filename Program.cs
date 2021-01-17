@@ -67,7 +67,6 @@ namespace Send
                                     List<string> normal_result = normal_send.Send();
                                     stopwatch.Stop();
                                     Console.Write(string.Join("<br>", normal_result) + "<br>TOOK : " + stopwatch.Elapsed.ToString());
-                                    Console.ReadLine();
                                     break;
                                 //case "bulk":
                                 //    dynamic bulk_data = JsonConvert.DeserializeObject<dynamic>(Text.Base64Decode(args[1]));

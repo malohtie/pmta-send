@@ -19,8 +19,6 @@ namespace Send.modes
         public int Delay { get; set; }
         public int Sleep { get; set; }
         public int Seed { get; set; }
-        public string Mta { get; set; }
-        public string Option { get; set; }
         public string Artisan { get; set; }
         public string Storage { get; set; }
         public string Password { get; set; }
@@ -37,8 +35,7 @@ namespace Send.modes
             Delay = int.Parse((string)data.delay);
             Sleep = int.Parse((string)data.sleep);
             Seed = int.Parse((string)data.seed);
-            Mta = Convert.ToString(data.mta) ?? "none";
-            Option = Convert.ToString(data.option) ?? "ip";
+            
             Artisan = Convert.ToString(data.artisan) ?? throw new ArgumentNullException(nameof(Artisan));
             Storage = Convert.ToString(data.storage) ?? throw new ArgumentNullException(nameof(Storage));
             Password = Convert.ToString(data.password) ?? throw new ArgumentNullException(nameof(Password));
@@ -65,7 +62,7 @@ namespace Send.modes
                         string[] seed_emails = Campaign.Convert_emails(Convert.ToString(cdata.email_test));
                         string raw_hd = Text.Base64Decode(Convert.ToString(cdata.header));
                         string raw_bd = Text.Base64Decode(Convert.ToString(cdata.body));
-                        var servers = Campaign.Convert_ips(Convert.ToString(cdata.ips), Option);
+                        var servers = Campaign.Convert_ips(Convert.ToString(cdata.ips), Convert.ToString(cdata.option));
                         string file = "/" + Convert.ToString(cdata.send_file);
                         string platform = Convert.ToString(cdata.platform);
                         string redirect_link = Convert.ToString(cdata.redirect_link);
@@ -132,26 +129,16 @@ namespace Send.modes
                                             .Where(item => item.Length == 2)
                                             .ToList();
                                         if (emails.Count > 0)
-                                        {
-                                            string email_ip = ip["ip"];
-                                            string domain = ip["domain"];
-                                            string ids = ip["ids"];
-                                            string rdns = Text.Rdns(email_ip, domain);
-                                            string vmta_ip = email_ip.Replace(':', '.');
-                                            string vmta = Mta.ToLower() == "none" ? $"mta-{vmta_ip}" : (Mta == "vmta" ? $"vmta-{vmta_ip}-{Username}" : $"smtp-{vmta_ip}-{Username}");
-                                            if (Option == "vmta")
-                                            {
-                                                vmta = $"mta-{vmta_ip}-"+ ip["cmta"];
-                                            }
-                                            string job = $"{Id}";
-
-                                            string rp = Text.Build_rp(raw_rp, domain, rdns, "reply");
+                                        {                                       
+                                            string rdns = Text.Rdns(ip["ip"], ip["domain"]);
+                                            string rp = Text.Build_rp(raw_rp, ip["domain"], rdns, "info");
                                             Message message = new Message(rp);
                                             string header = Text.Header_normal(raw_hd);
-                                            string genB = Text.replaceBoundary(header + "\n" + raw_bd + "\n\n");
+                                            string genB = Text.ReplaceBoundary(header + "\n" + raw_bd + "\n\n");
                                             message.AddMergeData(Text.Generate(genB)); 
-                                            message.VirtualMTA = vmta;
+                                            message.VirtualMTA = ip["vmta"];
                                             message.JobID = Id.ToString();
+                                            message.EnvID = Id.ToString();
                                             message.Verp = false;
                                             message.Encoding = Encoding.EightBit;
 
@@ -169,9 +156,12 @@ namespace Send.modes
 
                                                 //header body
                                                 r["pe"] = $"n,{Id},{Username},{ip["ip"]},{ip["idd"]},{email[0]}";
-                                                r["ip"] = email_ip;
-                                                r["server"] = ids;
-                                                r["domain"] = domain;
+                                                r["ip"] = ip["ip"];
+                                                r["server"] = (string)details_server.name + ip["ids"];
+                                                r["domain"] = ip["domain"];
+                                                r["idi"] = ip["idi"];
+                                                r["idd"] = ip["idd"];
+                                                r["ids"] = ip["ids"];
                                                 r["rdns"] = rdns;
                                                 r["name"] = currentEmail.Split('@')[0];
                                                 r["to"] = currentEmail;
@@ -179,7 +169,7 @@ namespace Send.modes
                                                 r["placeholder"] = placeHolder;
                                                 r["date"] = Text.GetRFC822Date();
                                                 r["boundary"] = Text.Random("[rndlu/30]");
-                                                r["bnd"] = Text.boundary(header);
+                                                r["bnd"] = Text.Boundary(header);
                                                 r["*parts"] = "1";
 
                                                 message.AddRecipient(r);
@@ -187,39 +177,39 @@ namespace Send.modes
                                                 total_send++;
                                                 c_seed++;
 
-                                                if (Seed != 0 && c_seed % Seed == 0)
+                                                if (Seed != 0 && c_seed % Seed == 0 && seed_emails.Length > 0)
                                                 {
-                                                    if (seed_emails.Length > 0)
+                                                    foreach (string test_email in seed_emails)
                                                     {
-                                                        foreach (string test_email in seed_emails)
-                                                        {
-                                                            string currentTest = IsAutoReply ? Reply.GetCurrent() : test_email;
-                                                            string placeholderTest = IsPlaceholder ? Placeholder.GetCurrent() : "";
+                                                        string currentTest = IsAutoReply ? Reply.GetCurrent() : test_email;
+                                                        string placeholderTest = IsPlaceholder ? Placeholder.GetCurrent() : "";
 
-                                                            Recipient t = new Recipient(currentTest);
-                                                            //links
-                                                            string tkey = Text.Adler32($"{Id}0");
-                                                            t["red"] = Text.Base64Encode($"{Id}-0-{tkey}-{random.Next(1000, 99999)}");
-                                                            t["unsub"] = Text.Base64Encode($"{Id}-0-{tkey}-{random.Next(1000, 99999)}");
-                                                            t["opn"] = Text.Base64Encode($"{Id}-0-{tkey}-{random.Next(1000, 99999)}");
+                                                        Recipient t = new Recipient(currentTest);
+                                                        //links
+                                                        string tkey = Text.Adler32($"{Id}0");
+                                                        t["red"] = Text.Base64Encode($"{Id}-0-{tkey}-{random.Next(1000, 99999)}");
+                                                        t["unsub"] = Text.Base64Encode($"{Id}-0-{tkey}-{random.Next(1000, 99999)}");
+                                                        t["opn"] = Text.Base64Encode($"{Id}-0-{tkey}-{random.Next(1000, 99999)}");
 
-                                                            //header body
-                                                            t["pe"] = $"t,{Id},{Username},{ip["ip"]},{ip["idd"]},0";
-                                                            t["ip"] = email_ip;
-                                                            t["server"] = ids;
-                                                            t["domain"] = domain;
-                                                            t["rdns"] = rdns;
-                                                            t["name"] = currentTest.Split('@')[0];
-                                                            t["to"] = currentTest;
-                                                            t["reply"] = currentTest;
-                                                            t["placeholder"] = placeholderTest;
-                                                            t["date"] = Text.GetRFC822Date();
-                                                            t["boundary"] = Text.Random("[rndlu/30]");
-                                                            t["bnd"] = Text.boundary(header);
-                                                            t["*parts"] = "1";
-                                                            message.AddRecipient(t);
-                                                        }
-                                                    }
+                                                        //header body
+                                                        t["pe"] = $"t,{Id},{Username},{ip["ip"]},{ip["idd"]},0";
+                                                        t["ip"] = ip["ip"];
+                                                        t["server"] = (string)details_server.name + ip["ids"];
+                                                        t["domain"] = ip["domain"];
+                                                        t["idi"] = ip["idi"];
+                                                        t["idd"] = ip["idd"];
+                                                        t["ids"] = ip["ids"];
+                                                        t["rdns"] = rdns;
+                                                        t["name"] = currentTest.Split('@')[0];
+                                                        t["to"] = currentTest;
+                                                        t["reply"] = currentTest;
+                                                        t["placeholder"] = placeholderTest;
+                                                        t["date"] = Text.GetRFC822Date();
+                                                        t["boundary"] = Text.Random("[rndlu/30]");
+                                                        t["bnd"] = Text.Boundary(header);
+                                                        t["*parts"] = "1";
+                                                        message.AddRecipient(t);
+                                                    } 
                                                 }
                                             }
                                             p.Send(message);
@@ -270,7 +260,6 @@ namespace Send.modes
                 }
                 Thread.Sleep(Sleep * 1000);
             }
-
             campaign.Campaign_update_progress(Id, "start", true, 0);
             return Result;
         }
