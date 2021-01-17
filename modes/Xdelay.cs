@@ -164,7 +164,8 @@ namespace Send.modes
                                                 p.Send(message);
                                                 total_send++;
                                                 c_seed++;
-                                                Task.Run(() => campaign.Campaign_update_send(Id, total_send + total_sended));
+                                                //Task.Run(() => campaign.Campaign_update_send(Id, total_send + total_sended));
+                                                campaign.Campaign_update_send(Id, total_send + total_sended);
                                                 if (Seed != 0 && c_seed % Seed == 0 && seed_emails.Length > 0)
                                                 {
                                                     foreach (string test_email in seed_emails)

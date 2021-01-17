@@ -220,7 +220,8 @@ namespace Send.modes
                                                 }
                                             }
                                             p.Send(message);
-                                            Task.Run(() => campaign.Campaign_update_send(Id, total_send + total_sended));
+                                            //Task.Run(() => campaign.Campaign_update_send(Id, total_send + total_sended));
+                                            campaign.Campaign_update_send(Id, total_send + total_sended);
                                         }
                                         else
                                         {
