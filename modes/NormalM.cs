@@ -63,6 +63,13 @@ namespace Send.modes
                         string raw_hd = Text.Base64Decode(Convert.ToString(cdata.header));
                         string raw_bd = Text.Base64Decode(Convert.ToString(cdata.body));
                         var servers = Campaign.Convert_ips(Convert.ToString(cdata.ips), Convert.ToString(cdata.option));
+                        if(servers.Count == 0)
+                        {
+                            Result.Add("No Servers To Process");
+                            logger.Error("No Servers To Process");
+                            campaign.Campaign_update_progress(Id, "start", true, 0);
+                            return Result;
+                        }
                         string file = "/" + Convert.ToString(cdata.send_file);
                         string platform = Convert.ToString(cdata.platform);
                         string redirect_link = Convert.ToString(cdata.redirect_link);
