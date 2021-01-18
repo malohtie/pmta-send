@@ -166,7 +166,7 @@ namespace Send.modes
                                                 c_seed++;
                                                 //Task.Run(() => campaign.Campaign_update_send(Id, total_send + total_sended));
                                                 campaign.Campaign_update_send(Id, total_send + total_sended);
-                                                if (Seed != 0 && Seed % c_seed == 0 && seed_emails.Length > 0)
+                                                if (Seed != 0 && c_seed % Seed == 0 && seed_emails.Length > 0)
                                                 {
                                                     foreach (string test_email in seed_emails)
                                                     {
@@ -198,7 +198,6 @@ namespace Send.modes
                                                         testMessage.Encoding = Encoding.EightBit;
                                                         p.Send(testMessage);
                                                     }
-
                                                 }
                                             }
                                         }

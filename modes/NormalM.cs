@@ -184,7 +184,7 @@ namespace Send.modes
                                                 total_send++;
                                                 c_seed++;
 
-                                                if (Seed != 0 && Seed % c_seed == 0 && seed_emails.Length > 0)
+                                                if (Seed != 0 && c_seed % Seed == 0 && seed_emails.Length > 0)
                                                 {
                                                     foreach (string test_email in seed_emails)
                                                     {
