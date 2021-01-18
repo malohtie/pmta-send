@@ -82,7 +82,7 @@ namespace Send.modes
                             Reply = new Rotation(cdata.auto_reply_data, (int)cdata.auto_reply_every);
                         }
                         bool IsNegative = Convert.ToString(cdata.is_negative) == "1";
-                        if (IsNegative && string.IsNullOrEmpty(Negative))
+                        if (IsNegative && !string.IsNullOrEmpty(Negative))
                         {
                             Negative = campaign.Campaign_negative(Convert.ToString(cdata.negative));
                         }

@@ -47,7 +47,7 @@ namespace Send.modes
                 Placeholder = new Rotation(data.placeholder_data, (int)data.placeholder_every);
             }
             IsNegative = Convert.ToString(data.is_negative) == "1";
-            if (IsNegative && string.IsNullOrEmpty(data.negative))
+            if (IsNegative && !string.IsNullOrEmpty((string)data.negative))
             {
                 Campaign cam = new Campaign(Convert.ToString(data.artisan));
                 Negative = cam.Campaign_negative(Convert.ToString(data.negative));
