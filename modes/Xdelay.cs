@@ -149,10 +149,10 @@ namespace Send.modes
                                                 string hd = Text.ReplaceBoundary(raw_hd);
                                                 string bd = Text.ReplaceBoundary(raw_bd);
                                                 string emailName = email[1].Split('@')[0];
-                                                string rp = Text.Build_rp(raw_rp, ip["domain"], rdns, emailName, currentEmail, placeHolder, ip["idi"], ip["idd"], ip["ids"], (string)details_server.name + ip["ids"]);
-                                                hd = Text.Build_header(hd, ip["ip"], (string)details_server.name + ip["ids"], ip["domain"], rdns, email[1], emailName, boundary, bnd, currentEmail, placeHolder, ip["idi"], ip["idd"], ip["ids"]);
+                                                string rp = Text.Build_rp(raw_rp, ip["domain"], rdns, emailName, currentEmail, placeHolder, ip["idi"], ip["idd"], ip["ids"], (string)details_server.name + ip["ids"], email[1]);
+                                                hd = Text.Build_header(hd, ip["ip"], (string)details_server.name + ip["ids"], ip["domain"], rdns, email[1], emailName, boundary, bnd, currentEmail, placeHolder, ip["idi"], ip["idd"], ip["ids"], email[0]);
                                                 hd = Text.Inject_header(hd, "x", Id.ToString(), Username, ip["ip"], ip["idd"], email[0]);
-                                                bd = Text.Build_body(bd, ip["ip"], (string)details_server.name + ip["ids"], ip["domain"], rdns, email[1], emailName, redirect, unsubscribe, open, boundary, bnd, currentEmail, placeHolder, ip["idi"], ip["idd"], ip["ids"]);
+                                                bd = Text.Build_body(bd, ip["ip"], (string)details_server.name + ip["ids"], ip["domain"], rdns, email[1], emailName, redirect, unsubscribe, open, boundary, bnd, currentEmail, placeHolder, ip["idi"], ip["idd"], ip["ids"], email[1]);
                                                 Message message = new Message(rp);
                                                 message.AddData(Text.ReplaceBoundary(hd + "\n" + bd + "\n\n", bnd));
                                                 message.AddRecipient(new Recipient(currentEmail));

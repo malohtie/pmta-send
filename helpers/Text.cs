@@ -49,9 +49,11 @@ namespace Send.helpers
             string idi = "",
             string idd = "",
             string ids = "",
-            string server = ""
+            string server = "",
+            string to = ""
         )
         {
+            return_path = Regex.Replace(return_path, @"\[to\]", to, RegexOptions.IgnoreCase);
             return_path = Regex.Replace(return_path, @"\[domain\]", domain, RegexOptions.IgnoreCase);
             return_path = Regex.Replace(return_path, @"\[rdns\]", rdns, RegexOptions.IgnoreCase);
             return_path = Regex.Replace(return_path, @"\[name\]", emailName, RegexOptions.IgnoreCase);         
@@ -83,7 +85,8 @@ namespace Send.helpers
             string placeholder = "",
             string idi = "",
             string idd = "",
-            string ids = ""
+            string ids = "",
+            string ide = ""
         ) 
         {
             string header_result = header;
@@ -97,6 +100,7 @@ namespace Send.helpers
             header_result = Regex.Replace(header_result, @"\[idi\]", idi, RegexOptions.IgnoreCase);
             header_result = Regex.Replace(header_result, @"\[idd\]", idd, RegexOptions.IgnoreCase);
             header_result = Regex.Replace(header_result, @"\[ids\]", ids, RegexOptions.IgnoreCase);
+            header_result = Regex.Replace(header_result, @"\[ide\]", ide, RegexOptions.IgnoreCase);
             if (!string.IsNullOrWhiteSpace(boundary))
             {
                 header_result = Regex.Replace(header_result, @"\[boundary\]", boundary, RegexOptions.IgnoreCase);
@@ -123,16 +127,17 @@ namespace Send.helpers
             string rdns,
             string email,
             string emailName,
-            string url = null,
-            string unsub = null,
-            string open = null,
-            string boundary = null,
-            string bnd = null,
-            string reply = null,
-            string placeholder = null,
-            string idi = null,
-            string idd = null,
-            string ids = null
+            string url = "",
+            string unsub = "",
+            string open = "",
+            string boundary = "",
+            string bnd = "",
+            string reply = "",
+            string placeholder = "",
+            string idi = "",
+            string idd = "",
+            string ids = "",
+            string ide = ""
         ) {
             body = Regex.Replace(body, @"\[ip\]", ip, RegexOptions.IgnoreCase);
             body = Regex.Replace(body, @"\[server\]", server, RegexOptions.IgnoreCase);
@@ -144,6 +149,7 @@ namespace Send.helpers
             body = Regex.Replace(body, @"\[idi\]", idi, RegexOptions.IgnoreCase);
             body = Regex.Replace(body, @"\[idd\]", idd, RegexOptions.IgnoreCase);
             body = Regex.Replace(body, @"\[ids\]", ids, RegexOptions.IgnoreCase);
+            body = Regex.Replace(body, @"\[ide\]", ide, RegexOptions.IgnoreCase);
             if (!string.IsNullOrWhiteSpace(boundary))
             {
                 body = Regex.Replace(body, @"\[boundary\]", boundary, RegexOptions.IgnoreCase);

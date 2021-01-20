@@ -89,16 +89,16 @@ namespace Send.modes
                                 foreach (string email in Emails)
                                 {
                                     string placeholder = IsPlaceHolder ? Placeholder.GetAndRotate() : "";
-                                    string currentEmail = IsAutoReply ? Reply.GetAndRotate() : email;  
+                                    string currentEmail = IsAutoReply ? Reply.GetAndRotate() : email;                                  
                                     string boundary = Text.Random("[rndlu/30]");
                                     string bnd = Text.Boundary(Header);
                                     string hd = Text.ReplaceBoundary(Header);
                                     string bd = Text.ReplaceBoundary(Body);
                                     string emailName = email.Split('@')[0];
-                                    string rp = Text.Build_rp(Return_path, domain, rdns, emailName, currentEmail, placeholder, (string)ip.idi, (string)ip.idd, (string)ip.ids, (string)server.name);
-                                    hd = Text.Build_header(hd, email_ip, (string)server.name, domain, rdns, email, emailName, boundary, bnd, currentEmail, placeholder, (string)ip.idi, (string)ip.idd, (string)ip.ids);
+                                    string rp = Text.Build_rp(Return_path, domain, rdns, emailName, currentEmail, placeholder, (string)ip.idi, (string)ip.idd, (string)ip.ids, (string)server.name, email);
+                                    hd = Text.Build_header(hd, email_ip, (string)server.name, domain, rdns, email, emailName, boundary, bnd, currentEmail, placeholder, (string)ip.idi, (string)ip.idd, (string)ip.ids, "0");
                                     hd = Text.Inject_header(hd, "t", Id, Username, Convert.ToString(ip.ip), Convert.ToString(ip.idddomain));                                    
-                                    bd = Text.Build_body(bd, email_ip, (string)server.id, domain, rdns, email, emailName, redirect, unsubscribe, open, boundary, bnd, currentEmail, placeholder, (string)ip.idi, (string)ip.idd, (string)ip.ids);
+                                    bd = Text.Build_body(bd, email_ip, (string)server.id, domain, rdns, email, emailName, redirect, unsubscribe, open, boundary, bnd, currentEmail, placeholder, (string)ip.idi, (string)ip.idd, (string)ip.ids, "0");
                                     Message Message = new Message(rp);
                                     Message.AddData(Text.ReplaceBoundary(hd + "\n" + bd + "\n\n", bnd));
                                     Message.AddRecipient(new Recipient(currentEmail));

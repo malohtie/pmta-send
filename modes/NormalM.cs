@@ -169,9 +169,10 @@ namespace Send.modes
                                                 r["idi"] = ip["idi"];
                                                 r["idd"] = ip["idd"];
                                                 r["ids"] = ip["ids"];
+                                                r["ide"] = email[0];
                                                 r["rdns"] = rdns;
                                                 r["name"] = currentEmail.Split('@')[0];
-                                                r["to"] = currentEmail;
+                                                r["to"] = email[1];
                                                 r["reply"] = currentEmail;
                                                 r["placeholder"] = placeHolder;
                                                 r["date"] = Text.GetRFC822Date();
@@ -206,9 +207,10 @@ namespace Send.modes
                                                         t["idi"] = ip["idi"];
                                                         t["idd"] = ip["idd"];
                                                         t["ids"] = ip["ids"];
+                                                        t["ide"] = "0";
                                                         t["rdns"] = rdns;
                                                         t["name"] = currentTest.Split('@')[0];
-                                                        t["to"] = currentTest;
+                                                        t["to"] = test_email;
                                                         t["reply"] = currentTest;
                                                         t["placeholder"] = placeholderTest;
                                                         t["date"] = Text.GetRFC822Date();
