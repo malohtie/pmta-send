@@ -3,6 +3,7 @@ using port25.pmta.api.submitter;
 using Send.helpers;
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Send.modes
@@ -59,7 +60,7 @@ namespace Send.modes
             List<string> data = new List<string>();
             List<Task> tasks = new List<Task>();
             Random random = new Random();
-
+            int counter = 1;
             foreach (dynamic server in Servers)
             {
                 tasks.Add(
@@ -88,8 +89,8 @@ namespace Send.modes
                                 }
                                 foreach (string email in Emails)
                                 {
-                                    string placeholder = IsPlaceHolder ? Placeholder.GetAndRotate() : "";
-                                    string currentEmail = IsAutoReply ? Reply.GetAndRotate() : email;                                  
+                                    string placeholder = IsPlaceHolder ? Placeholder.GetAndRotate(counter) : "";
+                                    string currentEmail = IsAutoReply ? Reply.GetAndRotate(counter) : email;                                  
                                     string boundary = Text.Random("[rndlu/30]");
                                     string bnd = Text.Boundary(Header);
                                     string hd = Text.ReplaceBoundary(Header);
@@ -108,7 +109,8 @@ namespace Send.modes
                                     Message.Verp = false;
                                     Message.Encoding = Encoding.EightBit;
                                     p.Send(Message);
-                                }
+                                    Interlocked.Increment(ref counter);
+                                }                               
                             }
                             data.Add($"SERVER {server.mainip} OK");
                             p.Close();

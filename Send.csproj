@@ -72,11 +72,9 @@
     <Compile Include="modes\GlobalTest.cs" />
     <Compile Include="helpers\Campaign.cs" />
     <Compile Include="helpers\Encryption.cs" />
-    <Compile Include="helpers\PickupFile.cs" />
     <Compile Include="helpers\Text.cs" />
     <Compile Include="modes\NormalM.cs" />
     <Compile Include="helpers\Pmta.cs" />
-    <Compile Include="modes\XdelayBulk.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="modes\Xdelay.cs" />

@@ -22,10 +22,17 @@ namespace Send.helpers
             return Data[Index];
         }
 
-        public string GetAndRotate()
+        public string GetAndRotate(int conter = 0)
         {
             string ReplyMail = Data[Index];
-            Conter++;
+            if (conter != 0)
+            {
+                Conter = conter;
+            }
+            else
+            {
+                Conter++;
+            }
 
             if (Conter % RotateEvery == 0)
             {

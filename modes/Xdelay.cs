@@ -94,141 +94,149 @@ namespace Send.modes
 
                         foreach (var server in servers)
                         {
-                            var details_server = campaign.Server_info(int.Parse((string)server.Key));
-                            if (details_server != null)
+                            try
                             {
-                                Pmta p = new Pmta((string)details_server.ip, Password); //load pmta
-                                foreach (var ip in server.Value)
+                                var details_server = campaign.Server_info(int.Parse((string)server.Key));
+                                if (details_server != null)
                                 {
-                                    var info_send = campaign.Campaign_send_info(Id);
-                                    if (info_send != null)
+                                    Pmta p = new Pmta((string)details_server.ip, Password); //load pmta
+                                    foreach (var ip in server.Value)
                                     {
-                                        int total_send = 0, value_to_send = 0; //check fraction 
-                                        int total_sended = int.Parse((string)info_send.send_progress);
-                                        int file_count = int.Parse((string)info_send.send_count);
-                                        if (total_sended + Fraction >= file_count)
+                                        var info_send = campaign.Campaign_send_info(Id);
+                                        if (info_send != null)
                                         {
-                                            if (file_count - total_sended <= 0)
+                                            int total_send = 0, value_to_send = 0; //check fraction 
+                                            int total_sended = int.Parse((string)info_send.send_progress);
+                                            int file_count = int.Parse((string)info_send.send_count);
+                                            if (total_sended + Fraction >= file_count)
                                             {
-                                                campaign.Campaign_update_progress(Id, "finish", true, 0);
-                                                Result.Add("Campaign Ended" + Id);
-                                                p.Close(); //close
-                                                return Result;
+                                                if (file_count - total_sended <= 0)
+                                                {
+                                                    campaign.Campaign_update_progress(Id, "finish", true, 0);
+                                                    Result.Add("Campaign Ended" + Id);
+                                                    p.Close(); //close
+                                                    return Result;
+                                                }
+                                                else
+                                                {
+                                                    value_to_send = file_count - total_sended;
+                                                }
                                             }
                                             else
                                             {
-                                                value_to_send = file_count - total_sended;
+                                                value_to_send = Fraction;
                                             }
-                                        }
-                                        else
-                                        {
-                                            value_to_send = Fraction;
-                                        }
 
-                                        //load emails
+                                            //load emails
 
-                                        List<string[]> emails = File.ReadLines(Storage + file).Skip(total_sended).Take(value_to_send)
-                                            .Select(t => t.Trim().Split(','))
-                                            .Where(item => item.Length == 2)
-                                            .ToList();
-                                        if (emails.Count > 0)
-                                        {
-                                            string rdns = Text.Rdns(ip["ip"], ip["domain"]);
-                                            foreach (string[] email in emails)
+                                            List<string[]> emails = File.ReadLines(Storage + file).Skip(total_sended).Take(value_to_send)
+                                                .Select(t => t.Trim().Split(','))
+                                                .Where(item => item.Length == 2)
+                                                .ToList();
+                                            if (emails.Count > 0)
                                             {
-                                                string currentEmail = IsAutoReply ? Reply.GetAndRotate() : email[1];
-                                                string placeHolder = IsPlaceholder ? Placeholder.GetAndRotate() : "";
-                                                string key = Text.Adler32($"{Id}{email[0]}");
-
-                                                string redirect = Text.Base64Encode($"{Id}-{email[0]}-{key}-{random.Next(1000, 99999)}");
-                                                string unsubscribe = Text.Base64Encode($"{Id}-{email[0]}-{key}-{random.Next(1000, 99999)}");
-                                                string open = Text.Base64Encode($"{Id}-{email[0]}-{key}-{random.Next(1000, 99999)}");
-
-                                                string boundary = Text.Random("[rndlu/30]");
-                                                string bnd = Text.Boundary(raw_hd);
-                                                string hd = Text.ReplaceBoundary(raw_hd);
-                                                string bd = Text.ReplaceBoundary(raw_bd);
-                                                string emailName = email[1].Split('@')[0];
-                                                string rp = Text.Build_rp(raw_rp, ip["domain"], rdns, emailName, currentEmail, placeHolder, ip["idi"], ip["idd"], ip["ids"], (string)details_server.name + ip["ids"], email[1]);
-                                                hd = Text.Build_header(hd, ip["ip"], (string)details_server.name + ip["ids"], ip["domain"], rdns, email[1], emailName, boundary, bnd, currentEmail, placeHolder, ip["idi"], ip["idd"], ip["ids"], email[0]);
-                                                hd = Text.Inject_header(hd, "x", Id.ToString(), Username, ip["ip"], ip["idd"], email[0]);
-                                                bd = Text.Build_body(bd, ip["ip"], (string)details_server.name + ip["ids"], ip["domain"], rdns, email[1], emailName, redirect, unsubscribe, open, boundary, bnd, currentEmail, placeHolder, ip["idi"], ip["idd"], ip["ids"], email[1]);
-                                                Message message = new Message(rp);
-                                                message.AddData(Text.ReplaceBoundary(hd + "\n" + bd + "\n\n", bnd));
-                                                message.AddRecipient(new Recipient(currentEmail));
-                                                message.VirtualMTA = ip["vmta"];
-                                                message.JobID = Id.ToString();
-                                                message.EnvID = Id.ToString();
-                                                message.Verp = false;
-                                                message.Encoding = Encoding.EightBit;
-                                                p.Send(message);
-                                                total_send++;
-                                                c_seed++;
-                                                //Task.Run(() => campaign.Campaign_update_send(Id, total_send + total_sended));
-                                                campaign.Campaign_update_send(Id, total_send + total_sended);
-                                                if (Seed != 0 && c_seed % Seed == 0 && seed_emails.Length > 0)
+                                                string rdns = Text.Rdns(ip["ip"], ip["domain"]);
+                                                foreach (string[] email in emails)
                                                 {
-                                                    foreach (string test_email in seed_emails)
+                                                    string currentEmail = IsAutoReply ? Reply.GetAndRotate() : email[1];
+                                                    string placeHolder = IsPlaceholder ? Placeholder.GetAndRotate() : "";
+                                                    string key = Text.Adler32($"{Id}{email[0]}");
+
+                                                    string redirect = Text.Base64Encode($"{Id}-{email[0]}-{key}-{random.Next(1000, 99999)}");
+                                                    string unsubscribe = Text.Base64Encode($"{Id}-{email[0]}-{key}-{random.Next(1000, 99999)}");
+                                                    string open = Text.Base64Encode($"{Id}-{email[0]}-{key}-{random.Next(1000, 99999)}");
+
+                                                    string boundary = Text.Random("[rndlu/30]");
+                                                    string bnd = Text.Boundary(raw_hd);
+                                                    string hd = Text.ReplaceBoundary(raw_hd);
+                                                    string bd = Text.ReplaceBoundary(raw_bd);
+                                                    string emailName = email[1].Split('@')[0];
+                                                    string rp = Text.Build_rp(raw_rp, ip["domain"], rdns, emailName, currentEmail, placeHolder, ip["idi"], ip["idd"], ip["ids"], (string)details_server.name + ip["ids"], email[1]);
+                                                    hd = Text.Build_header(hd, ip["ip"], (string)details_server.name + ip["ids"], ip["domain"], rdns, email[1], emailName, boundary, bnd, currentEmail, placeHolder, ip["idi"], ip["idd"], ip["ids"], email[0]);
+                                                    hd = Text.Inject_header(hd, "x", Id.ToString(), Username, ip["ip"], ip["idd"], email[0]);
+                                                    bd = Text.Build_body(bd, ip["ip"], (string)details_server.name + ip["ids"], ip["domain"], rdns, email[1], emailName, redirect, unsubscribe, open, boundary, bnd, currentEmail, placeHolder, ip["idi"], ip["idd"], ip["ids"], email[1]);
+                                                    Message message = new Message(rp);
+                                                    message.AddData(Text.ReplaceBoundary(hd + "\n" + bd + "\n\n", bnd));
+                                                    message.AddRecipient(new Recipient(currentEmail));
+                                                    message.VirtualMTA = ip["vmta"];
+                                                    message.JobID = Id.ToString();
+                                                    message.EnvID = Id.ToString();
+                                                    message.Verp = false;
+                                                    message.Encoding = Encoding.EightBit;
+                                                    p.Send(message);
+                                                    total_send++;
+                                                    c_seed++;
+                                                    //Task.Run(() => campaign.Campaign_update_send(Id, total_send + total_sended));
+                                                    campaign.Campaign_update_send(Id, total_send + total_sended);
+                                                    if (Seed != 0 && c_seed % Seed == 0 && seed_emails.Length > 0)
                                                     {
-                                                        string currentTest = IsAutoReply ? Reply.GetCurrent() : test_email;
-                                                        string placeholderTest = IsPlaceholder ? Placeholder.GetCurrent() : "";
+                                                        foreach (string test_email in seed_emails)
+                                                        {
+                                                            string currentTest = IsAutoReply ? Reply.GetCurrent() : test_email;
+                                                            string placeholderTest = IsPlaceholder ? Placeholder.GetCurrent() : "";
 
-                                                        string tkey = Text.Adler32($"{Id}0");
-                                                        string tredirect = Text.Base64Encode($"{Id}-0-{tkey}-{random.Next(1000, 99999)}");
-                                                        string tunsubscribe = Text.Base64Encode($"{Id}-0-{tkey}-{random.Next(1000, 99999)}");
-                                                        string topen = Text.Base64Encode($"{Id}-0-{tkey}-{random.Next(1000, 99999)}");
+                                                            string tkey = Text.Adler32($"{Id}0");
+                                                            string tredirect = Text.Base64Encode($"{Id}-0-{tkey}-{random.Next(1000, 99999)}");
+                                                            string tunsubscribe = Text.Base64Encode($"{Id}-0-{tkey}-{random.Next(1000, 99999)}");
+                                                            string topen = Text.Base64Encode($"{Id}-0-{tkey}-{random.Next(1000, 99999)}");
 
-                                                        string tboundary = Text.Random("[rndlu/30]");
-                                                        string tbnd = Text.Boundary(raw_hd);
-                                                        string thd = Text.ReplaceBoundary(raw_hd);
-                                                        string tbd = Text.ReplaceBoundary(raw_bd);
-                                                        string temailName = test_email.Split('@')[0];
-                                                        string trp = Text.Build_rp(raw_rp, ip["domain"], rdns, temailName, currentTest, placeholderTest, ip["idi"], ip["idd"], ip["ids"], (string)details_server.name + ip["ids"]);
-                                                        thd = Text.Build_header(thd, ip["ip"], (string)details_server.name + ip["ids"], ip["domain"], rdns, test_email, temailName, tboundary, tbnd, currentTest, placeholderTest, ip["idi"], ip["idd"], ip["ids"]);
-                                                        thd = Text.Inject_header(thd, "x", Id.ToString(), Username, ip["ip"], ip["idd"]);
-                                                        tbd = Text.Build_body(tbd, ip["ip"], (string)details_server.name + ip["ids"], ip["domain"], rdns, test_email, temailName, tredirect, tunsubscribe, topen, tboundary, tbnd, currentTest, placeholderTest, ip["idi"], ip["idd"], ip["ids"]);
+                                                            string tboundary = Text.Random("[rndlu/30]");
+                                                            string tbnd = Text.Boundary(raw_hd);
+                                                            string thd = Text.ReplaceBoundary(raw_hd);
+                                                            string tbd = Text.ReplaceBoundary(raw_bd);
+                                                            string temailName = test_email.Split('@')[0];
+                                                            string trp = Text.Build_rp(raw_rp, ip["domain"], rdns, temailName, currentTest, placeholderTest, ip["idi"], ip["idd"], ip["ids"], (string)details_server.name + ip["ids"]);
+                                                            thd = Text.Build_header(thd, ip["ip"], (string)details_server.name + ip["ids"], ip["domain"], rdns, test_email, temailName, tboundary, tbnd, currentTest, placeholderTest, ip["idi"], ip["idd"], ip["ids"]);
+                                                            thd = Text.Inject_header(thd, "x", Id.ToString(), Username, ip["ip"], ip["idd"]);
+                                                            tbd = Text.Build_body(tbd, ip["ip"], (string)details_server.name + ip["ids"], ip["domain"], rdns, test_email, temailName, tredirect, tunsubscribe, topen, tboundary, tbnd, currentTest, placeholderTest, ip["idi"], ip["idd"], ip["ids"]);
 
-                                                        Message testMessage = new Message(trp);
-                                                        testMessage.AddData(thd + "\n" + tbd + "\n\n");
-                                                        testMessage.AddRecipient(new Recipient(currentTest));
-                                                        testMessage.VirtualMTA = ip["vmta"];
-                                                        testMessage.JobID = Id.ToString();
-                                                        testMessage.EnvID = Id.ToString();
-                                                        testMessage.Verp = false;
-                                                        testMessage.Encoding = Encoding.EightBit;
-                                                        p.Send(testMessage);
+                                                            Message testMessage = new Message(trp);
+                                                            testMessage.AddData(thd + "\n" + tbd + "\n\n");
+                                                            testMessage.AddRecipient(new Recipient(currentTest));
+                                                            testMessage.VirtualMTA = ip["vmta"];
+                                                            testMessage.JobID = Id.ToString();
+                                                            testMessage.EnvID = Id.ToString();
+                                                            testMessage.Verp = false;
+                                                            testMessage.Encoding = Encoding.EightBit;
+                                                            p.Send(testMessage);
+                                                        }
                                                     }
                                                 }
                                             }
+                                            else
+                                            {
+                                                Result.Add("Emails Empty" + Id);
+                                                logger.Error("Emails Empty" + Id);
+                                                campaign.Campaign_update_progress(Id, "start", true, 0);
+                                                p.Close();
+                                                return Result;
+                                            }
                                         }
                                         else
                                         {
-                                            Result.Add("Emails Empty" + Id);
-                                            logger.Error("Emails Empty" + Id);
+                                            Result.Add("Cant get Send progress campaign" + Id);
+                                            logger.Error("Cant get Send progress campaign" + Id);
                                             campaign.Campaign_update_progress(Id, "start", true, 0);
                                             p.Close();
                                             return Result;
                                         }
+                                        Thread.Sleep(Delay * 1000); //sleep delay
                                     }
-                                    else
-                                    {
-                                        Result.Add("Cant get Send progress campaign" + Id);
-                                        logger.Error("Cant get Send progress campaign" + Id);
-                                        campaign.Campaign_update_progress(Id, "start", true, 0);
-                                        p.Close();
-                                        return Result;
-                                    }
-                                    Thread.Sleep(Delay * 1000); //sleep delay
-                                }
 
-                                p.Close(); //close pmta connection
+                                    p.Close(); //close pmta connection
+                                }
+                                else
+                                {
+                                    Result.Add("Server Not Found " + server.Key);
+                                    logger.Error("Server Not Found " + server.Key);
+                                    campaign.Campaign_update_progress(Id, "start", true, 0);
+                                    return Result;
+                                }
                             }
-                            else
+                            catch (Exception ex)
                             {
-                                Result.Add("Server Not Found " + server.Key);
-                                logger.Error("Server Not Found " + server.Key);
-                                campaign.Campaign_update_progress(Id, "start", true, 0);
-                                return Result;
+                                Console.WriteLine($"ERR SERVER ID {server.Key} {ex.Message} -- {ex.StackTrace}");
+                                logger.Error($"ERR SERVER ID {server.Key}  {ex.Message} -- {ex.StackTrace}");
                             }
                         }
                     }
