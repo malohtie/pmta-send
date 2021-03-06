@@ -17,6 +17,7 @@ namespace Send.modes
         public string Header { get; set; }
         public string Body { get; set; }
         public string Username { get; set; }
+        public string TestId { get; set; }
         public string Redirect { get; set; }
         public string Unsubscribe { get; set; }
         public string Platform { get; set; }
@@ -35,6 +36,7 @@ namespace Send.modes
             Header = Text.Base64Decode(Convert.ToString(data.header)) ?? throw new ArgumentNullException(nameof(data.header));
             Body = Text.Base64Decode(Convert.ToString(data.body)) ?? "";
             Username = data.username ?? throw new ArgumentNullException(nameof(data.username));
+            TestId = !string.IsNullOrWhiteSpace((string)data.test_id) ? (string)data.test_id : "0";
             Servers = new List<dynamic>(data.servers) ?? throw new ArgumentNullException(nameof(data.servers));
             IsAutoReply = Convert.ToString(data.is_auto_reply) == "1";
             if (IsAutoReply)
@@ -78,9 +80,9 @@ namespace Send.modes
 
 
                                 string key = Text.Adler32($"{Id}0");
-                                string redirect = Text.Base64Encode($"{Id}-0-{key}-{random.Next(1000, 99999)}");
-                                string unsubscribe = Text.Base64Encode($"{Id}-0-{key}-{random.Next(1000, 99999)}");
-                                string open = Text.Base64Encode($"{Id}-0-{key}-{random.Next(1000, 99999)}");
+                                string redirect = Text.Base64Encode($"{Id}-0-{key}-{TestId}-{random.Next(1000, 99999)}");
+                                string unsubscribe = Text.Base64Encode($"{Id}-0-{key}-{TestId}-{random.Next(1000, 99999)}");
+                                string open = Text.Base64Encode($"{Id}-0-{key}-{TestId}-{random.Next(1000, 99999)}");
 
                                 if (IsNegative)
                                 {
