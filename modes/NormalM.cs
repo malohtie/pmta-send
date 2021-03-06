@@ -23,6 +23,7 @@ namespace Send.modes
         public string Storage { get; set; }
         public string Password { get; set; }
         public string Username { get; set; }
+        public string SendId { get; set; }
         public Rotation Reply { get; set; }
         public Rotation Placeholder { get; set; }
         public string Negative { get; set; }
@@ -40,6 +41,7 @@ namespace Send.modes
             Storage = Convert.ToString(data.storage) ?? throw new ArgumentNullException(nameof(Storage));
             Password = Convert.ToString(data.password) ?? throw new ArgumentNullException(nameof(Password));
             Username = Convert.ToString(data.username) ?? throw new ArgumentNullException(nameof(Username));
+            SendId = !string.IsNullOrWhiteSpace((string)data.send_id) ? (string)data.send_id : "0";
         }
 
         public List<string> Send()
@@ -159,9 +161,9 @@ namespace Send.modes
                                                     Recipient r = new Recipient(currentEmail);
                                                     //links                                           
                                                     string key = Text.Adler32($"{Id}{email[0]}");
-                                                    r["red"] = Text.Base64Encode($"{Id}-{email[0]}-{key}-{random.Next(1000, 99999)}");
-                                                    r["unsub"] = Text.Base64Encode($"{Id}-{email[0]}-{key}-{random.Next(1000, 99999)}");
-                                                    r["opn"] = Text.Base64Encode($"{Id}-{email[0]}-{key}-{random.Next(1000, 99999)}");
+                                                    r["red"] = Text.Base64Encode($"{Id}-{email[0]}-{key}-{SendId}-{random.Next(1000, 99999)}");
+                                                    r["unsub"] = Text.Base64Encode($"{Id}-{email[0]}-{key}-{SendId}-{random.Next(1000, 99999)}");
+                                                    r["opn"] = Text.Base64Encode($"{Id}-{email[0]}-{key}-{SendId}-{random.Next(1000, 99999)}");
 
                                                     //header body
                                                     r["pe"] = $"n,{Id},{Username},{ip["ip"]},{ip["idd"]},{email[0]}";
@@ -197,9 +199,9 @@ namespace Send.modes
                                                             Recipient t = new Recipient(currentTest);
                                                             //links
                                                             string tkey = Text.Adler32($"{Id}0");
-                                                            t["red"] = Text.Base64Encode($"{Id}-0-{tkey}-{random.Next(1000, 99999)}");
-                                                            t["unsub"] = Text.Base64Encode($"{Id}-0-{tkey}-{random.Next(1000, 99999)}");
-                                                            t["opn"] = Text.Base64Encode($"{Id}-0-{tkey}-{random.Next(1000, 99999)}");
+                                                            t["red"] = Text.Base64Encode($"{Id}-0-{tkey}-{SendId}-{random.Next(1000, 99999)}");
+                                                            t["unsub"] = Text.Base64Encode($"{Id}-0-{tkey}-{SendId}-{random.Next(1000, 99999)}");
+                                                            t["opn"] = Text.Base64Encode($"{Id}-0-{tkey}-{SendId}-{random.Next(1000, 99999)}");
 
                                                             //header body
                                                             t["pe"] = $"t,{Id},{Username},{ip["ip"]},{ip["idd"]},0";

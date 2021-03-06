@@ -23,6 +23,7 @@ namespace Send.modes
         public string Storage { get; set; }
         public string Password { get; set; }
         public string Username { get; set; }
+        public string SendId { get; set; }
         public Rotation Reply { get; set; }
         public Rotation Placeholder { get; set; }
         public string Negative { get; set; }
@@ -40,7 +41,7 @@ namespace Send.modes
             Storage = Convert.ToString(data.storage) ?? throw new ArgumentNullException(nameof(Storage));
             Password = Convert.ToString(data.password) ?? throw new ArgumentNullException(nameof(Password));
             Username = Convert.ToString(data.username) ?? throw new ArgumentNullException(nameof(Username));
-
+            SendId = !string.IsNullOrWhiteSpace((string)data.send_id) ? (string)data.send_id : "0";
         }
 
         public List<string> Send()
@@ -142,9 +143,9 @@ namespace Send.modes
                                                     string placeHolder = IsPlaceholder ? Placeholder.GetAndRotate() : "";
                                                     string key = Text.Adler32($"{Id}{email[0]}");
 
-                                                    string redirect = Text.Base64Encode($"{Id}-{email[0]}-{key}-{random.Next(1000, 99999)}");
-                                                    string unsubscribe = Text.Base64Encode($"{Id}-{email[0]}-{key}-{random.Next(1000, 99999)}");
-                                                    string open = Text.Base64Encode($"{Id}-{email[0]}-{key}-{random.Next(1000, 99999)}");
+                                                    string redirect = Text.Base64Encode($"{Id}-{email[0]}-{key}-{SendId}-{random.Next(1000, 99999)}");
+                                                    string unsubscribe = Text.Base64Encode($"{Id}-{email[0]}-{key}-{SendId}-{random.Next(1000, 99999)}");
+                                                    string open = Text.Base64Encode($"{Id}-{email[0]}-{key}-{SendId}-{random.Next(1000, 99999)}");
 
                                                     string boundary = Text.Random("[rndlu/30]");
                                                     string bnd = Text.Boundary(raw_hd);
@@ -176,9 +177,9 @@ namespace Send.modes
                                                             string placeholderTest = IsPlaceholder ? Placeholder.GetCurrent() : "";
 
                                                             string tkey = Text.Adler32($"{Id}0");
-                                                            string tredirect = Text.Base64Encode($"{Id}-0-{tkey}-{random.Next(1000, 99999)}");
-                                                            string tunsubscribe = Text.Base64Encode($"{Id}-0-{tkey}-{random.Next(1000, 99999)}");
-                                                            string topen = Text.Base64Encode($"{Id}-0-{tkey}-{random.Next(1000, 99999)}");
+                                                            string tredirect = Text.Base64Encode($"{Id}-0-{tkey}-{SendId}-{random.Next(1000, 99999)}");
+                                                            string tunsubscribe = Text.Base64Encode($"{Id}-0-{tkey}-{SendId}-{random.Next(1000, 99999)}");
+                                                            string topen = Text.Base64Encode($"{Id}-0-{tkey}-{SendId}-{random.Next(1000, 99999)}");
 
                                                             string tboundary = Text.Random("[rndlu/30]");
                                                             string tbnd = Text.Boundary(raw_hd);
