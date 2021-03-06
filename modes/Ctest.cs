@@ -3,7 +3,6 @@ using port25.pmta.api.submitter;
 using Send.helpers;
 using System;
 using System.Collections.Generic;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace Send.modes

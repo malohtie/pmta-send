@@ -154,7 +154,7 @@ namespace Send.helpers
         public static object Bulk_split(string ips)
         {
             return ips.Trim().Split('\n').Select(t => t.Trim().Split(','))
-                .Where(item => item.Length == 5)
+                .Where(item => item.Length >= 5)
                 .ToList();
         }
         public int CountLinesLINQ(string path) => File.ReadLines(path).Count();

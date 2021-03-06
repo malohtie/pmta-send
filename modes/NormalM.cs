@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace Send.modes
 {
@@ -283,7 +282,5 @@ namespace Send.modes
             campaign.Campaign_update_progress(Id, "start", true, 0);
             return Result;
         }
-
-
     }
 }
