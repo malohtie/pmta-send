@@ -51,7 +51,7 @@ namespace Send.modes
             List<Task> tasks = new List<Task>();            
             Random random = new Random();
             int c_seed = 0;
-            bool ended = false;
+
             for (int l = 0; l < Loop; l++) //loop
             {
                 Console.WriteLine("Loop : " + l);
@@ -99,7 +99,7 @@ namespace Send.modes
                         string mta = Convert.ToString(cdata.option);
                         int progress = int.Parse(Convert.ToString(cdata.send_progress));
                         int total = int.Parse(Convert.ToString(cdata.send_count));
-                        var countIps = servers.Count;
+                        int countIps = servers.Count;
 
                         if(total - progress <= 0)
                         {
@@ -110,7 +110,6 @@ namespace Send.modes
                         int toSend = countIps * Fraction;
                         if (total - (progress + (countIps*Fraction)) < 0) {
                             toSend = total - progress;
-                            ended = true;
                         }
 
                         List<int> ipLimit = Campaign.DistributeInteger(toSend, countIps).ToList();
@@ -131,7 +130,7 @@ namespace Send.modes
                                                  int skip = (current == 0 ? 0 : ipLimit.Take(current).Sum()) + progress;
                                                  Console.WriteLine("skip " + skip);
 
-                                                 List<string[]> emails = File.ReadLines(file).Skip(skip).Take(ipLimit[current])
+                                                 List<string[]> emails = File.ReadLines(Storage + file).Skip(skip).Take(ipLimit[current])
                                                                      .Select(t => t.Trim().Split(','))
                                                                      .Where(item => item.Length == 2)
                                                                      .ToList();

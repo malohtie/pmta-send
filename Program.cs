@@ -75,14 +75,6 @@ namespace Send
                                     stopwatch.Stop();
                                     Console.Write(string.Join("<br>", bulk_result) + "<br>TOOK : " + stopwatch.Elapsed.ToString());
                                     break;
-                                //case "bulk":
-                                //    dynamic bulk_data = JsonConvert.DeserializeObject<dynamic>(Text.Base64Decode(args[1]));
-                                //    BulkM bulk_send = new BulkM(bulk_data);
-                                //    List<string> bulk_result = bulk_send.Send();
-                                //    stopwatch.Stop();
-                                //    Console.Write(string.Join("<br>", bulk_result) + "<br>TOOK : " + stopwatch.Elapsed.ToString());
-                                //    Console.ReadLine();
-                                //    break;
                                 default:
                                     Console.Write("UNKNOW ACTION");
                                     break;
