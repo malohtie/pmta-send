@@ -287,7 +287,7 @@ namespace Send.helpers
         }
         public static string Base64Encode(string plainText)
         {
-            return Convert.ToBase64String(Encoding.UTF8.GetBytes(plainText));
+            return Convert.ToBase64String(Encoding.UTF8.GetBytes(plainText)).Replace("=", "");
         }
         public static string Base64Decode(string base64EncodedData)
         {
