@@ -5,7 +5,7 @@ namespace Send.helpers
 {
     class Rotation
     {
-        static int Index { get; set; }
+        public int Index { get; set; }
         public int RotateEvery { get; set; }
         public List<dynamic> Data { get; set; }
         public int Conter { get; set; }
