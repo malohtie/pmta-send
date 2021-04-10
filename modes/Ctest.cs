@@ -3,6 +3,7 @@ using port25.pmta.api.submitter;
 using Send.helpers;
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Send.modes
@@ -22,7 +23,7 @@ namespace Send.modes
         public string Platform { get; set; }
         public List<dynamic> Servers { get; set; }
         public bool IsPlaceHolder { get; set; }
-        public Rotation Placeholder { get; set; }
+        public Placeholder Placeholder { get; set; }
         public bool IsAutoReply { get; set; }
         public Rotation Reply { get; set; }       
         public bool IsNegative { get; set; }
@@ -45,7 +46,7 @@ namespace Send.modes
             IsPlaceHolder = Convert.ToString(data.is_placeholder) == "1";
             if(IsPlaceHolder)
             {
-                Placeholder = new Rotation(data.placeholder_data, (int)data.placeholder_every);
+                Placeholder = new Placeholder(data.placeholder_data, (int)data.placeholder_every);
             }
             IsNegative = Convert.ToString(data.is_negative) == "1";
             if (IsNegative && !string.IsNullOrEmpty((string)data.negative))
@@ -60,7 +61,7 @@ namespace Send.modes
             List<string> data = new List<string>();
             List<Task> tasks = new List<Task>();
             Random random = new Random();
-
+            int placeholder_counter = 1;
             foreach (dynamic server in Servers)
             {
                 tasks.Add(
@@ -89,17 +90,20 @@ namespace Send.modes
                                 }
                                 foreach (string email in Emails)
                                 {
-                                    string placeholder = IsPlaceHolder ? Placeholder.ThreadGetAndRotate() : "";
+                                
                                     string currentEmail = IsAutoReply ? Reply.ThreadGetAndRotate() : email;
                                     string boundary = Text.Random("[rndlu/30]");
                                     string bnd = Text.Boundary(Header);
                                     string hd = Text.ReplaceBoundary(Header);
                                     string bd = Text.ReplaceBoundary(Body);
                                     string emailName = email.Split('@')[0];
-                                    string rp = Text.Build_rp(Return_path, domain, rdns, emailName, currentEmail, placeholder, (string)ip.idi, (string)ip.idd, (string)ip.ids, (string)server.name, email);
-                                    hd = Text.Build_header(hd, email_ip, (string)server.name, domain, rdns, email, emailName, boundary, bnd, currentEmail, placeholder, (string)ip.idi, (string)ip.idd, (string)ip.ids, "0");
-                                    hd = Text.Inject_header(hd, "t", Id, Username, Convert.ToString(ip.ip), Convert.ToString(ip.idddomain));                                    
-                                    bd = Text.Build_body(bd, email_ip, (string)server.id, domain, rdns, email, emailName, redirect, unsubscribe, open, boundary, bnd, currentEmail, placeholder, (string)ip.idi, (string)ip.idd, (string)ip.ids, "0");
+                                    string rp = Text.Build_rp(Return_path, domain, rdns, emailName, currentEmail, "", (string)ip.idi, (string)ip.idd, (string)ip.ids, (string)server.name, email);
+                                    rp = IsPlaceHolder ? Placeholder.ReplaceRotate(rp, placeholder_counter, true) : rp;
+                                    hd = Text.Build_header(hd, email_ip, (string)server.name, domain, rdns, email, emailName, boundary, bnd, currentEmail, "", (string)ip.idi, (string)ip.idd, (string)ip.ids, "0");
+                                    hd = IsPlaceHolder ? Placeholder.ReplaceRotate(rp, placeholder_counter, true) : hd;
+                                    hd = Text.Inject_header(hd, "t", Id, Username, Convert.ToString(ip.ip), Convert.ToString(ip.idddomain));
+                                    bd = Text.Build_body(bd, email_ip, (string)server.id, domain, rdns, email, emailName, redirect, unsubscribe, open, boundary, bnd, currentEmail, "", (string)ip.idi, (string)ip.idd, (string)ip.ids, "0");
+                                    bd = IsPlaceHolder ? Placeholder.ReplaceRotate(bd, placeholder_counter, true) : bd;
                                     Message Message = new Message(rp);
                                     Message.AddData(Text.ReplaceBoundary(hd + "\n" + bd + "\n\n", bnd));
                                     Message.AddRecipient(new Recipient(currentEmail));
@@ -109,6 +113,9 @@ namespace Send.modes
                                     Message.Verp = false;
                                     Message.Encoding = Encoding.EightBit;
                                     p.Send(Message);
+
+
+                                    Interlocked.Increment(ref placeholder_counter);
                                 }                               
                             }
                             data.Add($"SERVER {server.mainip} OK");

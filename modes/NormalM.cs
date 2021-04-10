@@ -24,7 +24,7 @@ namespace Send.modes
         public string Username { get; set; }
         public string SendId { get; set; }
         public Rotation Reply { get; set; }
-        public Rotation Placeholder { get; set; }
+        public Placeholder Placeholder { get; set; }
         public string Negative { get; set; }
 
         public NormalM(dynamic data)
@@ -47,7 +47,7 @@ namespace Send.modes
         {
             List<string> Result = new List<string>();
             Campaign campaign = new Campaign(Artisan);
-         
+            int placeholder_counter = 1;
             int c_seed = 0;
             Random random = new Random();
 
@@ -78,7 +78,7 @@ namespace Send.modes
                         bool IsPlaceholder = Convert.ToString(cdata.is_placeholder) == "1";
                         if (IsPlaceholder)
                         {
-                            Placeholder = new Rotation(cdata.placeholder_data, (int)cdata.placeholder_every);
+                            Placeholder = new Placeholder(cdata.placeholder_data, (int)cdata.placeholder_every);
                         }
                         bool IsAutoReply = Convert.ToString(cdata.is_auto_reply) == "1";
                         if (IsAutoReply)
@@ -154,8 +154,7 @@ namespace Send.modes
 
                                                 foreach (string[] email in emails)
                                                 {
-                                                    string currentEmail = IsAutoReply ? Reply.GetAndRotate() : email[1];
-                                                    string placeHolder = IsPlaceholder ? Placeholder.GetAndRotate() : "";
+                                                    string currentEmail = IsAutoReply ? Reply.GetAndRotate() : email[1];                                                  
 
                                                     Recipient r = new Recipient(currentEmail);
                                                     //links                                           
@@ -177,24 +176,27 @@ namespace Send.modes
                                                     r["name"] = currentEmail.Split('@')[0];
                                                     r["to"] = email[1];
                                                     r["reply"] = currentEmail;
-                                                    r["placeholder"] = placeHolder;
                                                     r["date"] = Text.GetRFC822Date();
                                                     r["boundary"] = Text.Random("[rndlu/30]");
                                                     r["bnd"] = Text.Boundary(header);
                                                     r["*parts"] = "1";
+                                                    if (IsPlaceholder)
+                                                    {
+                                                        r = Placeholder.ReplaceRotateReciption(r, placeholder_counter);
+                                                    }
+                                                   
 
                                                     message.AddRecipient(r);
 
                                                     total_send++;
                                                     c_seed++;
+                                                    placeholder_counter++;
 
                                                     if (Seed != 0 && c_seed % Seed == 0 && seed_emails.Length > 0)
                                                     {
                                                         foreach (string test_email in seed_emails)
                                                         {
                                                             string currentTest = IsAutoReply ? Reply.GetCurrent() : test_email;
-                                                            string placeholderTest = IsPlaceholder ? Placeholder.GetCurrent() : "";
-
                                                             Recipient t = new Recipient(currentTest);
                                                             //links
                                                             string tkey = Text.Adler32($"{Id}0");
@@ -214,12 +216,15 @@ namespace Send.modes
                                                             t["rdns"] = rdns;
                                                             t["name"] = currentTest.Split('@')[0];
                                                             t["to"] = test_email;
-                                                            t["reply"] = currentTest;
-                                                            t["placeholder"] = placeholderTest;
+                                                            t["reply"] = currentTest;                                                      
                                                             t["date"] = Text.GetRFC822Date();
                                                             t["boundary"] = Text.Random("[rndlu/30]");
                                                             t["bnd"] = Text.Boundary(header);
                                                             t["*parts"] = "1";
+                                                            if (IsPlaceholder)
+                                                            {
+                                                                t = Placeholder.ReplaceCurrentReciption(t);
+                                                            }
                                                             message.AddRecipient(t);
                                                         }
                                                     }

@@ -25,7 +25,7 @@ namespace Send.modes
         public string Username { get; set; }
         public string SendId { get; set; }
         public Rotation Reply { get; set; }
-        public Rotation Placeholder { get; set; }
+        public Placeholder Placeholder { get; set; }
         public string Negative { get; set; }
 
         public Xdelay(dynamic data)
@@ -49,6 +49,7 @@ namespace Send.modes
             List<string> Result = new List<string>();
             Campaign campaign = new Campaign(Artisan);
             int c_seed = 0;
+            int placeholder_counter = 1;
             Random random = new Random();
 
             for (int i = 0; i < Loop; i++) //loop
@@ -75,7 +76,7 @@ namespace Send.modes
                         bool IsPlaceholder = Convert.ToString(cdata.is_placeholder) == "1";
                         if (IsPlaceholder)
                         {
-                            Placeholder = new Rotation(cdata.placeholder_data, (int)cdata.placeholder_every);
+                            Placeholder = new Placeholder(cdata.placeholder_data, (int)cdata.placeholder_every);
                         }
                         bool IsAutoReply = Convert.ToString(cdata.is_auto_reply) == "1";
                         if (IsAutoReply)
@@ -136,26 +137,30 @@ namespace Send.modes
                                                 .ToList();
                                             if (emails.Count > 0)
                                             {
+                                                
                                                 string rdns = Text.Rdns(ip["ip"], ip["domain"]);
                                                 foreach (string[] email in emails)
                                                 {
-                                                    string currentEmail = IsAutoReply ? Reply.GetAndRotate() : email[1];
-                                                    string placeHolder = IsPlaceholder ? Placeholder.GetAndRotate() : "";
+                                                    string currentEmail = IsAutoReply ? Reply.GetAndRotate() : email[1];                                                    
                                                     string key = Text.Adler32($"{Id}{email[0]}");
 
-                                                    string redirect = Text.Base64Encode($"{Id}-{email[0]}-{key}-{SendId}-{random.Next(1000, 99999)}");
-                                                    string unsubscribe = Text.Base64Encode($"{Id}-{email[0]}-{key}-{SendId}-{random.Next(1000, 99999)}");
-                                                    string open = Text.Base64Encode($"{Id}-{email[0]}-{key}-{SendId}-{random.Next(1000, 99999)}");
+                                                    string redirect = Text.Base64Encode($"{Id}-{email[0]}-{key}-{SendId}-{random.Next(1000, 999999)}");
+                                                    string unsubscribe = Text.Base64Encode($"{Id}-{email[0]}-{key}-{SendId}-{random.Next(1000, 999999)}");
+                                                    string open = Text.Base64Encode($"{Id}-{email[0]}-{key}-{SendId}-{random.Next(1000, 999999)}");
 
                                                     string boundary = Text.Random("[rndlu/30]");
                                                     string bnd = Text.Boundary(raw_hd);
                                                     string hd = Text.ReplaceBoundary(raw_hd);
                                                     string bd = Text.ReplaceBoundary(raw_bd);
                                                     string emailName = email[1].Split('@')[0];
-                                                    string rp = Text.Build_rp(raw_rp, ip["domain"], rdns, emailName, currentEmail, placeHolder, ip["idi"], ip["idd"], ip["ids"], (string)details_server.name + ip["ids"], email[1]);
-                                                    hd = Text.Build_header(hd, ip["ip"], (string)details_server.name + ip["ids"], ip["domain"], rdns, email[1], emailName, boundary, bnd, currentEmail, placeHolder, ip["idi"], ip["idd"], ip["ids"], email[0]);
+                                                    string rp = Text.Build_rp(raw_rp, ip["domain"], rdns, emailName, currentEmail, "", ip["idi"], ip["idd"], ip["ids"], (string)details_server.name + ip["ids"], email[1]);
+                                                    rp = IsPlaceholder ? Placeholder.ReplaceRotate(rp, placeholder_counter) : rp; // replace and rotate return path
+                                                    hd = Text.Build_header(hd, ip["ip"], (string)details_server.name + ip["ids"], ip["domain"], rdns, email[1], emailName, boundary, bnd, currentEmail, "", ip["idi"], ip["idd"], ip["ids"], email[0]);
+                                                    hd = IsPlaceholder ? Placeholder.ReplaceRotate(hd, placeholder_counter) : hd; //replace and rotate header
                                                     hd = Text.Inject_header(hd, "x", Id.ToString(), Username, ip["ip"], ip["idd"], email[0]);
-                                                    bd = Text.Build_body(bd, ip["ip"], (string)details_server.name + ip["ids"], ip["domain"], rdns, email[1], emailName, redirect, unsubscribe, open, boundary, bnd, currentEmail, placeHolder, ip["idi"], ip["idd"], ip["ids"], email[1]);
+                                                    bd = Text.Build_body(bd, ip["ip"], (string)details_server.name + ip["ids"], ip["domain"], rdns, email[1], emailName, redirect, unsubscribe, open, boundary, bnd, currentEmail, "", ip["idi"], ip["idd"], ip["ids"], email[1]);
+                                                    bd = IsPlaceholder ? Placeholder.ReplaceRotate(bd, placeholder_counter) : bd; //replace and rotate body
+
                                                     Message message = new Message(rp);
                                                     message.AddData(Text.ReplaceBoundary(hd + "\n" + bd + "\n\n", bnd));
                                                     message.AddRecipient(new Recipient(currentEmail));
@@ -174,23 +179,24 @@ namespace Send.modes
                                                         foreach (string test_email in seed_emails)
                                                         {
                                                             string currentTest = IsAutoReply ? Reply.GetCurrent() : test_email;
-                                                            string placeholderTest = IsPlaceholder ? Placeholder.GetCurrent() : "";
-
+                                                         
                                                             string tkey = Text.Adler32($"{Id}0");
-                                                            string tredirect = Text.Base64Encode($"{Id}-0-{tkey}-{SendId}-{random.Next(1000, 99999)}");
-                                                            string tunsubscribe = Text.Base64Encode($"{Id}-0-{tkey}-{SendId}-{random.Next(1000, 99999)}");
-                                                            string topen = Text.Base64Encode($"{Id}-0-{tkey}-{SendId}-{random.Next(1000, 99999)}");
+                                                            string tredirect = Text.Base64Encode($"{Id}-0-{tkey}-{SendId}-{random.Next(1000, 999999)}");
+                                                            string tunsubscribe = Text.Base64Encode($"{Id}-0-{tkey}-{SendId}-{random.Next(1000, 999999)}");
+                                                            string topen = Text.Base64Encode($"{Id}-0-{tkey}-{SendId}-{random.Next(1000, 999999)}");
 
                                                             string tboundary = Text.Random("[rndlu/30]");
                                                             string tbnd = Text.Boundary(raw_hd);
                                                             string thd = Text.ReplaceBoundary(raw_hd);
                                                             string tbd = Text.ReplaceBoundary(raw_bd);
                                                             string temailName = test_email.Split('@')[0];
-                                                            string trp = Text.Build_rp(raw_rp, ip["domain"], rdns, temailName, currentTest, placeholderTest, ip["idi"], ip["idd"], ip["ids"], (string)details_server.name + ip["ids"]);
-                                                            thd = Text.Build_header(thd, ip["ip"], (string)details_server.name + ip["ids"], ip["domain"], rdns, test_email, temailName, tboundary, tbnd, currentTest, placeholderTest, ip["idi"], ip["idd"], ip["ids"]);
+                                                            string trp = Text.Build_rp(raw_rp, ip["domain"], rdns, temailName, currentTest, "", ip["idi"], ip["idd"], ip["ids"], (string)details_server.name + ip["ids"]);
+                                                            trp = IsPlaceholder ? Placeholder.ReplaceCurrent(trp) : trp; //return path placeholder
+                                                            thd = Text.Build_header(thd, ip["ip"], (string)details_server.name + ip["ids"], ip["domain"], rdns, test_email, temailName, tboundary, tbnd, currentTest, "", ip["idi"], ip["idd"], ip["ids"]);
+                                                            thd = IsPlaceholder ? Placeholder.ReplaceCurrent(thd) : thd; //head placeholder
                                                             thd = Text.Inject_header(thd, "x", Id.ToString(), Username, ip["ip"], ip["idd"]);
-                                                            tbd = Text.Build_body(tbd, ip["ip"], (string)details_server.name + ip["ids"], ip["domain"], rdns, test_email, temailName, tredirect, tunsubscribe, topen, tboundary, tbnd, currentTest, placeholderTest, ip["idi"], ip["idd"], ip["ids"]);
-
+                                                            tbd = Text.Build_body(tbd, ip["ip"], (string)details_server.name + ip["ids"], ip["domain"], rdns, test_email, temailName, tredirect, tunsubscribe, topen, tboundary, tbnd, currentTest, "", ip["idi"], ip["idd"], ip["ids"]);
+                                                            tbd = IsPlaceholder ? Placeholder.ReplaceCurrent(tbd) : tbd; // body placeholder
                                                             Message testMessage = new Message(trp);
                                                             testMessage.AddData(thd + "\n" + tbd + "\n\n");
                                                             testMessage.AddRecipient(new Recipient(currentTest));
@@ -202,6 +208,8 @@ namespace Send.modes
                                                             p.Send(testMessage);
                                                         }
                                                     }
+                                                    if (IsPlaceholder) placeholder_counter ++; //increment placeholder counter
+                                                    
                                                 }
                                             }
                                             else

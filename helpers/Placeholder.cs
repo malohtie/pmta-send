@@ -1,4 +1,6 @@
 ﻿using Newtonsoft.Json;
+using port25.pmta.api.submitter;
+using System.Text.RegularExpressions;
 
 namespace Send.helpers
 {
@@ -7,26 +9,27 @@ namespace Send.helpers
         public int[] Index { get; set; }
         public int RotateEvery { get; set; }
         public dynamic Data { get; set; }
-        public int Conter { get; set; }
         public Placeholder(dynamic Data, int RotateEvery = 100)
         {
-            Conter = 1;
             this.Data = JsonConvert.DeserializeObject(Data);
             this.RotateEvery = RotateEvery;
             Index = new int[this.Data.Count];
         }
 
-        public string GetCurrent(int key)
+        private int Size()
+        {
+            return (int)this.Data.Count;
+        }
+
+        private string GetCurrent(int key)
         {
             return Data[key][Index[key]];
         }
 
-        public string GetAndRotate(int key)
+        private string GetAndRotate(int key, int counter)
         {
             string ReplyMail = Data[key][Index[key]];
-            Conter++;
-
-            if (Conter % RotateEvery == 0)
+            if (counter % RotateEvery == 0)
             {
                 if (Index[key] >= (Data[key].Count - 1))
                 {
@@ -40,14 +43,12 @@ namespace Send.helpers
             return ReplyMail;
         }
 
-        public string ThreadGetAndRotate(int key)
+        private string TheadGetAndRotate(int key, int counter)
         {
             lock (this)
             {
                 string ReplyMail = Data[key][Index[key]];
-                Conter++;
-
-                if (Conter % RotateEvery == 0)
+                if (counter % RotateEvery == 0)
                 {
                     if (Index[key] >= (Data[key].Count - 1))
                     {
@@ -60,6 +61,68 @@ namespace Send.helpers
                 }
                 return ReplyMail;
             }
+        }
+
+        public string ReplaceRotate(string data, int counter, bool thread = false)
+        {
+            for (int i = 0; i < Size(); i++)
+            {
+                int index = i + 1;
+                if(thread)
+                {
+                    data = Regex.Replace(data, $"[placeholder_{index}]", TheadGetAndRotate(i, counter), RegexOptions.IgnoreCase);
+                }
+                else
+                {
+                    data = Regex.Replace(data, $"[placeholder_{index}]", GetAndRotate(i, counter), RegexOptions.IgnoreCase);
+                }
+               
+            }
+            return data;
+
+        }
+
+        public string ReplaceCurrent(string data)
+        {
+            for (int i = 0; i < Size(); i++)
+            {
+                int index = i + 1;
+                data = Regex.Replace(data, $"[placeholder_{index}]", GetCurrent(i), RegexOptions.IgnoreCase);
+
+            }
+            return data;
+
+        }
+
+        public Recipient ReplaceRotateReciption(Recipient data, int counter, bool thread = false)
+        {
+            for (int i = 0; i < Size(); i++)
+            {
+                int index = i + 1;
+                if (thread)
+                {
+                    data[$"[placeholder_{index}]"] = TheadGetAndRotate(i, counter);
+                   
+                }
+                else
+                {
+                    data[$"[placeholder_{index}]"] = GetAndRotate(i, counter);
+                }
+
+            }
+            return data;
+
+        }
+
+        public Recipient ReplaceCurrentReciption(Recipient data)
+        {
+            for (int i = 0; i < Size(); i++)
+            {
+                int index = i + 1;
+                data[$"[placeholder_{index}]"] = GetCurrent(i);
+
+            }
+            return data;
         }
     }
 }
