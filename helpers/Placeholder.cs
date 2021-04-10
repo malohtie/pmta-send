@@ -29,24 +29,38 @@ namespace Send.helpers
 
         private string GetAndRotate(int key, int counter)
         {
-            string ReplyMail = Data[key][Index[key]];
+            string placeholder = Data[key][Index[key]];
             if (counter % RotateEvery == 0)
             {
-                Index[key] = Index[key] >= (Data[key].Count - 1) ? 0 : Index[key]++;
+                if (Index[key] >= (Data[key].Count - 1))
+                {
+                    Index[key] = 0;
+                }
+                else
+                {
+                    Index[key]++;
+                }
             }
-            return ReplyMail;
+            return placeholder;
         }
 
         private string TheadGetAndRotate(int key, int counter)
         {
             lock (this)
             {
-                string ReplyMail = Data[key][Index[key]];
+                string placeholder = Data[key][Index[key]];
                 if (counter % RotateEvery == 0)
                 {
-                    Index[key] = Index[key] >= (Data[key].Count - 1) ? 0 : Index[key]++;                    
+                    if (Index[key] >= (Data[key].Count - 1))
+                    {
+                        Index[key] = 0;
+                    }
+                    else
+                    {
+                        Index[key]++;
+                    }
                 }
-                return ReplyMail;
+                return placeholder;
             }
         }
 

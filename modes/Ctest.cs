@@ -89,8 +89,7 @@ namespace Send.modes
                                     Body = Text.Build_negative(Body, Negative);
                                 }
                                 foreach (string email in Emails)
-                                {
-                                
+                                {                                
                                     string currentEmail = IsAutoReply ? Reply.ThreadGetAndRotate() : email;
                                     string boundary = Text.Random("[rndlu/30]");
                                     string bnd = Text.Boundary(Header);
@@ -113,10 +112,8 @@ namespace Send.modes
                                     Message.Verp = false;
                                     Message.Encoding = Encoding.EightBit;
                                     p.Send(Message);
-
-
                                     Interlocked.Increment(ref placeholder_counter);
-                                }                               
+                                }                                
                             }
                             data.Add($"SERVER {server.mainip} OK");
                             p.Close();

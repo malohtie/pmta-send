@@ -28,7 +28,14 @@ namespace Send.helpers
 
             if (Counter % RotateEvery == 0)
             {
-                Index = Index >= (Data.Count - 1) ? 0 : Index++;
+                if (Index >= (Data.Count - 1))
+                {
+                    Index = 0;
+                }
+                else
+                {
+                    Index++;
+                }
             }
             return ReplyMail;
         }
@@ -40,7 +47,14 @@ namespace Send.helpers
                 Counter++;
                 if (Counter % RotateEvery == 0)
                 {
-                    Index = Index >= (Data.Count - 1) ? 0 : Index++;
+                    if (Index >= (Data.Count - 1))
+                    {
+                        Index = 0;
+                    }
+                    else
+                    {
+                        Index++;
+                    }
                 }
                 return email;
             }

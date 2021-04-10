@@ -184,9 +184,7 @@ namespace Send.modes
                                                     if (IsPlaceholder)
                                                     {
                                                         r = Placeholder.ReplaceRotateReciption(r, placeholder_counter);
-                                                    }
-                                                   
-
+                                                    }                                                  
                                                     message.AddRecipient(r);
 
                                                     total_send++;
