@@ -18,7 +18,7 @@ namespace Send.helpers
 
         private int Size()
         {
-            return (int)this.Data.Count;
+            return (int)Data.Count;
         }
 
         private string GetCurrent(int key)
@@ -31,14 +31,7 @@ namespace Send.helpers
             string ReplyMail = Data[key][Index[key]];
             if (counter % RotateEvery == 0)
             {
-                if (Index[key] >= (Data[key].Count - 1))
-                {
-                    Index[key] = 0;
-                }
-                else
-                {
-                    Index[key]++;
-                }
+                Index[key] = Index[key] >= (Data[key].Count - 1) ? 0 : Index[key]++;
             }
             return ReplyMail;
         }
@@ -50,14 +43,7 @@ namespace Send.helpers
                 string ReplyMail = Data[key][Index[key]];
                 if (counter % RotateEvery == 0)
                 {
-                    if (Index[key] >= (Data[key].Count - 1))
-                    {
-                        Index[key] = 0;
-                    }
-                    else
-                    {
-                        Index[key]++;
-                    }
+                    Index[key] = Index[key] >= (Data[key].Count - 1) ? 0 : Index[key]++;                    
                 }
                 return ReplyMail;
             }
@@ -111,7 +97,6 @@ namespace Send.helpers
 
             }
             return data;
-
         }
 
         public Recipient ReplaceCurrentReciption(Recipient data)
