@@ -80,9 +80,9 @@ namespace Send.modes
 
 
                                 string key = Text.Adler32($"{Id}0");
-                                string redirect = Text.Base64Encode($"{Id}-0-{key}-{TestId}-{random.Next(1000, 99999)}");
-                                string unsubscribe = Text.Base64Encode($"{Id}-0-{key}-{TestId}-{random.Next(1000, 99999)}");
-                                string open = Text.Base64Encode($"{Id}-0-{key}-{TestId}-{random.Next(1000, 99999)}");
+                                string redirect = Text.Base64Encode($"{Id}-0-{key}-{TestId}-{random.Next(1000, 999999)}");
+                                string unsubscribe = Text.Base64Encode($"{Id}-0-{key}-{TestId}-{random.Next(1000, 999999)}");
+                                string open = Text.Base64Encode($"{Id}-0-{key}-{TestId}-{random.Next(1000, 999999)}");
 
                                 if (IsNegative)
                                 {
