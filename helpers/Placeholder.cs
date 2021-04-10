@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using port25.pmta.api.submitter;
+using System;
 using System.Text.RegularExpressions;
 
 namespace Send.helpers
@@ -11,9 +12,9 @@ namespace Send.helpers
         public dynamic Data { get; set; }
         public Placeholder(dynamic Data, int RotateEvery = 100)
         {
-            this.Data = JsonConvert.DeserializeObject(Data);
+            this.Data = JsonConvert.DeserializeObject(Convert.ToString(Data));
             this.RotateEvery = RotateEvery;
-            Index = new int[this.Data.Count];
+            Index = new int[this.Data.Count];        
         }
 
         private int Size()
@@ -56,11 +57,11 @@ namespace Send.helpers
                 int index = i + 1;
                 if(thread)
                 {
-                    data = Regex.Replace(data, $"[placeholder_{index}]", TheadGetAndRotate(i, counter), RegexOptions.IgnoreCase);
+                    data = Regex.Replace(data, "[placeholder_" + index.ToString() + "]", TheadGetAndRotate(i, counter), RegexOptions.IgnoreCase);                  
                 }
                 else
                 {
-                    data = Regex.Replace(data, $"[placeholder_{index}]", GetAndRotate(i, counter), RegexOptions.IgnoreCase);
+                    data = Regex.Replace(data, "[placeholder_" + index.ToString() + "]", GetAndRotate(i, counter), RegexOptions.IgnoreCase);
                 }
                
             }
@@ -73,7 +74,7 @@ namespace Send.helpers
             for (int i = 0; i < Size(); i++)
             {
                 int index = i + 1;
-                data = Regex.Replace(data, $"[placeholder_{index}]", GetCurrent(i), RegexOptions.IgnoreCase);
+                data = Regex.Replace(data, "[placeholder_" + index.ToString() + "]", GetCurrent(i), RegexOptions.IgnoreCase);
 
             }
             return data;
@@ -87,12 +88,12 @@ namespace Send.helpers
                 int index = i + 1;
                 if (thread)
                 {
-                    data[$"[placeholder_{index}]"] = TheadGetAndRotate(i, counter);
+                    data["[placeholder_" + index.ToString() + "]"] = TheadGetAndRotate(i, counter);
                    
                 }
                 else
                 {
-                    data[$"[placeholder_{index}]"] = GetAndRotate(i, counter);
+                    data["[placeholder_" + index.ToString() + "]"] = GetAndRotate(i, counter);
                 }
 
             }
@@ -104,7 +105,7 @@ namespace Send.helpers
             for (int i = 0; i < Size(); i++)
             {
                 int index = i + 1;
-                data[$"[placeholder_{index}]"] = GetCurrent(i);
+                data["[placeholder_" + index.ToString() + "]"] = GetCurrent(i);
 
             }
             return data;
