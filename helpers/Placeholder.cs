@@ -57,11 +57,11 @@ namespace Send.helpers
                 int index = i + 1;
                 if(thread)
                 {
-                    data = Regex.Replace(data, "[placeholder_" + index.ToString() + "]", TheadGetAndRotate(i, counter), RegexOptions.IgnoreCase);                  
+                    data = Regex.Replace(data, @"\[placeholder_" + index.ToString() + @"\]", TheadGetAndRotate(i, counter), RegexOptions.IgnoreCase);                  
                 }
                 else
                 {
-                    data = Regex.Replace(data, "[placeholder_" + index.ToString() + "]", GetAndRotate(i, counter), RegexOptions.IgnoreCase);
+                    data = Regex.Replace(data, @"\[placeholder_" + index.ToString() + @"\]", GetAndRotate(i, counter), RegexOptions.IgnoreCase);
                 }
                
             }
@@ -74,7 +74,7 @@ namespace Send.helpers
             for (int i = 0; i < Size(); i++)
             {
                 int index = i + 1;
-                data = Regex.Replace(data, "[placeholder_" + index.ToString() + "]", GetCurrent(i), RegexOptions.IgnoreCase);
+                data = Regex.Replace(data, @"\[placeholder_" + index.ToString() + @"\]", GetCurrent(i), RegexOptions.IgnoreCase);
 
             }
             return data;
@@ -88,12 +88,12 @@ namespace Send.helpers
                 int index = i + 1;
                 if (thread)
                 {
-                    data["[placeholder_" + index.ToString() + "]"] = TheadGetAndRotate(i, counter);
+                    data["placeholder_" + index.ToString()] = TheadGetAndRotate(i, counter);
                    
                 }
                 else
                 {
-                    data["[placeholder_" + index.ToString() + "]"] = GetAndRotate(i, counter);
+                    data["placeholder_" + index.ToString()] = GetAndRotate(i, counter);
                 }
 
             }
@@ -105,7 +105,7 @@ namespace Send.helpers
             for (int i = 0; i < Size(); i++)
             {
                 int index = i + 1;
-                data["[placeholder_" + index.ToString() + "]"] = GetCurrent(i);
+                data["placeholder_" + index.ToString()] = GetCurrent(i);
 
             }
             return data;
