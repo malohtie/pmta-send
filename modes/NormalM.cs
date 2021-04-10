@@ -142,6 +142,7 @@ namespace Send.modes
                                             {
                                                 string rdns = Text.Rdns(ip["ip"], ip["domain"]);
                                                 string rp = Text.Build_rp(raw_rp, ip["domain"], rdns, "info");
+                                                rp = IsPlaceholder ? Placeholder.ReplaceRotate(rp, placeholder_counter) : rp;
                                                 Message message = new Message(rp);
                                                 string header = Text.Header_normal(raw_hd);
                                                 string genB = Text.ReplaceBoundary(header + "\n" + raw_bd + "\n\n");

@@ -45,7 +45,6 @@ namespace Send.helpers
             string rdns,
             string emailName,
             string reply = "",
-            string placeholder = "",
             string idi = "",
             string idd = "",
             string ids = "",
@@ -65,10 +64,6 @@ namespace Send.helpers
             {
                 return_path = Regex.Replace(return_path, @"\[reply\]", reply, RegexOptions.IgnoreCase);
             }
-            if (!string.IsNullOrWhiteSpace(placeholder))
-            {
-                return_path = Regex.Replace(return_path, @"\[placeholder\]", placeholder, RegexOptions.IgnoreCase);
-            }
             return Generate(return_path);
         }
         public static string Build_header(
@@ -81,8 +76,7 @@ namespace Send.helpers
             string emailName,
             string boundary = "",
             string bnd = "",
-            string reply = "",
-            string placeholder = "",
+            string reply = "",        
             string idi = "",
             string idd = "",
             string ids = "",
@@ -113,10 +107,6 @@ namespace Send.helpers
             {
                 header_result = Regex.Replace(header_result, @"\[reply\]", reply, RegexOptions.IgnoreCase);
             }
-            if (!string.IsNullOrWhiteSpace(placeholder))
-            {
-                header_result = Regex.Replace(header_result, @"\[placeholder\]", placeholder, RegexOptions.IgnoreCase);
-            }
             return Generate(header_result);
         }
         public static string Build_body(
@@ -133,7 +123,6 @@ namespace Send.helpers
             string boundary = "",
             string bnd = "",
             string reply = "",
-            string placeholder = "",
             string idi = "",
             string idd = "",
             string ids = "",
@@ -174,10 +163,6 @@ namespace Send.helpers
             if (!string.IsNullOrWhiteSpace(reply))
             {
                 body = Regex.Replace(body, @"\[reply\]", reply, RegexOptions.IgnoreCase);
-            }
-            if (!string.IsNullOrWhiteSpace(placeholder))
-            {
-                body = Regex.Replace(body, @"\[placeholder\]", placeholder, RegexOptions.IgnoreCase);
             }
             return Generate(body);
         }

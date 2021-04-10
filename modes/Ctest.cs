@@ -97,12 +97,12 @@ namespace Send.modes
                                     string hd = Text.ReplaceBoundary(Header);
                                     string bd = Text.ReplaceBoundary(Body);
                                     string emailName = email.Split('@')[0];
-                                    string rp = Text.Build_rp(Return_path, domain, rdns, emailName, currentEmail, "", (string)ip.idi, (string)ip.idd, (string)ip.ids, (string)server.name, email);
+                                    string rp = Text.Build_rp(Return_path, domain, rdns, emailName, currentEmail, (string)ip.idi, (string)ip.idd, (string)ip.ids, (string)server.name, email);
                                     rp = IsPlaceHolder ? Placeholder.ReplaceRotate(rp, placeholder_counter, true) : rp;
-                                    hd = Text.Build_header(hd, email_ip, (string)server.name, domain, rdns, email, emailName, boundary, bnd, currentEmail, "", (string)ip.idi, (string)ip.idd, (string)ip.ids, "0");
+                                    hd = Text.Build_header(hd, email_ip, (string)server.name, domain, rdns, email, emailName, boundary, bnd, currentEmail, (string)ip.idi, (string)ip.idd, (string)ip.ids, "0");
                                     hd = IsPlaceHolder ? Placeholder.ReplaceRotate(rp, placeholder_counter, true) : hd;
                                     hd = Text.Inject_header(hd, "t", Id, Username, Convert.ToString(ip.ip), Convert.ToString(ip.idddomain));
-                                    bd = Text.Build_body(bd, email_ip, (string)server.id, domain, rdns, email, emailName, redirect, unsubscribe, open, boundary, bnd, currentEmail, "", (string)ip.idi, (string)ip.idd, (string)ip.ids, "0");
+                                    bd = Text.Build_body(bd, email_ip, (string)server.id, domain, rdns, email, emailName, redirect, unsubscribe, open, boundary, bnd, currentEmail, (string)ip.idi, (string)ip.idd, (string)ip.ids, "0");
                                     bd = IsPlaceHolder ? Placeholder.ReplaceRotate(bd, placeholder_counter, true) : bd;
                                     Message Message = new Message(rp);
                                     Message.AddData(Text.ReplaceBoundary(hd + "\n" + bd + "\n\n", bnd));
