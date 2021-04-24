@@ -38,13 +38,20 @@ namespace Send
                             switch (args[0].ToLower())
                             {
                                 case "test":
-                                    // Begin timing
                                     dynamic global_data = JsonConvert.DeserializeObject<dynamic>(Text.Base64Decode(data));
                                     GlobalTest global_test = new GlobalTest(global_data);
                                     List<string> global_result = global_test.Send();
                                     // Stop timing
                                     stopwatch.Stop();
                                     Console.Write(string.Join("<br>", global_result) + "<br>TOOK : " + stopwatch.Elapsed.ToString());
+                                    break;
+                                case "warmup":
+                                    dynamic warmup_data = JsonConvert.DeserializeObject<dynamic>(Text.Base64Decode(data));
+                                    Warmup warmup_send = new Warmup(warmup_data);
+                                    List<string> warmup_result = warmup_send.Send();
+                                    // Stop timing
+                                    stopwatch.Stop();
+                                    Console.Write(string.Join("<br>", warmup_result) + "<br>TOOK : " + stopwatch.Elapsed.ToString());
                                     break;
                                 case "ctest":
                                     dynamic campaing_test_data = JsonConvert.DeserializeObject<dynamic>(Text.Base64Decode(data));
