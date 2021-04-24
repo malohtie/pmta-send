@@ -26,7 +26,7 @@ namespace Send.modes
         {
             Id = !string.IsNullOrWhiteSpace((string)data.id) ? (string)data.id : "";
             Return_path = !string.IsNullOrWhiteSpace((string)data.return_path) ? (string)data.return_path : "";
-            Emails = data.test_emails.ToObject<string[]>() ?? throw new ArgumentNullException(nameof(data.emails));
+            Emails = data.emails.ToObject<string[]>() ?? throw new ArgumentNullException(nameof(data.emails));
             Header = Text.Base64Decode(Convert.ToString(data.header)) ?? throw new ArgumentNullException(nameof(data.header));
             Body = Text.Base64Decode(Convert.ToString(data.body)) ?? "";
             Username = data.username ?? throw new ArgumentNullException(nameof(data.username));
