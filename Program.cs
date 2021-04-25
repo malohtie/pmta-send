@@ -33,59 +33,46 @@ namespace Send
                     if (File.Exists(args[1]))
                     {
                         string data = File.ReadAllText(args[1]);
+                        List<string> result = null;
                         if (Text.IsBase64String(data))
                         {
+                            dynamic file_data = JsonConvert.DeserializeObject<dynamic>(Text.Base64Decode(data));
                             switch (args[0].ToLower())
                             {
-                                case "test":
-                                    dynamic global_data = JsonConvert.DeserializeObject<dynamic>(Text.Base64Decode(data));
-                                    GlobalTest global_test = new GlobalTest(global_data);
-                                    List<string> global_result = global_test.Send();
-                                    // Stop timing
-                                    stopwatch.Stop();
-                                    Console.Write(string.Join("<br>", global_result) + "<br>TOOK : " + stopwatch.Elapsed.ToString());
+                                case "test":                                    
+                                    GlobalTest global_test = new GlobalTest(file_data);
+                                    result = global_test.Send();                                   
                                     break;
-                                case "warmup":
-                                    dynamic warmup_data = JsonConvert.DeserializeObject<dynamic>(Text.Base64Decode(data));
-                                    Warmup warmup_send = new Warmup(warmup_data);
-                                    List<string> warmup_result = warmup_send.Send();
-                                    // Stop timing
-                                    stopwatch.Stop();
-                                    Console.Write(string.Join("<br>", warmup_result) + "<br>TOOK : " + stopwatch.Elapsed.ToString());
+                                case "warmup":                                   
+                                    Warmup warmup_send = new Warmup(file_data);
+                                    result = warmup_send.Send();                                    
                                     break;
-                                case "ctest":
-                                    dynamic campaing_test_data = JsonConvert.DeserializeObject<dynamic>(Text.Base64Decode(data));
-                                    Ctest campaign_test = new Ctest(campaing_test_data);
-                                    List<string> test_result = campaign_test.Send();
-                                    // Stop timing
-                                    stopwatch.Stop();
-                                    Console.Write(string.Join("<br>", test_result) + "<br>TOOK : " + stopwatch.Elapsed.ToString());
+                                case "ctest":                                   
+                                    Ctest campaign_test = new Ctest(file_data);
+                                    result = campaign_test.Send();                                 
                                     break;
                                 case "delay":
-                                    dynamic dalay_data = JsonConvert.DeserializeObject<dynamic>(Text.Base64Decode(data));
-                                    Xdelay delay_send = new Xdelay(dalay_data);
-                                    List<string> delay_result = delay_send.Send();
-                                    stopwatch.Stop();
-                                    Console.Write(string.Join("<br>", delay_result) + "<br>TOOK : " + stopwatch.Elapsed.ToString());
-                                    break;                              
-                                case "normal":
-                                    dynamic normal_data = JsonConvert.DeserializeObject<dynamic>(Text.Base64Decode(data));
-                                    NormalM normal_send = new NormalM(normal_data);
-                                    List<string> normal_result = normal_send.Send();
-                                    stopwatch.Stop();
-                                    Console.Write(string.Join("<br>", normal_result) + "<br>TOOK : " + stopwatch.Elapsed.ToString());
+                                    Xdelay delay_send = new Xdelay(file_data);
+                                    result = delay_send.Send();                                  
                                     break;
-                                case "bulk":
-                                    dynamic bulk_data = JsonConvert.DeserializeObject<dynamic>(Text.Base64Decode(data));
-                                    BulkM bulk_send = new BulkM(bulk_data);
-                                    List<string> bulk_result = bulk_send.Send();
-                                    stopwatch.Stop();
-                                    Console.Write(string.Join("<br>", bulk_result) + "<br>TOOK : " + stopwatch.Elapsed.ToString());
+                                case "delay_reply":
+                                    XdelayReply xdelay_reply_send = new XdelayReply(file_data);
+                                    result = xdelay_reply_send.Send();                                  
+                                    break;
+                                case "normal":
+                                    NormalM normal_send = new NormalM(file_data);
+                                    result = normal_send.Send();
+                                    break;
+                                case "bulk":                                 
+                                    BulkM bulk_send = new BulkM(file_data);
+                                    result = bulk_send.Send();
                                     break;
                                 default:
                                     Console.Write("UNKNOW ACTION");
                                     break;
                             }
+                            stopwatch.Stop();
+                            Console.Write(string.Join("<br>", result) + "<br>TOOK : " + stopwatch.Elapsed.ToString());
                         }
                         else
                         {
