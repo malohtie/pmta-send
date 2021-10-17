@@ -19,6 +19,7 @@ namespace Send.modes
         public string Body { get; set; }
         public string Username { get; set; }
         public int Sleep { get; set; }
+        public int Sleep_loop { get; set; }
         public int Loop { get; set; }
         public List<dynamic> Servers { get; set; }
 
@@ -32,6 +33,7 @@ namespace Send.modes
             Username = data.username ?? throw new ArgumentNullException(nameof(data.username));
             Loop = data.loop;
             Sleep = data.sleep;
+            Sleep_loop = data.sleep_loop;
             Servers = new List<dynamic>(data.servers) ?? throw new ArgumentNullException(nameof(data.servers));
         }
 
@@ -75,9 +77,11 @@ namespace Send.modes
                                         Message.Verp = false;
                                         Message.Encoding = Encoding.EightBit;
                                         p.Send(Message);
-                                        Thread.Sleep(Sleep * 1000); //sleep
+                                        Thread.Sleep(Sleep * 1000); //sleep email
                                     }
+                                    Thread.Sleep(Sleep_loop * 1000); //sleep loop
                                 }
+                               
                             }
                             data.Add($"SERVER {server.mainip} OK");
                             p.Close();
