@@ -47,6 +47,10 @@ namespace Send
                                     Warmup warmup_send = new Warmup(file_data);
                                     result = warmup_send.Send();                                    
                                     break;
+                                case "warmupm":
+                                    WarmupM warmupm_send = new WarmupM(file_data);
+                                    result = warmupm_send.Send();
+                                 break;
                                 case "ctest":                                   
                                     Ctest campaign_test = new Ctest(file_data);
                                     result = campaign_test.Send();                                 
