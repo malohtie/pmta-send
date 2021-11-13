@@ -18,6 +18,7 @@ namespace Send.modes
         public string Header { get; set; }
         public string Body { get; set; }
         public string Username { get; set; }
+        public int Limit { get; set; }
         public int Sleep { get; set; }
         public int Sleep_loop { get; set; }
         public int Loop { get; set; }
@@ -32,11 +33,13 @@ namespace Send.modes
             Header = Text.Base64Decode(Convert.ToString(data.header)) ?? throw new ArgumentNullException(nameof(data.header));
             Body = Text.Base64Decode(Convert.ToString(data.body)) ?? "";
             Username = data.username ?? throw new ArgumentNullException(nameof(data.username));
+            Limit = data.limit ?? 100;
             Loop = data.loop;
             Sleep = data.sleep;
             Sleep_loop = data.sleep_loop;
             Servers = new List<dynamic>(data.servers) ?? throw new ArgumentNullException(nameof(data.servers));
             SendId = !string.IsNullOrWhiteSpace((string)data.send_id) ? (string)data.send_id : "0";
+            Emails = Emails.Take(Limit).ToArray();
         }
 
         public List<string> Send()
@@ -71,7 +74,6 @@ namespace Send.modes
                                     message.EnvID = Id;
                                     message.Verp = false;
                                     message.Encoding = Encoding.EightBit;
-
                                     foreach (string email in Emails)
                                     {
                                         Recipient t = new Recipient(email);
@@ -80,7 +82,7 @@ namespace Send.modes
                                         t["unsub"] = Text.Base64Encode($"{Id}-0-{tkey}-{SendId}-{random.Next(1000, 999999)}");
                                         t["opn"] = Text.Base64Encode($"{Id}-0-{tkey}-{SendId}-{random.Next(1000, 999999)}");
 
-                                        t["pe"] = $"t,{Id},{Username},{email_ip},{(string)ip.idd},0";
+                                        t["pe"] = $"w,{(string)ip.ids},{Username},{email_ip},{(string)ip.idd},0";
                                         t["ip"] = email_ip;
                                         t["server"] = (string)server.name + (string)ip.ids;
                                         t["domain"] = domain;
@@ -98,7 +100,7 @@ namespace Send.modes
                                         t["*parts"] = "1";
                                         message.AddRecipient(t);
                                     }
-                                    p.Send(message);
+                                    //p.Send(message);
                                     Thread.Sleep(Sleep_loop * 1000); //sleep loop
                                 }
                             });

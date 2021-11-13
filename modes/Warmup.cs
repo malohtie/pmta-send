@@ -21,6 +21,7 @@ namespace Send.modes
         public int Sleep { get; set; }
         public int Sleep_loop { get; set; }
         public int Loop { get; set; }
+        public int Limit { get; set; }
         public List<dynamic> Servers { get; set; }
 
         public Warmup(dynamic data)
@@ -31,10 +32,12 @@ namespace Send.modes
             Header = Text.Base64Decode(Convert.ToString(data.header)) ?? throw new ArgumentNullException(nameof(data.header));
             Body = Text.Base64Decode(Convert.ToString(data.body)) ?? "";
             Username = data.username ?? throw new ArgumentNullException(nameof(data.username));
+            Limit = data.limit;
             Loop = data.loop;
             Sleep = data.sleep;
             Sleep_loop = data.sleep_loop;
             Servers = new List<dynamic>(data.servers) ?? throw new ArgumentNullException(nameof(data.servers));
+            Emails = Emails.Take(Limit).ToArray();
         }
 
         public List<string> Send()
@@ -66,7 +69,7 @@ namespace Send.modes
                                         string hd = Text.ReplaceBoundary(Header);
                                         string rp = Text.Build_rp(Return_path, domain, rdns, emailName, "", "", (string)ip.idi, (string)ip.idd, (string)ip.ids, (string)server.name);
                                         hd = Text.Build_header(Header, email_ip, (string)server.name, domain, rdns, email, emailName, boundary, bnd, "", "", (string)ip.idi, (string)ip.idd, (string)ip.ids);
-                                        hd = Text.Inject_header(hd, "t", "0", Username, email_ip, (string)ip.idd);
+                                        hd = Text.Inject_header(hd, "w", (string)ip.ids, Username, email_ip, (string)ip.idd);
                                         string bd = Text.Build_body(Body, email_ip, (string)server.name, domain, rdns, email, emailName, null, null, null, boundary, bnd, "", "", (string)ip.idi, (string)ip.idd, (string)ip.ids);
                                         Message Message = new Message(rp);
                                         Message.AddData(Text.ReplaceBoundary(hd + "\n" + bd + "\n\n", bnd));
