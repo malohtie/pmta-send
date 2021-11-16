@@ -104,7 +104,7 @@ namespace Send.modes
                                             t["*parts"] = "1";
                                             message.AddRecipient(t);
                                         }
-                                    //p.Send(message);
+                                    p.Send(message);
                                     Thread.Sleep(Sleep_loop * 1000); //sleep loop
                                 }
                                 });
