@@ -21,6 +21,7 @@ namespace Send.modes
         public int Sleep { get; set; }
         public int Sleep_loop { get; set; }
         public int Loop { get; set; }
+        public int Skip { get; set; }
         public int Limit { get; set; }
         public List<dynamic> Servers { get; set; }
 
@@ -32,73 +33,77 @@ namespace Send.modes
             Header = Text.Base64Decode(Convert.ToString(data.header)) ?? throw new ArgumentNullException(nameof(data.header));
             Body = Text.Base64Decode(Convert.ToString(data.body)) ?? "";
             Username = data.username ?? throw new ArgumentNullException(nameof(data.username));
-            Limit = data.limit;
+            Skip = data.skip ?? 0;
+            Limit = data.limit ?? 100;
             Loop = data.loop;
             Sleep = data.sleep;
             Sleep_loop = data.sleep_loop;
             Servers = new List<dynamic>(data.servers) ?? throw new ArgumentNullException(nameof(data.servers));
-            Emails = Emails.Take(Limit).ToArray();
+            Emails = Emails.Skip(Skip).Take(Limit).ToArray();
         }
 
         public List<string> Send()
         {
             List<string> data = new List<string>();
             List<Task> tasks = new List<Task>();
-            foreach (dynamic server in Servers)
+            if (Emails?.Length > 0)
             {
-                tasks.Add(
-                    Task.Factory.StartNew(() =>
-                    {
-                        try
+                foreach (dynamic server in Servers)
+                {
+                    tasks.Add(
+                        Task.Factory.StartNew(() =>
                         {
-                            Pmta p = new Pmta((string)server.mainip, (string)server.password, (string)server.username, (int)server.port);
-                            foreach (dynamic ip in server.ips)
+                            try
                             {
-                                string email_ip = ip.ip;
-                                string domain = ip.domain;
-                                string rdns = Text.Rdns(email_ip, domain);
-                                string vmta = ip.vmta;                            
-
-                                for (int i = 0; i < Loop; i++)
+                                Pmta p = new Pmta((string)server.mainip, (string)server.password, (string)server.username, (int)server.port);
+                                foreach (dynamic ip in server.ips)
                                 {
-                                    foreach (string email in Emails)
-                                    {
-                                        string emailName = email.Split('@')[0];
-                                        string boundary = Text.Random("[rndlu/30]");
-                                        string bnd = Text.Boundary(Header);
-                                        string hd = Text.ReplaceBoundary(Header);
-                                        string rp = Text.Build_rp(Return_path, domain, rdns, emailName, "", "", (string)ip.idi, (string)ip.idd, (string)ip.ids, (string)server.name);
-                                        hd = Text.Build_header(Header, email_ip, (string)server.name, domain, rdns, email, emailName, boundary, bnd, "", "", (string)ip.idi, (string)ip.idd, (string)ip.ids);
-                                        hd = Text.Inject_header(hd, "w", (string)ip.ids, Username, email_ip, (string)ip.idd);
-                                        string bd = Text.Build_body(Body, email_ip, (string)server.name, domain, rdns, email, emailName, null, null, null, boundary, bnd, "", "", (string)ip.idi, (string)ip.idd, (string)ip.ids);
-                                        Message Message = new Message(rp);
-                                        Message.AddData(Text.ReplaceBoundary(hd + "\n" + bd + "\n\n", bnd));
-                                        Message.AddRecipient(new Recipient(email));
-                                        Message.VirtualMTA = vmta;
-                                        Message.JobID = $"0_WARMUP_{Username}_{Id}";
-                                        Message.EnvID = Id;
-                                        Message.Verp = false;
-                                        Message.Encoding = Encoding.EightBit;
-                                        p.Send(Message);
-                                        Thread.Sleep(Sleep * 1000); //sleep email
-                                    }
-                                    Thread.Sleep(Sleep_loop * 1000); //sleep loop
-                                }
-                               
-                            }
-                            data.Add($"SERVER {server.mainip} OK");
-                            p.Close();
+                                    string email_ip = ip.ip;
+                                    string domain = ip.domain;
+                                    string rdns = Text.Rdns(email_ip, domain);
+                                    string vmta = ip.vmta;
 
-                        }
-                        catch (Exception ex)
-                        {
-                            data.Add($"ERROR SERVER {server.mainip} - {ex.Message}");
-                            logger.Error(ex.Message);
-                        }
-                    })
-                );
+                                    for (int i = 0; i < Loop; i++)
+                                    {
+                                        foreach (string email in Emails)
+                                        {
+                                            string emailName = email.Split('@')[0];
+                                            string boundary = Text.Random("[rndlu/30]");
+                                            string bnd = Text.Boundary(Header);
+                                            string hd = Text.ReplaceBoundary(Header);
+                                            string rp = Text.Build_rp(Return_path, domain, rdns, emailName, "", "", (string)ip.idi, (string)ip.idd, (string)ip.ids, (string)server.name);
+                                            hd = Text.Build_header(Header, email_ip, (string)server.name, domain, rdns, email, emailName, boundary, bnd, "", "", (string)ip.idi, (string)ip.idd, (string)ip.ids);
+                                            hd = Text.Inject_header(hd, "w", (string)ip.ids, Username, email_ip, (string)ip.idd);
+                                            string bd = Text.Build_body(Body, email_ip, (string)server.name, domain, rdns, email, emailName, null, null, null, boundary, bnd, "", "", (string)ip.idi, (string)ip.idd, (string)ip.ids);
+                                            Message Message = new Message(rp);
+                                            Message.AddData(Text.ReplaceBoundary(hd + "\n" + bd + "\n\n", bnd));
+                                            Message.AddRecipient(new Recipient(email));
+                                            Message.VirtualMTA = vmta;
+                                            Message.JobID = $"0_WARMUP_{Username}_{Id}";
+                                            Message.EnvID = Id;
+                                            Message.Verp = false;
+                                            Message.Encoding = Encoding.EightBit;
+                                            p.Send(Message);
+                                            Thread.Sleep(Sleep * 1000); //sleep email
+                                    }
+                                        Thread.Sleep(Sleep_loop * 1000); //sleep loop
+                                }
+
+                                }
+                                data.Add($"SERVER {server.mainip} OK");
+                                p.Close();
+
+                            }
+                            catch (Exception ex)
+                            {
+                                data.Add($"ERROR SERVER {server.mainip} - {ex.Message}");
+                                logger.Error(ex.Message);
+                            }
+                        })
+                    );
+                }
+                Task.WaitAll(tasks.ToArray());
             }
-            Task.WaitAll(tasks.ToArray());
             return data;
         }
     }
