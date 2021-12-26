@@ -22,6 +22,8 @@ namespace Send.modes
         public int Limit { get; set; }
         public int Sleep { get; set; }
         public int Sleep_loop { get; set; }
+        public int Start_after { get; set; }
+        public bool Random_emails { get; set; }
         public int Loop { get; set; }
         public List<dynamic> Servers { get; set; }
         public string SendId { get; set; }
@@ -39,6 +41,8 @@ namespace Send.modes
             Loop = data.loop;
             Sleep = data.sleep;
             Sleep_loop = data.sleep_loop;
+            Start_after = data.start_after;
+            Random_emails = Convert.ToBoolean(data.random_emails);
             Servers = new List<dynamic>(data.servers) ?? throw new ArgumentNullException(nameof(data.servers));
             SendId = !string.IsNullOrWhiteSpace((string)data.send_id) ? (string)data.send_id : "0";
             Emails = Emails.Skip(Skip).Take(Limit).ToArray();
@@ -51,6 +55,10 @@ namespace Send.modes
             {
                 List<Task> tasks = new List<Task>();
                 Random random = new Random();
+                if (Random_emails)
+                {
+                    Emails = Emails.OrderBy(item => random.Next()).ToArray();
+                }
                 foreach (dynamic server in Servers)
                 {
                     tasks.Add(
@@ -58,6 +66,7 @@ namespace Send.modes
                         {
                             try
                             {
+                                Thread.Sleep(Start_after * 1000); //start after
                                 Pmta p = new Pmta((string)server.mainip, (string)server.password, (string)server.username, (int)server.port);
                                 Parallel.ForEach((IEnumerable<dynamic>)server.ips, ip =>
                                 {
@@ -104,9 +113,9 @@ namespace Send.modes
                                             t["*parts"] = "1";
                                             message.AddRecipient(t);
                                         }
-                                    p.Send(message);
-                                    Thread.Sleep(Sleep_loop * 1000); //sleep loop
-                                }
+                                        p.Send(message);
+                                        Thread.Sleep(Sleep_loop * 1000); //sleep loop
+                                    }
                                 });
                                 data.Add($"SERVER {server.mainip} OK");
                                 p.Close();
