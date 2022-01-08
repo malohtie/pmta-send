@@ -53,6 +53,16 @@ namespace Send.modes
                             Pmta p = new Pmta((string)server.mainip, (string)server.password, (string)server.username, (int)server.port);
                             foreach (dynamic ip in server.ips)
                             {
+                                string account = "";
+                                try
+                                {
+                                    account = (string)ip.from;
+                                }
+                                catch
+                                {
+                                    account = "";
+                                }
+
                                 string email_ip = ip.ip;
                                 string domain = ip.domain;
                                 string rdns = Text.Rdns(email_ip, domain);
@@ -73,10 +83,10 @@ namespace Send.modes
                                         string boundary = Text.Random("[rndlu/30]");
                                         string bnd = Text.Boundary(Header);
                                         string hd = Text.ReplaceBoundary(Header);
-                                        string rp = Text.Build_rp(Return_path, domain, rdns, emailName, "", "", (string)ip.idi, (string)ip.idd, (string)ip.ids, (string)server.name);
-                                        hd = Text.Build_header(Header, email_ip, (string)server.name, domain, rdns, email, emailName, boundary, bnd, "", "", (string)ip.idi, (string)ip.idd, (string)ip.ids);
+                                        string rp = Text.Build_rp(Return_path, domain, rdns, emailName, "", "", (string)ip.idi, (string)ip.idd, (string)ip.ids, (string)server.name, account);
+                                        hd = Text.Build_header(Header, email_ip, (string)server.name, domain, rdns, email, emailName, boundary, bnd, "", (string)ip.idi, (string)ip.idd, (string)ip.ids, "0", account);
                                         hd = Text.Inject_header(hd, "t", "0", Username, email_ip, (string)ip.idd);
-                                        string bd = Text.Build_body(Body, email_ip, (string)server.name, domain, rdns, email, emailName, null, null, null, boundary, bnd, "", "", (string)ip.idi, (string)ip.idd, (string)ip.ids);
+                                        string bd = Text.Build_body(Body, email_ip, (string)server.name, domain, rdns, email, emailName, null, null, null, boundary, bnd, "", (string)ip.idi, (string)ip.idd, (string)ip.ids, "0", account);
                                         Message Message = new Message(rp);
                                         Message.AddData(Text.ReplaceBoundary(hd + "\n" + bd + "\n\n", bnd));
                                         Message.AddRecipient(new Recipient(email));
