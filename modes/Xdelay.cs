@@ -104,6 +104,16 @@ namespace Send.modes
                                     Pmta p = new Pmta((string)details_server.ip, Password); //load pmta
                                     foreach (var ip in server.Value)
                                     {
+                                        string account = "";
+                                        try
+                                        {
+                                            account = (string)ip.from;
+                                        }
+                                        catch
+                                        {
+                                            account = "";
+                                        }
+
                                         var info_send = campaign.Campaign_send_info(Id);
                                         if (info_send != null)
                                         {
@@ -153,12 +163,12 @@ namespace Send.modes
                                                     string hd = Text.ReplaceBoundary(raw_hd);
                                                     string bd = Text.ReplaceBoundary(raw_bd);
                                                     string emailName = email[1].Split('@')[0];
-                                                    string rp = Text.Build_rp(raw_rp, ip["domain"], rdns, emailName, currentEmail, ip["idi"], ip["idd"], ip["ids"], (string)details_server.name + ip["ids"], email[1]);
+                                                    string rp = Text.Build_rp(raw_rp, ip["domain"], rdns, emailName, currentEmail, ip["idi"], ip["idd"], ip["ids"], (string)details_server.name + ip["ids"], email[1], account);
                                                     rp = IsPlaceholder ? Placeholder.ReplaceRotate(rp, placeholder_counter) : rp; // replace and rotate return path
-                                                    hd = Text.Build_header(hd, ip["ip"], (string)details_server.name + ip["ids"], ip["domain"], rdns, email[1], emailName, boundary, bnd, currentEmail, ip["idi"], ip["idd"], ip["ids"], email[0]);
+                                                    hd = Text.Build_header(hd, ip["ip"], (string)details_server.name + ip["ids"], ip["domain"], rdns, email[1], emailName, boundary, bnd, currentEmail, ip["idi"], ip["idd"], ip["ids"], email[0], account);
                                                     hd = IsPlaceholder ? Placeholder.ReplaceRotate(hd, placeholder_counter) : hd; //replace and rotate header
                                                     hd = Text.Inject_header(hd, "x", Id.ToString(), Username, ip["ip"], ip["idd"], email[0]);
-                                                    bd = Text.Build_body(bd, ip["ip"], (string)details_server.name + ip["ids"], ip["domain"], rdns, email[1], emailName, redirect, unsubscribe, open, boundary, bnd, currentEmail, ip["idi"], ip["idd"], ip["ids"], email[1]);
+                                                    bd = Text.Build_body(bd, ip["ip"], (string)details_server.name + ip["ids"], ip["domain"], rdns, email[1], emailName, redirect, unsubscribe, open, boundary, bnd, currentEmail, ip["idi"], ip["idd"], ip["ids"], email[1], account);
                                                     bd = IsPlaceholder ? Placeholder.ReplaceRotate(bd, placeholder_counter) : bd; //replace and rotate body
 
                                                     Message message = new Message(rp);
@@ -190,12 +200,12 @@ namespace Send.modes
                                                             string thd = Text.ReplaceBoundary(raw_hd);
                                                             string tbd = Text.ReplaceBoundary(raw_bd);
                                                             string temailName = test_email.Split('@')[0];
-                                                            string trp = Text.Build_rp(raw_rp, ip["domain"], rdns, temailName, currentTest, "", ip["idi"], ip["idd"], ip["ids"], (string)details_server.name + ip["ids"]);
+                                                            string trp = Text.Build_rp(raw_rp, ip["domain"], rdns, temailName, currentTest, ip["idi"], ip["idd"], ip["ids"], (string)details_server.name + ip["ids"], test_email, account);
                                                             trp = IsPlaceholder ? Placeholder.ReplaceCurrent(trp) : trp; //return path placeholder
-                                                            thd = Text.Build_header(thd, ip["ip"], (string)details_server.name + ip["ids"], ip["domain"], rdns, test_email, temailName, tboundary, tbnd, currentTest, "", ip["idi"], ip["idd"], ip["ids"]);
+                                                            thd = Text.Build_header(thd, ip["ip"], (string)details_server.name + ip["ids"], ip["domain"], rdns, test_email, temailName, tboundary, tbnd, currentTest, ip["idi"], ip["idd"], ip["ids"], "0", account);
                                                             thd = IsPlaceholder ? Placeholder.ReplaceCurrent(thd) : thd; //head placeholder
                                                             thd = Text.Inject_header(thd, "x", Id.ToString(), Username, ip["ip"], ip["idd"]);
-                                                            tbd = Text.Build_body(tbd, ip["ip"], (string)details_server.name + ip["ids"], ip["domain"], rdns, test_email, temailName, tredirect, tunsubscribe, topen, tboundary, tbnd, currentTest, "", ip["idi"], ip["idd"], ip["ids"]);
+                                                            tbd = Text.Build_body(tbd, ip["ip"], (string)details_server.name + ip["ids"], ip["domain"], rdns, test_email, temailName, tredirect, tunsubscribe, topen, tboundary, tbnd, currentTest, ip["idi"], ip["idd"], ip["ids"], "0", account);
                                                             tbd = IsPlaceholder ? Placeholder.ReplaceCurrent(tbd) : tbd; // body placeholder
                                                             Message testMessage = new Message(trp);
                                                             testMessage.AddData(thd + "\n" + tbd + "\n\n");

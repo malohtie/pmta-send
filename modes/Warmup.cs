@@ -81,10 +81,10 @@ namespace Send.modes
                                             string boundary = Text.Random("[rndlu/30]");
                                             string bnd = Text.Boundary(Header);
                                             string hd = Text.ReplaceBoundary(Header);
-                                            string rp = Text.Build_rp(Return_path, domain, rdns, emailName, "", "", (string)ip.idi, (string)ip.idd, (string)ip.ids, (string)server.name);
-                                            hd = Text.Build_header(Header, email_ip, (string)server.name, domain, rdns, email, emailName, boundary, bnd, "", "", (string)ip.idi, (string)ip.idd, (string)ip.ids);
+                                            string rp = Text.Build_rp(Return_path, domain, rdns, emailName, "", (string)ip.idi, (string)ip.idd, (string)ip.ids, (string)server.name, email);
+                                            hd = Text.Build_header(Header, email_ip, (string)server.name, domain, rdns, email, emailName, boundary, bnd, "", (string)ip.idi, (string)ip.idd, (string)ip.ids, "0");
                                             hd = Text.Inject_header(hd, "w", (string)ip.ids, Username, email_ip, (string)ip.idd);
-                                            string bd = Text.Build_body(Body, email_ip, (string)server.name, domain, rdns, email, emailName, null, null, null, boundary, bnd, "", "", (string)ip.idi, (string)ip.idd, (string)ip.ids);
+                                            string bd = Text.Build_body(Body, email_ip, (string)server.name, domain, rdns, email, emailName, null, null, null, boundary, bnd, "", (string)ip.idi, (string)ip.idd, (string)ip.ids, "0");
                                             Message Message = new Message(rp);
                                             Message.AddData(Text.ReplaceBoundary(hd + "\n" + bd + "\n\n", bnd));
                                             Message.AddRecipient(new Recipient(email));
