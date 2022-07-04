@@ -49,7 +49,7 @@
       <HintPath>packages\NLog.4.7.2\lib\net45\NLog.dll</HintPath>
     </Reference>
     <Reference Include="port25.pmta.api.submitter">
-      <HintPath>..\..\..\Desktop\port25.pmta.api.submitter.dll</HintPath>
+      <HintPath>..\tools\port25.pmta.api.submitter.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />

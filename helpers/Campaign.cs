@@ -138,7 +138,7 @@ namespace Send.helpers
             else
             {
                return ips.Trim().Split('\n').Select(t => t.Trim().Split(','))
-              .Where(item => item.Length == 6)
+              .Where(item => item.Length >= 6)
               .GroupBy(item => item[4])
               .ToDictionary(i => i.Key, i => i.Select(item => new Dictionary<string, string> {
                     {"ip", item[0] },
@@ -147,6 +147,7 @@ namespace Send.helpers
                     {"idd", item[3] },
                     {"ids", item[4] },
                     {"vmta", $"{option}-{item[0].Replace(":", ".")}-{item[5]}"},
+                    {"from", item[6] ?? ""}
               }).ToList());
             }
 
