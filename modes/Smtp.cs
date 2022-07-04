@@ -8,5 +8,9 @@ namespace Send.modes
 {
     class Smtp
     {
+        public Smtp()
+        {
+
+        }
     }
 }

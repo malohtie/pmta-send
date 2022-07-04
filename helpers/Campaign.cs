@@ -147,7 +147,11 @@ namespace Send.helpers
                     {"idd", item[3] },
                     {"ids", item[4] },
                     {"vmta", $"{option}-{item[0].Replace(":", ".")}-{item[5]}"},
+<<<<<<< HEAD
                     {"from", item[6] ?? ""}
+=======
+                    {"from", item.ElementAtOrDefault(6) ?? ""},
+>>>>>>> 62efab8d8eaf4567125b1c9977628c08b340a88b
               }).ToList());
             }
 

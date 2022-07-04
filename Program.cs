@@ -71,6 +71,10 @@ namespace Send
                                     BulkM bulk_send = new BulkM(file_data);
                                     result = bulk_send.Send();
                                     break;
+                                case "smtp_test":
+                                    SmtpTest smtp_test = new SmtpTest(file_data);
+                                    result = smtp_test.Send();
+                                    break;
                                 default:
                                     Console.Write("UNKNOW ACTION");
                                     break;

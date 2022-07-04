@@ -77,6 +77,7 @@
     <Compile Include="modes\NormalM.cs" />
     <Compile Include="helpers\Pmta.cs" />
     <Compile Include="modes\Smtp.cs" />
+    <Compile Include="modes\SmtpTest.cs" />
     <Compile Include="modes\WarmupM.cs" />
     <Compile Include="modes\Warmup.cs" />
     <Compile Include="modes\XdelayReply.cs" />
