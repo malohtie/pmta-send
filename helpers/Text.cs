@@ -53,18 +53,18 @@ namespace Send.helpers
             string account = ""
         )
         {
-            return_path = Regex.Replace(return_path, @"\[to\]", to, RegexOptions.IgnoreCase);
-            return_path = Regex.Replace(return_path, @"\[domain\]", domain, RegexOptions.IgnoreCase);
-            return_path = Regex.Replace(return_path, @"\[rdns\]", rdns, RegexOptions.IgnoreCase);
-            return_path = Regex.Replace(return_path, @"\[name\]", emailName, RegexOptions.IgnoreCase);         
-            return_path = Regex.Replace(return_path, @"\[idi\]", idi, RegexOptions.IgnoreCase);
-            return_path = Regex.Replace(return_path, @"\[idd\]", idd, RegexOptions.IgnoreCase);
-            return_path = Regex.Replace(return_path, @"\[ids\]", ids, RegexOptions.IgnoreCase);
-            return_path = Regex.Replace(return_path, @"\[server\]", server, RegexOptions.IgnoreCase);
-            return_path = Regex.Replace(return_path, @"\[smtp\]", account, RegexOptions.IgnoreCase);
+            return_path = Regex.Replace(return_path, @"\[to\]", to ?? "", RegexOptions.IgnoreCase);
+            return_path = Regex.Replace(return_path, @"\[domain\]", domain ?? "", RegexOptions.IgnoreCase);
+            return_path = Regex.Replace(return_path, @"\[rdns\]", rdns ?? "", RegexOptions.IgnoreCase);
+            return_path = Regex.Replace(return_path, @"\[name\]", emailName ?? "", RegexOptions.IgnoreCase);         
+            return_path = Regex.Replace(return_path, @"\[idi\]", idi ?? "", RegexOptions.IgnoreCase);
+            return_path = Regex.Replace(return_path, @"\[idd\]", idd ?? "", RegexOptions.IgnoreCase);
+            return_path = Regex.Replace(return_path, @"\[ids\]", ids ?? "", RegexOptions.IgnoreCase);
+            return_path = Regex.Replace(return_path, @"\[server\]", server ?? "", RegexOptions.IgnoreCase);
+            return_path = Regex.Replace(return_path, @"\[smtp\]", account ?? "", RegexOptions.IgnoreCase);
             if (!string.IsNullOrWhiteSpace(reply))
             {
-                return_path = Regex.Replace(return_path, @"\[reply\]", reply, RegexOptions.IgnoreCase);
+                return_path = Regex.Replace(return_path, @"\[reply\]", reply ?? "", RegexOptions.IgnoreCase);
             }
 
             return Generate(return_path);
@@ -88,29 +88,29 @@ namespace Send.helpers
         ) 
         {
             string header_result = header;
-            header_result = Regex.Replace(header_result, @"\[ip\]", ip, RegexOptions.IgnoreCase);
-            header_result = Regex.Replace(header_result, @"\[server\]", server, RegexOptions.IgnoreCase);
-            header_result = Regex.Replace(header_result, @"\[domain\]", domain, RegexOptions.IgnoreCase);
-            header_result = Regex.Replace(header_result, @"\[rdns\]", rdns, RegexOptions.IgnoreCase);
-            header_result = Regex.Replace(header_result, @"\[name\]", emailName, RegexOptions.IgnoreCase);
-            header_result = Regex.Replace(header_result, @"\[to\]", email, RegexOptions.IgnoreCase);
+            header_result = Regex.Replace(header_result, @"\[ip\]", ip ?? "", RegexOptions.IgnoreCase);
+            header_result = Regex.Replace(header_result, @"\[server\]", server ?? "", RegexOptions.IgnoreCase);
+            header_result = Regex.Replace(header_result, @"\[domain\]", domain ?? "", RegexOptions.IgnoreCase);
+            header_result = Regex.Replace(header_result, @"\[rdns\]", rdns ?? "", RegexOptions.IgnoreCase);
+            header_result = Regex.Replace(header_result, @"\[name\]", emailName ?? "", RegexOptions.IgnoreCase);
+            header_result = Regex.Replace(header_result, @"\[to\]", email ?? "", RegexOptions.IgnoreCase);
             header_result = Regex.Replace(header_result, @"\[date\]", GetRFC822Date(), RegexOptions.IgnoreCase);
-            header_result = Regex.Replace(header_result, @"\[idi\]", idi, RegexOptions.IgnoreCase);
-            header_result = Regex.Replace(header_result, @"\[idd\]", idd, RegexOptions.IgnoreCase);
-            header_result = Regex.Replace(header_result, @"\[ids\]", ids, RegexOptions.IgnoreCase);
-            header_result = Regex.Replace(header_result, @"\[ide\]", ide, RegexOptions.IgnoreCase);
-            header_result = Regex.Replace(header_result, @"\[smtp\]", smtp, RegexOptions.IgnoreCase);
+            header_result = Regex.Replace(header_result, @"\[idi\]", idi ?? "", RegexOptions.IgnoreCase);
+            header_result = Regex.Replace(header_result, @"\[idd\]", idd ?? "", RegexOptions.IgnoreCase);
+            header_result = Regex.Replace(header_result, @"\[ids\]", ids ?? "", RegexOptions.IgnoreCase);
+            header_result = Regex.Replace(header_result, @"\[ide\]", ide ?? "", RegexOptions.IgnoreCase);
+            header_result = Regex.Replace(header_result, @"\[smtp\]", smtp ?? "", RegexOptions.IgnoreCase);
             if (!string.IsNullOrWhiteSpace(boundary))
             {
-                header_result = Regex.Replace(header_result, @"\[boundary\]", boundary, RegexOptions.IgnoreCase);
+                header_result = Regex.Replace(header_result, @"\[boundary\]", boundary ?? "", RegexOptions.IgnoreCase);
             }
             if (!string.IsNullOrWhiteSpace(bnd))
             {
-                header_result = Regex.Replace(header_result, @"\[bnd\]", bnd, RegexOptions.IgnoreCase);
+                header_result = Regex.Replace(header_result, @"\[bnd\]", bnd ?? "", RegexOptions.IgnoreCase);
             }
             if (!string.IsNullOrWhiteSpace(reply))
             {
-                header_result = Regex.Replace(header_result, @"\[reply\]", reply, RegexOptions.IgnoreCase);
+                header_result = Regex.Replace(header_result, @"\[reply\]", reply ?? "", RegexOptions.IgnoreCase);
             }
             return Generate(header_result);
         }
@@ -134,48 +134,48 @@ namespace Send.helpers
             string ide = "",
             string smtp = ""
         ) {
-            body = Regex.Replace(body, @"\[ip\]", ip, RegexOptions.IgnoreCase);
-            body = Regex.Replace(body, @"\[server\]", server, RegexOptions.IgnoreCase);
-            body = Regex.Replace(body, @"\[domain\]", domain, RegexOptions.IgnoreCase);
-            body = Regex.Replace(body, @"\[rdns\]", rdns, RegexOptions.IgnoreCase);
-            body = Regex.Replace(body, @"\[name\]", emailName, RegexOptions.IgnoreCase);
-            body = Regex.Replace(body, @"\[to\]", email, RegexOptions.IgnoreCase);
+            body = Regex.Replace(body, @"\[ip\]", ip ?? "", RegexOptions.IgnoreCase);
+            body = Regex.Replace(body, @"\[server\]", server ?? "", RegexOptions.IgnoreCase);
+            body = Regex.Replace(body, @"\[domain\]", domain ?? "", RegexOptions.IgnoreCase);
+            body = Regex.Replace(body, @"\[rdns\]", rdns ?? "", RegexOptions.IgnoreCase);
+            body = Regex.Replace(body, @"\[name\]", emailName ?? "", RegexOptions.IgnoreCase);
+            body = Regex.Replace(body, @"\[to\]", email ?? "", RegexOptions.IgnoreCase);
             body = Regex.Replace(body, @"\[date\]", GetRFC822Date(), RegexOptions.IgnoreCase);
-            body = Regex.Replace(body, @"\[idi\]", idi, RegexOptions.IgnoreCase);
-            body = Regex.Replace(body, @"\[idd\]", idd, RegexOptions.IgnoreCase);
-            body = Regex.Replace(body, @"\[ids\]", ids, RegexOptions.IgnoreCase);
-            body = Regex.Replace(body, @"\[ide\]", ide, RegexOptions.IgnoreCase);
-            body = Regex.Replace(body, @"\[smtp\]", smtp, RegexOptions.IgnoreCase);
+            body = Regex.Replace(body, @"\[idi\]", idi ?? "", RegexOptions.IgnoreCase);
+            body = Regex.Replace(body, @"\[idd\]", idd ?? "", RegexOptions.IgnoreCase);
+            body = Regex.Replace(body, @"\[ids\]", ids ?? "", RegexOptions.IgnoreCase);
+            body = Regex.Replace(body, @"\[ide\]", ide ?? "", RegexOptions.IgnoreCase);
+            body = Regex.Replace(body, @"\[smtp\]", smtp ?? "", RegexOptions.IgnoreCase);
             if (!string.IsNullOrWhiteSpace(boundary))
             {
-                body = Regex.Replace(body, @"\[boundary\]", boundary, RegexOptions.IgnoreCase);
+                body = Regex.Replace(body, @"\[boundary\]", boundary ?? "", RegexOptions.IgnoreCase);
             }
             if (!string.IsNullOrWhiteSpace(bnd))
             {
-                body = Regex.Replace(body, @"\[bnd\]", bnd, RegexOptions.IgnoreCase);
+                body = Regex.Replace(body, @"\[bnd\]", bnd ?? "", RegexOptions.IgnoreCase);
             }
 
             if (!string.IsNullOrWhiteSpace(url))
             {
-                body = Regex.Replace(body, @"\[red\]", url, RegexOptions.IgnoreCase);
+                body = Regex.Replace(body, @"\[red\]", url ?? "", RegexOptions.IgnoreCase);
             }
             if (!string.IsNullOrWhiteSpace(unsub))
             {
-                body = Regex.Replace(body, @"\[unsub\]", unsub, RegexOptions.IgnoreCase);
+                body = Regex.Replace(body, @"\[unsub\]", unsub ?? "", RegexOptions.IgnoreCase);
             }
             if (!string.IsNullOrWhiteSpace(open))
             {
-                body = Regex.Replace(body, @"\[opn\]", open, RegexOptions.IgnoreCase);
+                body = Regex.Replace(body, @"\[opn\]", open ?? "", RegexOptions.IgnoreCase);
             }
             if (!string.IsNullOrWhiteSpace(reply))
             {
-                body = Regex.Replace(body, @"\[reply\]", reply, RegexOptions.IgnoreCase);
+                body = Regex.Replace(body, @"\[reply\]", reply ?? "", RegexOptions.IgnoreCase);
             }
             return Generate(body);
         }
         public static string Build_negative(string body, string negative)
         {
-            return Regex.Replace(body, @"\[negative\]", negative, RegexOptions.IgnoreCase);
+            return Regex.Replace(body, @"\[negative\]", negative ?? "", RegexOptions.IgnoreCase);
         }
         private static string RandomString(int length, int option = 0)
         {
