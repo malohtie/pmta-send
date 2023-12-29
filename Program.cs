@@ -63,6 +63,10 @@ namespace Send
                                     XdelayReply xdelay_reply_send = new XdelayReply(file_data);
                                     result = xdelay_reply_send.Send();                                  
                                     break;
+                                case "delay_smtp":
+                                    XdelaySmtp xdelay_smtp = new XdelaySmtp(file_data);
+                                    result = xdelay_smtp.Send();
+                                    break;
                                 case "normal":
                                     NormalM normal_send = new NormalM(file_data);
                                     result = normal_send.Send();
