@@ -1,4 +1,5 @@
-﻿using NLog;
+﻿using Newtonsoft.Json;
+using NLog;
 using Send.helpers;
 using System;
 using System.Collections.Generic;
@@ -62,7 +63,7 @@ namespace Send.modes
                         string[] seed_emails = Campaign.Convert_emails(Convert.ToString(cdata.email_test));
                         string raw_hd = Text.Base64Decode(Convert.ToString(cdata.header));
                         string raw_bd = Text.Base64Decode(Convert.ToString(cdata.body));
-                        var servers = Campaign.Convert_ips(Convert.ToString(cdata.ips), Convert.ToString(cdata.option));
+                        var servers = Campaign.Convert_ips(Convert.ToString(cdata.ips), Convert.ToString(cdata.option));                     
                         if (servers.Count == 0)
                         {
                             Result.Add("No Servers To Process");
@@ -105,11 +106,13 @@ namespace Send.modes
                                         string account = "";
                                         try
                                         {
-                                            account = (string)ip.from ?? "";
+                                            account = (string)ip["from"] ?? "";
+                                            Console.WriteLine("Account : " + account);
                                         }
                                         catch
                                         {
                                             account = "";
+                                            Console.WriteLine("err : " + account);
                                         }
 
                                         var info_send = campaign.Campaign_send_info(Id);

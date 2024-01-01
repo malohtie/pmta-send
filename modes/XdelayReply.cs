@@ -104,7 +104,7 @@ namespace Send.modes
                                     string account = "";
                                     try
                                     {
-                                        account = (string)ip.from ?? "";
+                                        account = (string)ip["from"] ?? "";
                                     }
                                     catch
                                     {
