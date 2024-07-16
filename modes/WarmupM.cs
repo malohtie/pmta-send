@@ -92,8 +92,11 @@ namespace Send.modes
                                             Recipient t = new Recipient(email);
                                             string tkey = Text.Adler32($"{Id}0");
                                             t["red"] = Text.Base64Encode(Text.Random("[rnda/20]") + "-" +$"{Id}-0-{tkey}-{SendId}-" + Text.Random("[rnda/20]"));
+                                            t["red2"] = Encryption.Encrypt(Text.Random("[rnda/20]") + "-" +$"{Id}-0-{tkey}-{SendId}-" + Text.Random("[rnda/20]"));
                                             t["unsub"] = Text.Base64Encode(Text.Random("[rnda/20]") + "-" +$"{Id}-0-{tkey}-{SendId}-" + Text.Random("[rnda/20]"));
+                                            t["unsub2"] = Encryption.Encrypt(Text.Random("[rnda/20]") + "-" +$"{Id}-0-{tkey}-{SendId}-" + Text.Random("[rnda/20]"));
                                             t["opn"] = Text.Base64Encode(Text.Random("[rnda/20]") + "-" +$"{Id}-0-{tkey}-{SendId}-" + Text.Random("[rnda/20]"));
+                                            t["opn2"] = Encryption.Encrypt(Text.Random("[rnda/20]") + "-" +$"{Id}-0-{tkey}-{SendId}-" + Text.Random("[rnda/20]"));
 
                                             t["pe"] = $"w,{(string)ip.ids},{Username},{email_ip},{(string)ip.idd},0";
                                             t["ip"] = email_ip;

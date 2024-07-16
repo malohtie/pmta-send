@@ -25,7 +25,7 @@ namespace Send.modes
         public bool IsPlaceHolder { get; set; }
         public Placeholder Placeholder { get; set; }
         public bool IsAutoReply { get; set; }
-        public Rotation Reply { get; set; }       
+        public Rotation Reply { get; set; }
         public bool IsNegative { get; set; }
         public string Negative { get; set; }
         public Ctest(dynamic data)
@@ -44,7 +44,7 @@ namespace Send.modes
                 Reply = new Rotation(data.auto_reply_data, (int)data.auto_reply_every);
             }
             IsPlaceHolder = Convert.ToString(data.is_placeholder) == "1";
-            if(IsPlaceHolder)
+            if (IsPlaceHolder)
             {
                 Placeholder = new Placeholder(data.placeholder_data, (int)data.placeholder_every);
             }
@@ -77,7 +77,8 @@ namespace Send.modes
                                 {
                                     account = (string)ip["from"] ?? "";
                                 }
-                                catch {
+                                catch
+                                {
 
                                     account = "";
                                 }
@@ -90,16 +91,16 @@ namespace Send.modes
 
 
                                 string key = Text.Adler32($"{Id}0");
-                                string redirect = Text.Base64Encode(Text.Random("[rnda/20]") + "-" + $"{Id}-0-{key}-{TestId}-" + Text.Random("[rnda/20]"));
-                                string unsubscribe = Text.Base64Encode(Text.Random("[rnda/20]") + "-" + $"{Id}-0-{key}-{TestId}-" + Text.Random("[rnda/20]"));
-                                string open = Text.Base64Encode(Text.Random("[rnda/20]") + "-" + $"{Id}-0-{key}-{TestId}-" + Text.Random("[rnda/20]"));
+                                string redirect = Text.Random("[rnda/20]") + "-" + $"{Id}-0-{key}-{TestId}-" + Text.Random("[rnda/20]");
+                                string unsubscribe = Text.Random("[rnda/20]") + "-" + $"{Id}-0-{key}-{TestId}-" + Text.Random("[rnda/20]");
+                                string open = Text.Random("[rnda/20]") + "-" + $"{Id}-0-{key}-{TestId}-" + Text.Random("[rnda/20]");
 
                                 if (IsNegative)
                                 {
                                     Body = Text.Build_negative(Body, Negative);
                                 }
                                 foreach (string email in Emails)
-                                {                                
+                                {
                                     string currentEmail = IsAutoReply ? Reply.ThreadGetAndRotate() : email;
                                     string boundary = Text.Random("[rndlu/30]");
                                     string bnd = Text.Boundary(Header);
@@ -123,7 +124,7 @@ namespace Send.modes
                                     Message.Encoding = Encoding.EightBit;
                                     p.Send(Message);
                                     Interlocked.Increment(ref placeholder_counter);
-                                }                                
+                                }
                             }
                             data.Add($"SERVER {server.mainip} OK");
                             p.Close();

@@ -150,9 +150,9 @@ namespace Send.modes
                                                 string currentEmail = IsAutoReply ? Reply.GetAndRotate() : email[1];
                                                 string key = Text.Adler32($"{Id}{email[0]}");
 
-                                                string redirect = Text.Base64Encode(Text.Random("[rnda/20]") + "-" +$"{Id}-{email[0]}-{key}-{SendId}-" + Text.Random("[rnda/20]"));
-                                                string unsubscribe = Text.Base64Encode(Text.Random("[rnda/20]") + "-" +$"{Id}-{email[0]}-{key}-{SendId}-" + Text.Random("[rnda/20]"));
-                                                string open = Text.Base64Encode(Text.Random("[rnda/20]") + "-" +$"{Id}-{email[0]}-{key}-{SendId}-" + Text.Random("[rnda/20]"));
+                                                string redirect = Text.Random("[rnda/20]") + "-" +$"{Id}-{email[0]}-{key}-{SendId}-" + Text.Random("[rnda/20]");
+                                                string unsubscribe = Text.Random("[rnda/20]") + "-" +$"{Id}-{email[0]}-{key}-{SendId}-" + Text.Random("[rnda/20]");
+                                                string open = Text.Random("[rnda/20]") + "-" +$"{Id}-{email[0]}-{key}-{SendId}-" + Text.Random("[rnda/20]");
 
                                                 string boundary = Text.Random("[rndlu/30]");
                                                 string bnd = Text.Boundary(raw_hd);
@@ -187,9 +187,9 @@ namespace Send.modes
                                                         string currentTest = IsAutoReply ? Reply.GetCurrent() : test_email;
 
                                                         string tkey = Text.Adler32($"{Id}0");
-                                                        string tredirect = Text.Base64Encode(Text.Random("[rnda/20]") + "-" +$"{Id}-0-{tkey}-{SendId}-" + Text.Random("[rnda/20]"));
-                                                        string tunsubscribe = Text.Base64Encode(Text.Random("[rnda/20]") + "-" +$"{Id}-0-{tkey}-{SendId}-" + Text.Random("[rnda/20]"));
-                                                        string topen = Text.Base64Encode(Text.Random("[rnda/20]") + "-" +$"{Id}-0-{tkey}-{SendId}-" + Text.Random("[rnda/20]"));
+                                                        string tredirect = Text.Random("[rnda/20]") + "-" +$"{Id}-0-{tkey}-{SendId}-" + Text.Random("[rnda/20]");
+                                                        string tunsubscribe = Text.Random("[rnda/20]") + "-" +$"{Id}-0-{tkey}-{SendId}-" + Text.Random("[rnda/20]");
+                                                        string topen = Text.Random("[rnda/20]") + "-" +$"{Id}-0-{tkey}-{SendId}-" + Text.Random("[rnda/20]");
 
                                                         string tboundary = Text.Random("[rndlu/30]");
                                                         string tbnd = Text.Boundary(raw_hd);
