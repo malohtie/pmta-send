@@ -184,6 +184,7 @@ namespace Send.helpers
             const string nb = "0123456789";
             const string lw = "abcdefghijklmnopqrstuvwxyz";
             const string up = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+            const string caracters = "!@#$%^&*()_+{}[]:;'<>?/.,|\\~`";
 
             if (option == 1)   //lower + upper
             {
@@ -208,6 +209,9 @@ namespace Send.helpers
             else if (option == 6) //upper
             {
                 return new string(Enumerable.Repeat(up, length).Select(s => s[rnd.Next(s.Length)]).ToArray());
+            } else if(option == 7)
+            {
+                return new string(Enumerable.Repeat(caracters, length).Select(s => s[rnd.Next(s.Length)]).ToArray());
             }
 
             //lower + numbers + upper
@@ -253,6 +257,10 @@ namespace Send.helpers
                     else if (data[0].Equals("rndun", StringComparison.OrdinalIgnoreCase) || data[0].Equals("rndnu", StringComparison.OrdinalIgnoreCase)) //number upper
                     {
                         return RandomString(int.Parse(data[1]), 2);
+                    }
+                    else if (data[0].Equals("rnds", StringComparison.OrdinalIgnoreCase)) //special
+                    {
+                        return RandomString(int.Parse(data[1]), 7);
                     }
                 }
                 return match.ToString();
