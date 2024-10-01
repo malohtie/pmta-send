@@ -157,15 +157,18 @@ namespace Send.helpers
 
             if (!string.IsNullOrWhiteSpace(url))
             {
-                body = Regex.Replace(body, @"\[red\]", url ?? "", RegexOptions.IgnoreCase);
+                body = Regex.Replace(body, @"\[red\]", Base64Encode(url ?? ""), RegexOptions.IgnoreCase);
+                body = Regex.Replace(body, @"\[red2\]", Encryption.Encrypt(url ?? ""), RegexOptions.IgnoreCase);
             }
             if (!string.IsNullOrWhiteSpace(unsub))
             {
-                body = Regex.Replace(body, @"\[unsub\]", unsub ?? "", RegexOptions.IgnoreCase);
+                body = Regex.Replace(body, @"\[unsub\]", Base64Encode(unsub ?? ""), RegexOptions.IgnoreCase);
+                body = Regex.Replace(body, @"\[unsub2\]", Encryption.Encrypt(unsub ?? ""), RegexOptions.IgnoreCase);
             }
             if (!string.IsNullOrWhiteSpace(open))
             {
-                body = Regex.Replace(body, @"\[opn\]", open ?? "", RegexOptions.IgnoreCase);
+                body = Regex.Replace(body, @"\[opn\]", Base64Encode(open ?? ""), RegexOptions.IgnoreCase);
+                body = Regex.Replace(body, @"\[opn2\]", Encryption.Encrypt(open ?? ""), RegexOptions.IgnoreCase);
             }
             if (!string.IsNullOrWhiteSpace(reply))
             {

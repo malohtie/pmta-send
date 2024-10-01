@@ -48,7 +48,7 @@ namespace Send.modes
 
             List<string> Result = new List<string>();
             Campaign campaign = new Campaign(Artisan);
-            List<Task> tasks = new List<Task>();            
+            List<Task> tasks = new List<Task>();
             Random random = new Random();
             int c_seed = 0;
             int placeholder_counter = 1;
@@ -102,14 +102,15 @@ namespace Send.modes
                         int total = int.Parse(Convert.ToString(cdata.send_count));
                         int countIps = servers.Count;
 
-                        if(total - progress <= 0)
+                        if (total - progress <= 0)
                         {
                             campaign.Campaign_update_progress(Id, "finish", true, 0);
                             return Result;
                         }
 
                         int toSend = countIps * Fraction;
-                        if (total - (progress + (countIps*Fraction)) < 0) {
+                        if (total - (progress + (countIps * Fraction)) < 0)
+                        {
                             toSend = total - progress;
                         }
 
@@ -157,14 +158,17 @@ namespace Send.modes
 
                                                      foreach (string[] email in emails)
                                                      {
-                                                         string currentEmail = IsAutoReply ? Reply.ThreadGetAndRotate() : email[1];                                                        
+                                                         string currentEmail = IsAutoReply ? Reply.ThreadGetAndRotate() : email[1];
 
                                                          Recipient r = new Recipient(currentEmail);
                                                          //links                                           
                                                          string key = Text.Adler32($"{Id}{email[0]}");
                                                          r["red"] = Text.Base64Encode(Text.Random("[rnda/20]") + "-" + $"{Id}-{email[0]}-{key}-{SendId}-" + Text.Random("[rnda/20]"));
+                                                         r["red2"] = Encryption.Encrypt(Text.Random("[rnda/20]") + "-" + $"{Id}-{email[0]}-{key}-{SendId}-" + Text.Random("[rnda/20]"));
                                                          r["unsub"] = Text.Base64Encode(Text.Random("[rnda/20]") + "-" + $"{Id}-{email[0]}-{key}-{SendId}-" + Text.Random("[rnda/20]"));
+                                                         r["unsub2"] = Encryption.Encrypt(Text.Random("[rnda/20]") + "-" + $"{Id}-{email[0]}-{key}-{SendId}-" + Text.Random("[rnda/20]"));
                                                          r["opn"] = Text.Base64Encode(Text.Random("[rnda/20]") + "-" + $"{Id}-{email[0]}-{key}-{SendId}-" + Text.Random("[rnda/20]"));
+                                                         r["opn2"] = Encryption.Encrypt(Text.Random("[rnda/20]") + "-" + $"{Id}-{email[0]}-{key}-{SendId}-" + Text.Random("[rnda/20]"));
 
                                                          //header body
                                                          r["pe"] = $"b,{Id},{Username},{servers[current][0]},{servers[current][3]},{email[0]}";
@@ -178,7 +182,7 @@ namespace Send.modes
                                                          r["rdns"] = rdns;
                                                          r["name"] = currentEmail.Split('@')[0];
                                                          r["to"] = email[1];
-                                                         r["reply"] = currentEmail;                                                       
+                                                         r["reply"] = currentEmail;
                                                          r["date"] = Text.GetRFC822Date();
                                                          r["boundary"] = Text.Random("[rndlu/30]");
                                                          r["bnd"] = Text.Boundary(header);
@@ -202,8 +206,11 @@ namespace Send.modes
                                                                  //links
                                                                  string tkey = Text.Adler32($"{Id}0");
                                                                  t["red"] = Text.Base64Encode(Text.Random("[rnda/20]") + "-" + $"{Id}-0-{tkey}-{SendId}-" + Text.Random("[rnda/20]"));
+                                                                 t["red2"] = Encryption.Encrypt(Text.Random("[rnda/20]") + "-" + $"{Id}-0-{tkey}-{SendId}-" + Text.Random("[rnda/20]"));
                                                                  t["unsub"] = Text.Base64Encode(Text.Random("[rnda/20]") + "-" + $"{Id}-0-{tkey}-{SendId}-" + Text.Random("[rnda/20]"));
+                                                                 t["unsub2"] = Encryption.Encrypt(Text.Random("[rnda/20]") + "-" + $"{Id}-0-{tkey}-{SendId}-" + Text.Random("[rnda/20]"));
                                                                  t["opn"] = Text.Base64Encode(Text.Random("[rnda/20]") + "-" + $"{Id}-0-{tkey}-{SendId}-" + Text.Random("[rnda/20]"));
+                                                                 t["opn2"] = Encryption.Encrypt(Text.Random("[rnda/20]") + "-" + $"{Id}-0-{tkey}-{SendId}-" + Text.Random("[rnda/20]"));
 
                                                                  //header body
                                                                  t["pe"] = $"t,{Id},{Username},{servers[current][0]},{servers[current][3]},0";
@@ -217,7 +224,7 @@ namespace Send.modes
                                                                  t["rdns"] = rdns;
                                                                  t["name"] = currentTest.Split('@')[0];
                                                                  t["to"] = test_email;
-                                                                 t["reply"] = currentTest;                                                               
+                                                                 t["reply"] = currentTest;
                                                                  t["date"] = Text.GetRFC822Date();
                                                                  t["boundary"] = Text.Random("[rndlu/30]");
                                                                  t["bnd"] = Text.Boundary(header);
@@ -229,7 +236,7 @@ namespace Send.modes
                                                                  message.AddRecipient(t);
                                                              }
                                                          }
-                                                     }                                                     
+                                                     }
                                                      p.Send(message);
                                                      p.Close();
                                                  }

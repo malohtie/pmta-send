@@ -1,25 +1,8 @@
-﻿using port25.pmta.api.submitter;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Net;
-using System.Net.Sockets;
-using System.Security.Cryptography;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Send.helpers
+﻿namespace Send.helpers
 {
     using System;
     using System.IO;
-    using System.Net;
     using System.Net.Sockets;
-    using System.Security.Cryptography;
-    using System.Text;
-    using System.Linq;
-    using Org.BouncyCastle.Asn1.Cmp;
-    using Org.BouncyCastle.Crypto.Macs;
 
     public class SmtpHelper
     {
@@ -42,7 +25,7 @@ namespace Send.helpers
             Username = username;
             Password = password;
             Connect();
-           
+
         }
 
         private void Connect()
