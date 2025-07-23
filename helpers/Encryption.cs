@@ -7,12 +7,12 @@ namespace Send.helpers
 {
     class Encryption
     {
-        private const string Key = "qAnq8gLoTgnXI6LgL8I8";
+        private const string Key = "NCD834xnysaear73iidGG";
         private static readonly string Cipher = "AES-256-CBC";
         private const string alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz234567";
         public static string Encrypt(string data)
         {
-            if(string.IsNullOrEmpty(data))
+            if (string.IsNullOrEmpty(data))
             {
                 return string.Empty;
             }
@@ -78,7 +78,7 @@ namespace Send.helpers
 
         private static string ToBase32String(byte[] bytes)
         {
-            
+
             StringBuilder result = new StringBuilder((bytes.Length + 7) * 8 / 5);
             byte index;
             int bits = 0;
@@ -106,8 +106,9 @@ namespace Send.helpers
             return result.ToString();
         }
 
-        private static byte[] FromBase32String(string base32)        {
-           
+        private static byte[] FromBase32String(string base32)
+        {
+
             int bits = 0;
             int buffer = 0;
             int outputIndex = 0;

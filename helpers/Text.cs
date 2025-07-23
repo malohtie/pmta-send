@@ -14,6 +14,8 @@ namespace Send.helpers
         }
         public static string Rdns(string ip, string domain)
         {
+            return domain;
+
             try
             {
                 var proc = new Process
@@ -263,7 +265,7 @@ namespace Send.helpers
                     }
                     else if (data[0].Equals("rnds", StringComparison.OrdinalIgnoreCase)) //special
                     {
-                        return RandomString(int.Parse(data[1]), 7);
+                        return RandomString(int.Parse(data[1]), 4);
                     }
                 }
                 return match.ToString();
