@@ -7,7 +7,7 @@ namespace Send.helpers
 {
     class Encryption
     {
-        private const string Key = "NCD834xnysaear73iidGG";
+        private const string Key = "qAnq8gLoTgnXI6LgL8I8";
         private static readonly string Cipher = "AES-256-CBC";
         private const string alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz234567";
         public static string Encrypt(string data)
