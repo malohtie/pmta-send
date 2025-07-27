@@ -1,3 +1,47 @@
 ﻿<Weavers xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="FodyWeavers.xsd">
-  <Costura />
+  <Costura CreateTemporaryAssemblies="true" IncludeDebugSymbols="false" DisableCompression="false" DisableCleanup="false" LoadAtModuleInit="true">
+    <ExcludeAssemblies>
+    </ExcludeAssemblies>
+    <IncludeAssemblies>
+      BouncyCastle.Cryptography
+      Newtonsoft.Json
+      NLog
+      Microsoft.Win32.Primitives
+      System.AppContext
+      System.Buffers
+      System.Console
+      System.Diagnostics.DiagnosticSource
+      System.Diagnostics.Tracing
+      System.Globalization.Calendars
+      System.IO
+      System.IO.Compression
+      System.IO.Compression.ZipFile
+      System.IO.FileSystem
+      System.IO.FileSystem.Primitives
+      System.Linq
+      System.Linq.Expressions
+      System.Memory
+      System.Net.Http
+      System.Net.Sockets
+      System.Numerics.Vectors
+      System.Reflection
+      System.Runtime
+      System.Runtime.CompilerServices.Unsafe
+      System.Runtime.Extensions
+      System.Runtime.InteropServices
+      System.Runtime.InteropServices.RuntimeInformation
+      System.Security.Cryptography.Algorithms
+      System.Security.Cryptography.Encoding
+      System.Security.Cryptography.Primitives
+      System.Security.Cryptography.X509Certificates
+      System.Text.RegularExpressions
+      System.Xml.ReaderWriter
+    </IncludeAssemblies>
+    <Unmanaged32Assemblies>
+      port25.pmta.api.submitter
+    </Unmanaged32Assemblies>
+    <Unmanaged64Assemblies>
+      port25.pmta.api.submitter
+    </Unmanaged64Assemblies>
+  </Costura>
 </Weavers>
