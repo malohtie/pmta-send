@@ -35,7 +35,7 @@ namespace Send.modes
             Delay = int.Parse((string)data.delay);
             Sleep = int.Parse((string)data.sleep);
             Seed = int.Parse((string)data.seed);
-            
+
             Artisan = Convert.ToString(data.artisan) ?? throw new ArgumentNullException(nameof(Artisan));
             Storage = Convert.ToString(data.storage) ?? throw new ArgumentNullException(nameof(Storage));
             Password = Convert.ToString(data.password) ?? throw new ArgumentNullException(nameof(Password));
@@ -64,7 +64,7 @@ namespace Send.modes
                         string raw_hd = Text.Base64Decode(Convert.ToString(cdata.header));
                         string raw_bd = Text.Base64Decode(Convert.ToString(cdata.body));
                         var servers = Campaign.Convert_ips(Convert.ToString(cdata.ips), Convert.ToString(cdata.option));
-                        if(servers.Count == 0)
+                        if (servers.Count == 0)
                         {
                             Result.Add("No Servers To Process");
                             logger.Error("No Servers To Process");
@@ -107,6 +107,19 @@ namespace Send.modes
                                     Pmta p = new Pmta(Convert.ToString(details_server.ip), Password); //load pmta
                                     foreach (var ip in server.Value)
                                     {
+                                        string route = ip["route"] ?? ""; // safe access in case ip is null
+                                        string route_alias = null;
+                                        string route_domain = null;
+                                        if (!string.IsNullOrEmpty(route) && route.Contains("@"))
+                                        {
+                                            var parts = route.Split('@');
+                                            if (parts.Length == 2)
+                                            {
+                                                route_alias = parts[0];
+                                                route_domain = parts[1];
+                                            }
+                                        }
+
                                         var info_send = campaign.Campaign_send_info(Id);
                                         if (info_send != null)
                                         {
@@ -155,17 +168,17 @@ namespace Send.modes
 
                                                 foreach (string[] email in emails)
                                                 {
-                                                    string currentEmail = IsAutoReply ? Reply.GetAndRotate() : email[1];                                                  
+                                                    string currentEmail = IsAutoReply ? Reply.GetAndRotate() : email[1];
 
                                                     Recipient r = new Recipient(currentEmail);
                                                     //links                                           
                                                     string key = Text.Adler32($"{Id}{email[0]}");
-                                                    r["red"] = Text.Base64Encode(Text.Random("[rnda/20]") + "-" +$"{Id}-{email[0]}-{key}-{SendId}-" + Text.Random("[rnda/20]"));
-                                                    r["red2"] = Encryption.Encrypt(Text.Random("[rnda/20]") + "-" +$"{Id}-{email[0]}-{key}-{SendId}-" + Text.Random("[rnda/20]"));
-                                                    r["unsub"] = Text.Base64Encode(Text.Random("[rnda/20]") + "-" +$"{Id}-{email[0]}-{key}-{SendId}-" + Text.Random("[rnda/20]"));
-                                                    r["unsub2"] = Encryption.Encrypt(Text.Random("[rnda/20]") + "-" +$"{Id}-{email[0]}-{key}-{SendId}-" + Text.Random("[rnda/20]"));
-                                                    r["opn"] = Text.Base64Encode(Text.Random("[rnda/20]") + "-" +$"{Id}-{email[0]}-{key}-{SendId}-" + Text.Random("[rnda/20]"));
-                                                    r["opn2"] = Encryption.Encrypt(Text.Random("[rnda/20]") + "-" +$"{Id}-{email[0]}-{key}-{SendId}-" + Text.Random("[rnda/20]"));
+                                                    r["red"] = Text.Base64Encode(Text.Random("[rnda/20]") + "-" + $"{Id}-{email[0]}-{key}-{SendId}-" + Text.Random("[rnda/20]"));
+                                                    r["red2"] = Encryption.Encrypt(Text.Random("[rnda/20]") + "-" + $"{Id}-{email[0]}-{key}-{SendId}-" + Text.Random("[rnda/20]"));
+                                                    r["unsub"] = Text.Base64Encode(Text.Random("[rnda/20]") + "-" + $"{Id}-{email[0]}-{key}-{SendId}-" + Text.Random("[rnda/20]"));
+                                                    r["unsub2"] = Encryption.Encrypt(Text.Random("[rnda/20]") + "-" + $"{Id}-{email[0]}-{key}-{SendId}-" + Text.Random("[rnda/20]"));
+                                                    r["opn"] = Text.Base64Encode(Text.Random("[rnda/20]") + "-" + $"{Id}-{email[0]}-{key}-{SendId}-" + Text.Random("[rnda/20]"));
+                                                    r["opn2"] = Encryption.Encrypt(Text.Random("[rnda/20]") + "-" + $"{Id}-{email[0]}-{key}-{SendId}-" + Text.Random("[rnda/20]"));
 
                                                     //header body
                                                     r["pe"] = $"n,{Id},{Username},{ip["ip"]},{ip["idd"]},{email[0]}";
@@ -183,11 +196,14 @@ namespace Send.modes
                                                     r["date"] = Text.GetRFC822Date();
                                                     r["boundary"] = Text.Random("[rndlu/30]");
                                                     r["bnd"] = Text.Boundary(header);
+                                                    r["route"] = route;
+                                                    r["route_alias"] = route_alias;
+                                                    r["route_domain"] = route_domain;
                                                     r["*parts"] = "1";
                                                     if (IsPlaceholder)
                                                     {
                                                         r = Placeholder.ReplaceRotateReciption(r, placeholder_counter);
-                                                    }                                                  
+                                                    }
                                                     message.AddRecipient(r);
 
                                                     total_send++;
@@ -221,10 +237,13 @@ namespace Send.modes
                                                             t["rdns"] = rdns;
                                                             t["name"] = currentTest.Split('@')[0];
                                                             t["to"] = test_email;
-                                                            t["reply"] = currentTest;                                                      
+                                                            t["reply"] = currentTest;
                                                             t["date"] = Text.GetRFC822Date();
                                                             t["boundary"] = Text.Random("[rndlu/30]");
                                                             t["bnd"] = Text.Boundary(header);
+                                                            t["route"] = route;
+                                                            t["route_alias"] = route_alias;
+                                                            t["route_domain"] = route_domain;
                                                             t["*parts"] = "1";
                                                             if (IsPlaceholder)
                                                             {
@@ -267,7 +286,7 @@ namespace Send.modes
                                     return Result;
                                 }
                             }
-                            catch(Exception ex)
+                            catch (Exception ex)
                             {
                                 Console.WriteLine($"ERR SERVER ID {server.Key} {ex.Message} -- {ex.StackTrace}");
                                 logger.Error($"ERR SERVER ID {server.Key}  {ex.Message} -- {ex.StackTrace}");

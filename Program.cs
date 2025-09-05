@@ -39,29 +39,29 @@ namespace Send
                             dynamic file_data = JsonConvert.DeserializeObject<dynamic>(Text.Base64Decode(data));
                             switch (args[0].ToLower())
                             {
-                                case "test":                                    
+                                case "test":
                                     GlobalTest global_test = new GlobalTest(file_data);
-                                    result = global_test.Send();                                   
+                                    result = global_test.Send();
                                     break;
-                                case "warmup":                                   
+                                case "warmup":
                                     Warmup warmup_send = new Warmup(file_data);
-                                    result = warmup_send.Send();                                    
+                                    result = warmup_send.Send();
                                     break;
                                 case "warmupm":
                                     WarmupM warmupm_send = new WarmupM(file_data);
                                     result = warmupm_send.Send();
-                                 break;
-                                case "ctest":                                   
+                                    break;
+                                case "ctest":
                                     Ctest campaign_test = new Ctest(file_data);
-                                    result = campaign_test.Send();                                 
+                                    result = campaign_test.Send();
                                     break;
                                 case "delay":
                                     Xdelay delay_send = new Xdelay(file_data);
-                                    result = delay_send.Send();                                  
+                                    result = delay_send.Send();
                                     break;
                                 case "delay_reply":
                                     XdelayReply xdelay_reply_send = new XdelayReply(file_data);
-                                    result = xdelay_reply_send.Send();                                  
+                                    result = xdelay_reply_send.Send();
                                     break;
                                 case "delay_smtp":
                                     XdelaySmtp xdelay_smtp = new XdelaySmtp(file_data);
@@ -71,7 +71,7 @@ namespace Send
                                     NormalM normal_send = new NormalM(file_data);
                                     result = normal_send.Send();
                                     break;
-                                case "bulk":                                 
+                                case "bulk":
                                     BulkM bulk_send = new BulkM(file_data);
                                     result = bulk_send.Send();
                                     break;
@@ -95,7 +95,7 @@ namespace Send
                     else
                     {
                         Console.Write("DROP SETTINGS NOT FOUND");
-                        logger.Warn("DROP SETTINGS NOT FOUND "+ args[1]);
+                        logger.Warn("DROP SETTINGS NOT FOUND " + args[1]);
                     }
                 }
                 else

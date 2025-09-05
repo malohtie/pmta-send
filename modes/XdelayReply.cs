@@ -110,6 +110,20 @@ namespace Send.modes
                                     {
                                         account = "";
                                     }
+
+                                    string route = ip["route"] ?? ""; // safe access in case ip is null
+                                    string route_alias = null;
+                                    string route_domain = null;
+                                    if (!string.IsNullOrEmpty(route) && route.Contains("@"))
+                                    {
+                                        var parts = route.Split('@');
+                                        if (parts.Length == 2)
+                                        {
+                                            route_alias = parts[0];
+                                            route_domain = parts[1];
+                                        }
+                                    }
+
                                     var info_send = campaign.Campaign_send_info(Id);
                                     if (info_send != null)
                                     {
@@ -150,21 +164,21 @@ namespace Send.modes
                                                 string currentEmail = IsAutoReply ? Reply.GetAndRotate() : email[1];
                                                 string key = Text.Adler32($"{Id}{email[0]}");
 
-                                                string redirect = Text.Random("[rnda/20]") + "-" +$"{Id}-{email[0]}-{key}-{SendId}-" + Text.Random("[rnda/20]");
-                                                string unsubscribe = Text.Random("[rnda/20]") + "-" +$"{Id}-{email[0]}-{key}-{SendId}-" + Text.Random("[rnda/20]");
-                                                string open = Text.Random("[rnda/20]") + "-" +$"{Id}-{email[0]}-{key}-{SendId}-" + Text.Random("[rnda/20]");
+                                                string redirect = Text.Random("[rnda/20]") + "-" + $"{Id}-{email[0]}-{key}-{SendId}-" + Text.Random("[rnda/20]");
+                                                string unsubscribe = Text.Random("[rnda/20]") + "-" + $"{Id}-{email[0]}-{key}-{SendId}-" + Text.Random("[rnda/20]");
+                                                string open = Text.Random("[rnda/20]") + "-" + $"{Id}-{email[0]}-{key}-{SendId}-" + Text.Random("[rnda/20]");
 
                                                 string boundary = Text.Random("[rndlu/30]");
                                                 string bnd = Text.Boundary(raw_hd);
                                                 string hd = Text.ReplaceBoundary(raw_hd);
                                                 string bd = Text.ReplaceBoundary(raw_bd);
                                                 string emailName = email[1].Split('@')[0];
-                                                string rp = Text.Build_rp(raw_rp, ip["domain"], rdns, emailName, currentEmail, ip["idi"], ip["idd"], ip["ids"], (string)details_server.name + ip["ids"], email[1], account);
+                                                string rp = Text.Build_rp(raw_rp, ip["domain"], rdns, emailName, currentEmail, ip["idi"], ip["idd"], ip["ids"], (string)details_server.name + ip["ids"], email[1], account, route, route_alias, route_domain);
                                                 rp = IsPlaceholder ? Placeholder.ReplaceRotate(rp, placeholder_counter) : rp; // replace and rotate return path
-                                                hd = Text.Build_header(hd, ip["ip"], (string)details_server.name + ip["ids"], ip["domain"], rdns, email[1], emailName, boundary, bnd, currentEmail, ip["idi"], ip["idd"], ip["ids"], email[0], account);
+                                                hd = Text.Build_header(hd, ip["ip"], (string)details_server.name + ip["ids"], ip["domain"], rdns, email[1], emailName, boundary, bnd, currentEmail, ip["idi"], ip["idd"], ip["ids"], email[0], account, route, route_alias, route_domain);
                                                 hd = IsPlaceholder ? Placeholder.ReplaceRotate(hd, placeholder_counter) : hd; //replace and rotate header
                                                 hd = Text.Inject_header(hd, "x", Id.ToString(), Username, ip["ip"], ip["idd"], email[0]);
-                                                bd = Text.Build_body(bd, ip["ip"], (string)details_server.name + ip["ids"], ip["domain"], rdns, email[1], emailName, redirect, unsubscribe, open, boundary, bnd, currentEmail, ip["idi"], ip["idd"], ip["ids"], email[0], account);
+                                                bd = Text.Build_body(bd, ip["ip"], (string)details_server.name + ip["ids"], ip["domain"], rdns, email[1], emailName, redirect, unsubscribe, open, boundary, bnd, currentEmail, ip["idi"], ip["idd"], ip["ids"], email[0], account, route, route_alias, route_domain);
                                                 bd = IsPlaceholder ? Placeholder.ReplaceRotate(bd, placeholder_counter) : bd; //replace and rotate body
 
                                                 Message message = new Message(rp);
@@ -187,21 +201,21 @@ namespace Send.modes
                                                         string currentTest = IsAutoReply ? Reply.GetCurrent() : test_email;
 
                                                         string tkey = Text.Adler32($"{Id}0");
-                                                        string tredirect = Text.Random("[rnda/20]") + "-" +$"{Id}-0-{tkey}-{SendId}-" + Text.Random("[rnda/20]");
-                                                        string tunsubscribe = Text.Random("[rnda/20]") + "-" +$"{Id}-0-{tkey}-{SendId}-" + Text.Random("[rnda/20]");
-                                                        string topen = Text.Random("[rnda/20]") + "-" +$"{Id}-0-{tkey}-{SendId}-" + Text.Random("[rnda/20]");
+                                                        string tredirect = Text.Random("[rnda/20]") + "-" + $"{Id}-0-{tkey}-{SendId}-" + Text.Random("[rnda/20]");
+                                                        string tunsubscribe = Text.Random("[rnda/20]") + "-" + $"{Id}-0-{tkey}-{SendId}-" + Text.Random("[rnda/20]");
+                                                        string topen = Text.Random("[rnda/20]") + "-" + $"{Id}-0-{tkey}-{SendId}-" + Text.Random("[rnda/20]");
 
                                                         string tboundary = Text.Random("[rndlu/30]");
                                                         string tbnd = Text.Boundary(raw_hd);
                                                         string thd = Text.ReplaceBoundary(raw_hd);
                                                         string tbd = Text.ReplaceBoundary(raw_bd);
                                                         string temailName = test_email.Split('@')[0];
-                                                        string trp = Text.Build_rp(raw_rp, ip["domain"], rdns, temailName, currentTest, ip["idi"], ip["idd"], ip["ids"], (string)details_server.name + ip["ids"], test_email, account);
+                                                        string trp = Text.Build_rp(raw_rp, ip["domain"], rdns, temailName, currentTest, ip["idi"], ip["idd"], ip["ids"], (string)details_server.name + ip["ids"], test_email, account, route, route_alias, route_domain);
                                                         trp = IsPlaceholder ? Placeholder.ReplaceCurrent(trp) : trp; //return path placeholder
-                                                        thd = Text.Build_header(thd, ip["ip"], (string)details_server.name + ip["ids"], ip["domain"], rdns, test_email, temailName, tboundary, tbnd, currentTest, ip["idi"], ip["idd"], ip["ids"], "0", account);
+                                                        thd = Text.Build_header(thd, ip["ip"], (string)details_server.name + ip["ids"], ip["domain"], rdns, test_email, temailName, tboundary, tbnd, currentTest, ip["idi"], ip["idd"], ip["ids"], "0", account, route, route_alias, route_domain);
                                                         thd = IsPlaceholder ? Placeholder.ReplaceCurrent(thd) : thd; //head placeholder
                                                         thd = Text.Inject_header(thd, "x", Id.ToString(), Username, ip["ip"], ip["idd"]);
-                                                        tbd = Text.Build_body(tbd, ip["ip"], (string)details_server.name + ip["ids"], ip["domain"], rdns, test_email, temailName, tredirect, tunsubscribe, topen, tboundary, tbnd, currentTest, ip["idi"], ip["idd"], ip["ids"], "0", account);
+                                                        tbd = Text.Build_body(tbd, ip["ip"], (string)details_server.name + ip["ids"], ip["domain"], rdns, test_email, temailName, tredirect, tunsubscribe, topen, tboundary, tbnd, currentTest, ip["idi"], ip["idd"], ip["ids"], "0", account, route, route_alias, route_domain);
                                                         tbd = IsPlaceholder ? Placeholder.ReplaceCurrent(tbd) : tbd; // body placeholder
                                                         Message testMessage = new Message(trp);
                                                         testMessage.AddData(thd + "\n" + tbd + "\n\n");
@@ -254,7 +268,7 @@ namespace Send.modes
                         }
                     }
                     Thread.Sleep(Sleep * 1000);
-                }                
+                }
                 campaign.Campaign_update_progress(Id, "start", true, 0);
                 return Result;
             }

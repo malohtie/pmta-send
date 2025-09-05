@@ -87,9 +87,20 @@ namespace Send.modes
                                 string domain = ip.domain;
                                 string rdns = Text.Rdns(email_ip, domain);
                                 string vmta = ip.vmta;
+                                string route = ip?.route; // safe access in case ip is null
+                                string route_alias = null;
+                                string route_domain = null;
+                                if (!string.IsNullOrEmpty(route) && route.Contains("@"))
+                                {
+                                    var parts = route.Split('@');
+                                    if (parts.Length == 2)
+                                    {
+                                        route_alias = parts[0];
+                                        route_domain = parts[1];
+                                    }
+                                }
+
                                 string job = $"0_CAMPAIGN-TEST_{Id}_{Username}";
-
-
                                 string key = Text.Adler32($"{Id}0");
                                 string redirect = Text.Random("[rnda/20]") + "-" + $"{Id}-0-{key}-{TestId}-" + Text.Random("[rnda/20]");
                                 string unsubscribe = Text.Random("[rnda/20]") + "-" + $"{Id}-0-{key}-{TestId}-" + Text.Random("[rnda/20]");
@@ -107,12 +118,12 @@ namespace Send.modes
                                     string hd = Text.ReplaceBoundary(Header);
                                     string bd = Text.ReplaceBoundary(Body);
                                     string emailName = email.Split('@')[0];
-                                    string rp = Text.Build_rp(Return_path, domain, rdns, emailName, currentEmail, (string)ip.idi, (string)ip.idd, (string)ip.ids, (string)server.name, email, account);
+                                    string rp = Text.Build_rp(Return_path, domain, rdns, emailName, currentEmail, (string)ip.idi, (string)ip.idd, (string)ip.ids, (string)server.name, email, account, route, route_alias, route_domain);
                                     rp = IsPlaceHolder ? Placeholder.ReplaceRotate(rp, placeholder_counter, true) : rp;
-                                    hd = Text.Build_header(hd, email_ip, (string)server.name, domain, rdns, email, emailName, boundary, bnd, currentEmail, (string)ip.idi, (string)ip.idd, (string)ip.ids, "0", account);
+                                    hd = Text.Build_header(hd, email_ip, (string)server.name, domain, rdns, email, emailName, boundary, bnd, currentEmail, (string)ip.idi, (string)ip.idd, (string)ip.ids, "0", account, route, route_alias, route_domain);
                                     hd = IsPlaceHolder ? Placeholder.ReplaceRotate(hd, placeholder_counter, true) : hd;
                                     hd = Text.Inject_header(hd, "t", Id, Username, Convert.ToString(ip.ip), Convert.ToString(ip.idd));
-                                    bd = Text.Build_body(bd, email_ip, (string)server.id, domain, rdns, email, emailName, redirect, unsubscribe, open, boundary, bnd, currentEmail, (string)ip.idi, (string)ip.idd, (string)ip.ids, "0", account);
+                                    bd = Text.Build_body(bd, email_ip, (string)server.id, domain, rdns, email, emailName, redirect, unsubscribe, open, boundary, bnd, currentEmail, (string)ip.idi, (string)ip.idd, (string)ip.ids, "0", account, route, route_alias, route_domain);
                                     bd = IsPlaceHolder ? Placeholder.ReplaceRotate(bd, placeholder_counter, true) : bd;
                                     Message Message = new Message(rp);
                                     Message.AddData(Text.ReplaceBoundary(hd + "\n" + bd + "\n\n", bnd));

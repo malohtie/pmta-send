@@ -50,7 +50,10 @@ namespace Send.helpers
             string ids = "",
             string server = "",
             string to = "",
-            string account = ""
+            string account = "",
+            string route = "",
+            string route_alias = "",
+            string route_domain = ""
         )
         {
             return_path = Regex.Replace(return_path, @"\[to\]", to ?? "", RegexOptions.IgnoreCase);
@@ -62,6 +65,11 @@ namespace Send.helpers
             return_path = Regex.Replace(return_path, @"\[ids\]", ids ?? "", RegexOptions.IgnoreCase);
             return_path = Regex.Replace(return_path, @"\[server\]", server ?? "", RegexOptions.IgnoreCase);
             return_path = Regex.Replace(return_path, @"\[smtp\]", account ?? "", RegexOptions.IgnoreCase);
+
+            return_path = Regex.Replace(return_path, @"\[route\]", route ?? "", RegexOptions.IgnoreCase);
+            return_path = Regex.Replace(return_path, @"\[route_alias\]", route_alias ?? "", RegexOptions.IgnoreCase);
+            return_path = Regex.Replace(return_path, @"\[route_domain\]", route_domain ?? "", RegexOptions.IgnoreCase);
+
             if (!string.IsNullOrWhiteSpace(reply))
             {
                 return_path = Regex.Replace(return_path, @"\[reply\]", reply ?? "", RegexOptions.IgnoreCase);
@@ -84,7 +92,10 @@ namespace Send.helpers
             string idd = "",
             string ids = "",
             string ide = "",
-            string smtp = ""
+            string smtp = "",
+            string route = "",
+            string route_alias = "",
+            string route_domain = ""
         ) 
         {
             string header_result = header;
@@ -112,6 +123,11 @@ namespace Send.helpers
             {
                 header_result = Regex.Replace(header_result, @"\[reply\]", reply ?? "", RegexOptions.IgnoreCase);
             }
+
+            header_result = Regex.Replace(header_result, @"\[route\]", route ?? "", RegexOptions.IgnoreCase);
+            header_result = Regex.Replace(header_result, @"\[route_alias\]", route_alias ?? "", RegexOptions.IgnoreCase);
+            header_result = Regex.Replace(header_result, @"\[route_domain\]", route_domain ?? "", RegexOptions.IgnoreCase);
+
             return Generate(header_result);
         }
         public static string Build_body(
@@ -132,7 +148,10 @@ namespace Send.helpers
             string idd = "",
             string ids = "",
             string ide = "",
-            string smtp = ""
+            string smtp = "",
+            string route = "",
+            string route_alias = "",
+            string route_domain = ""
         ) {
             body = Regex.Replace(body, @"\[ip\]", ip ?? "", RegexOptions.IgnoreCase);
             body = Regex.Replace(body, @"\[server\]", server ?? "", RegexOptions.IgnoreCase);
@@ -174,6 +193,11 @@ namespace Send.helpers
             {
                 body = Regex.Replace(body, @"\[reply\]", reply ?? "", RegexOptions.IgnoreCase);
             }
+
+            body = Regex.Replace(body, @"\[route\]", route ?? "", RegexOptions.IgnoreCase);
+            body = Regex.Replace(body, @"\[route_alias\]", route_alias ?? "", RegexOptions.IgnoreCase);
+            body = Regex.Replace(body, @"\[route_domain\]", route_domain ?? "", RegexOptions.IgnoreCase);
+
             return Generate(body);
         }
         public static string Build_negative(string body, string negative)
