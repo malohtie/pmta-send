@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace Send
 {
@@ -22,7 +23,7 @@ namespace Send
             Console.Write(JsonConvert.SerializeObject(response));
         }
 
-        static void Main(string[] args)
+        static async Task Main(string[] args)
         {
             Stopwatch stopwatch = new Stopwatch();
             stopwatch.Start();
@@ -65,7 +66,7 @@ namespace Send
                                     break;
                                 case "delay_smtp":
                                     XdelaySmtp xdelay_smtp = new XdelaySmtp(file_data);
-                                    result = xdelay_smtp.Send();
+                                    result = await xdelay_smtp.Send();
                                     break;
                                 case "normal":
                                     NormalM normal_send = new NormalM(file_data);
