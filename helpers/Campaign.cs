@@ -147,7 +147,8 @@ namespace Send.helpers
                     {"idd", item[3] },
                     {"ids", item[4] },
                     {"vmta", $"{option}-{item[0].Replace(":", ".")}-{item[5]}"},
-                    {"from", item.ElementAtOrDefault(6) ?? ""}
+                    {"from", item.ElementAtOrDefault(6) ?? ""},
+                    {"route", item.ElementAtOrDefault(6) ?? ""}
               }).ToList());
             }
 

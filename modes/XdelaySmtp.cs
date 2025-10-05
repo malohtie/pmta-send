@@ -114,7 +114,7 @@ namespace Send.modes
                                             Console.WriteLine("err : " + account);
                                         }
 
-                                        string route = ip["route"] ?? ""; // safe access in case ip is null
+                                        string route = ip.ContainsKey("route") ? (ip["route"] ?? "") : "";
                                         string route_alias = null;
                                         string route_domain = null;
                                         if (!string.IsNullOrEmpty(route) && route.Contains("@"))
