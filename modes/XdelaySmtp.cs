@@ -276,7 +276,7 @@ namespace Send.modes
                                         smtp.Quit();
                                         return Result;
                                     }
-                                    Thread.Sleep(Delay * 1000); //sleep delay
+                                    Thread.Sleep(Delay); //sleep delay
                                 }
 
                                 smtp.Quit();
@@ -327,7 +327,7 @@ namespace Send.modes
                         });
                     }
                 }
-                Thread.Sleep(Sleep * 1000);
+                Thread.Sleep(Sleep);
             }
             
             // Wait for final pending update task before finishing
