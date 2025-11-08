@@ -264,6 +264,8 @@ namespace Send.modes
                                             }
                                             if (IsPlaceholder) Placeholder.RotateNext(); //rotate to next placeholder value
                                         }
+
+                                        loop_total_send += total_send;
                                     }
                                     else if (loop_total_send == 0)
                                     {
