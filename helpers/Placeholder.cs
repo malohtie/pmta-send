@@ -22,6 +22,20 @@ namespace Send.helpers
             return (int)Data.Count;
         }
 
+        public int GetMaxPlaceholderCount()
+        {
+            int maxCount = 0;
+            for (int i = 0; i < Size(); i++)
+            {
+                int count = (int)Data[i].Count;
+                if (count > maxCount)
+                {
+                    maxCount = count;
+                }
+            }
+            return maxCount;
+        }
+
         private string GetCurrent(int key)
         {
             return Data[key][Index[key]];
@@ -93,6 +107,24 @@ namespace Send.helpers
             }
             return data;
 
+        }
+
+        public void RotateNext()
+        {
+            lock (this)
+            {
+                for (int i = 0; i < Size(); i++)
+                {
+                    if (Index[i] >= (Data[i].Count - 1))
+                    {
+                        Index[i] = 0;
+                    }
+                    else
+                    {
+                        Index[i]++;
+                    }
+                }
+            }
         }
 
         public Recipient ReplaceRotateReciption(Recipient data, int counter, bool thread = false)

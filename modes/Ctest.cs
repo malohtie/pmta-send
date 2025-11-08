@@ -61,7 +61,10 @@ namespace Send.modes
             List<string> data = new List<string>();
             List<Task> tasks = new List<Task>();
             Random random = new Random();
-            int placeholder_counter = 1;
+            
+            // Determine how many times to send: if placeholders exist, send for all placeholders, otherwise send once
+            int sendCount = IsPlaceHolder ? Placeholder.GetMaxPlaceholderCount() : 1;
+            
             foreach (dynamic server in Servers)
             {
                 tasks.Add(
@@ -99,31 +102,41 @@ namespace Send.modes
                                 {
                                     Body = Text.Build_negative(Body, Negative);
                                 }
-                                foreach (string email in Emails)
+                                
+                                // Loop through all placeholder variations or send once if no placeholders
+                                for (int placeholderIteration = 0; placeholderIteration < sendCount; placeholderIteration++)
                                 {
-                                    string currentEmail = IsAutoReply ? Reply.ThreadGetAndRotate() : email;
-                                    string boundary = Text.Random("[rndlu/30]");
-                                    string bnd = Text.Boundary(Header);
-                                    string hd = Text.ReplaceBoundary(Header);
-                                    string bd = Text.ReplaceBoundary(Body);
-                                    string emailName = email.Split('@')[0];
-                                    string rp = Text.Build_rp(Return_path, domain, rdns, emailName, currentEmail, (string)ip.idi, (string)ip.idd, (string)ip.ids, (string)server.name, email, account);
-                                    rp = IsPlaceHolder ? Placeholder.ReplaceRotate(rp, placeholder_counter, true) : rp;
-                                    hd = Text.Build_header(hd, email_ip, (string)server.name, domain, rdns, email, emailName, boundary, bnd, currentEmail, (string)ip.idi, (string)ip.idd, (string)ip.ids, "0", account);
-                                    hd = IsPlaceHolder ? Placeholder.ReplaceRotate(hd, placeholder_counter, true) : hd;
-                                    hd = Text.Inject_header(hd, "t", Id, Username, Convert.ToString(ip.ip), Convert.ToString(ip.idd));
-                                    bd = Text.Build_body(bd, email_ip, (string)server.id, domain, rdns, email, emailName, redirect, unsubscribe, open, boundary, bnd, currentEmail, (string)ip.idi, (string)ip.idd, (string)ip.ids, "0", account);
-                                    bd = IsPlaceHolder ? Placeholder.ReplaceRotate(bd, placeholder_counter, true) : bd;
-                                    Message Message = new Message(rp);
-                                    Message.AddData(Text.ReplaceBoundary(hd + "\n" + bd + "\n\n", bnd));
-                                    Message.AddRecipient(new Recipient(currentEmail));
-                                    Message.VirtualMTA = vmta;
-                                    Message.JobID = job;
-                                    Message.EnvID = Id;
-                                    Message.Verp = false;
-                                    Message.Encoding = Encoding.EightBit;
-                                    p.Send(Message);
-                                    Interlocked.Increment(ref placeholder_counter);
+                                    // Send to all test emails with the same placeholder value
+                                    foreach (string email in Emails)
+                                    {
+                                        string currentEmail = IsAutoReply ? Reply.ThreadGetAndRotate() : email;
+                                        string boundary = Text.Random("[rndlu/30]");
+                                        string bnd = Text.Boundary(Header);
+                                        string hd = Text.ReplaceBoundary(Header);
+                                        string bd = Text.ReplaceBoundary(Body);
+                                        string emailName = email.Split('@')[0];
+                                        string rp = Text.Build_rp(Return_path, domain, rdns, emailName, currentEmail, (string)ip.idi, (string)ip.idd, (string)ip.ids, (string)server.name, email, account);
+                                        rp = IsPlaceHolder ? Placeholder.ReplaceCurrent(rp) : rp;
+                                        hd = Text.Build_header(hd, email_ip, (string)server.name, domain, rdns, email, emailName, boundary, bnd, currentEmail, (string)ip.idi, (string)ip.idd, (string)ip.ids, "0", account);
+                                        hd = IsPlaceHolder ? Placeholder.ReplaceCurrent(hd) : hd;
+                                        hd = Text.Inject_header(hd, "t", Id, Username, Convert.ToString(ip.ip), Convert.ToString(ip.idd));
+                                        bd = Text.Build_body(bd, email_ip, (string)server.id, domain, rdns, email, emailName, redirect, unsubscribe, open, boundary, bnd, currentEmail, (string)ip.idi, (string)ip.idd, (string)ip.ids, "0", account);
+                                        bd = IsPlaceHolder ? Placeholder.ReplaceCurrent(bd) : bd;
+                                        Message Message = new Message(rp);
+                                        Message.AddData(Text.ReplaceBoundary(hd + "\n" + bd + "\n\n", bnd));
+                                        Message.AddRecipient(new Recipient(currentEmail));
+                                        Message.VirtualMTA = vmta;
+                                        Message.JobID = job;
+                                        Message.EnvID = Id;
+                                        Message.Verp = false;
+                                        Message.Encoding = Encoding.EightBit;
+                                        p.Send(Message);
+                                    }
+                                    // Rotate to next placeholder value after sending to all emails
+                                    if (IsPlaceHolder)
+                                    {
+                                        Placeholder.RotateNext();
+                                    }
                                 }
                             }
                             data.Add($"SERVER {server.mainip} OK");

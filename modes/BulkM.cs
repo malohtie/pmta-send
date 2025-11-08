@@ -145,7 +145,7 @@ namespace Send.modes
                                                      }
                                                      string rdns = Text.Rdns(servers[current][0], servers[current][1]);
                                                      string rp = Text.Build_rp(raw_rp, servers[current][1], rdns, "info");
-                                                     rp = IsPlaceholder ? Placeholder.ReplaceRotate(rp, placeholder_counter, true) : rp;
+                                                     rp = IsPlaceholder ? Placeholder.ReplaceCurrent(rp) : rp;
                                                      Message message = new Message(rp);
                                                      string header = Text.Header_normal(raw_hd);
                                                      string genB = Text.ReplaceBoundary(header + "\n" + raw_bd + "\n\n");
@@ -189,12 +189,11 @@ namespace Send.modes
                                                          r["*parts"] = "1";
                                                          if (IsPlaceholder)
                                                          {
-                                                             r = Placeholder.ReplaceRotateReciption(r, placeholder_counter, true);
+                                                             r = Placeholder.ReplaceCurrentReciption(r);
                                                          }
 
                                                          message.AddRecipient(r);
                                                          Interlocked.Increment(ref c_seed);
-                                                         Interlocked.Increment(ref placeholder_counter);
 
                                                          if (Seed != 0 && c_seed % Seed == 0 && seed_emails.Length > 0)
                                                          {
@@ -236,6 +235,7 @@ namespace Send.modes
                                                                  message.AddRecipient(t);
                                                              }
                                                          }
+                                                         if (IsPlaceholder) Placeholder.RotateNext(); //rotate to next placeholder value
                                                      }
                                                      p.Send(message);
                                                      p.Close();
