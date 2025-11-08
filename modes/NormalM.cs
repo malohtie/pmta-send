@@ -47,7 +47,6 @@ namespace Send.modes
         {
             List<string> Result = new List<string>();
             Campaign campaign = new Campaign(Artisan);
-            int placeholder_counter = 1;
             int c_seed = 0;
             Random random = new Random();
 
@@ -155,7 +154,7 @@ namespace Send.modes
                                             {
                                                 string rdns = Text.Rdns(ip["ip"], ip["domain"]);
                                                 string rp = Text.Build_rp(raw_rp, ip["domain"], rdns, "info");
-                                                rp = IsPlaceholder ? Placeholder.ReplaceRotate(rp, placeholder_counter) : rp;
+                                                rp = IsPlaceholder ? Placeholder.ReplaceCurrent(rp) : rp;
                                                 Message message = new Message(rp);
                                                 string header = Text.Header_normal(raw_hd);
                                                 string genB = Text.ReplaceBoundary(header + "\n" + raw_bd + "\n\n");
@@ -202,13 +201,12 @@ namespace Send.modes
                                                     r["*parts"] = "1";
                                                     if (IsPlaceholder)
                                                     {
-                                                        r = Placeholder.ReplaceRotateReciption(r, placeholder_counter);
+                                                        r = Placeholder.ReplaceCurrentReciption(r);
                                                     }
                                                     message.AddRecipient(r);
 
                                                     total_send++;
                                                     c_seed++;
-                                                    placeholder_counter++;
 
                                                     if (Seed != 0 && c_seed % Seed == 0 && seed_emails.Length > 0)
                                                     {
@@ -252,6 +250,7 @@ namespace Send.modes
                                                             message.AddRecipient(t);
                                                         }
                                                     }
+                                                    if (IsPlaceholder) Placeholder.RotateNext(); //rotate to next placeholder value
                                                 }
                                                 p.Send(message);
                                                 //Task.Run(() => campaign.Campaign_update_send(Id, total_send + total_sended));

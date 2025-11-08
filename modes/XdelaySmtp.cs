@@ -48,7 +48,6 @@ namespace Send.modes
             List<string> Result = new List<string>();
             Campaign campaign = new Campaign(Artisan);
             int c_seed = 0;
-            int placeholder_counter = 1;
             Random random = new Random();
             Task pendingUpdateTask = null; // Track pending async update task
 
@@ -235,12 +234,12 @@ namespace Send.modes
                                             string bd = Text.ReplaceBoundary(raw_bd);
                                             string emailName = email[1].Split('@')[0];
                                             string rp = Text.Build_rp(raw_rp, ip["domain"], rdns, emailName, currentEmail, ip["idi"], ip["idd"], ip["ids"], (string)details_server.name + ip["ids"], email[1], account, route, route_alias, route_domain);
-                                            rp = IsPlaceholder ? Placeholder.ReplaceRotate(rp, placeholder_counter) : rp; // replace and rotate return path
+                                            rp = IsPlaceholder ? Placeholder.ReplaceCurrent(rp) : rp;
                                             hd = Text.Build_header(hd, ip["ip"], (string)details_server.name + ip["ids"], ip["domain"], rdns, email[1], emailName, boundary, bnd, currentEmail, ip["idi"], ip["idd"], ip["ids"], email[0], account, route, route_alias, route_domain);
-                                            hd = IsPlaceholder ? Placeholder.ReplaceRotate(hd, placeholder_counter) : hd; //replace and rotate header
+                                            hd = IsPlaceholder ? Placeholder.ReplaceCurrent(hd) : hd;
                                             hd = Text.Inject_header(hd, "x", Id.ToString(), Username, ip["ip"], ip["idd"], email[0]);
                                             bd = Text.Build_body(bd, ip["ip"], (string)details_server.name + ip["ids"], ip["domain"], rdns, email[1], emailName, redirect, unsubscribe, open, boundary, bnd, currentEmail, ip["idi"], ip["idd"], ip["ids"], email[1], account, route, route_alias, route_domain);
-                                            bd = IsPlaceholder ? Placeholder.ReplaceRotate(bd, placeholder_counter) : bd; //replace and rotate body
+                                            bd = IsPlaceholder ? Placeholder.ReplaceCurrent(bd) : bd;
 
 
                                             smtp.Prepare(rp, currentEmail);
@@ -277,7 +276,7 @@ namespace Send.modes
                                                     smtp.AddData(Text.ReplaceBoundary(thd + "\n" + tbd + "\n\n", bnd), Id.ToString(), Id.ToString(), ip["vmta"]);
                                                 }
                                             }
-                                            if (IsPlaceholder) placeholder_counter++; //increment placeholder counter
+                                            if (IsPlaceholder) Placeholder.RotateNext(); //rotate to next placeholder value
                                         }
 
                                         loop_total_send += total_send; // Accumulate total sent in this loop iteration
