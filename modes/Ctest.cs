@@ -3,6 +3,7 @@ using port25.pmta.api.submitter;
 using Send.helpers;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -62,8 +63,24 @@ namespace Send.modes
             List<Task> tasks = new List<Task>();
             Random random = new Random();
             
-            // Determine how many times to send: if placeholders exist, send for all placeholders, otherwise send once
-            int sendCount = IsPlaceHolder ? Placeholder.GetMaxPlaceholderCount() : 1;
+            // Determine how many placeholder variations exist
+            int totalPlaceholders = IsPlaceHolder ? Placeholder.GetMaxPlaceholderCount() : 1;
+            
+            // Count total IPs across all servers for distribution
+            int totalIps = 0;
+            foreach (dynamic server in Servers)
+            {
+                foreach (var ip in server.ips)
+                {
+                    totalIps++;
+                }
+            }
+            
+            // Distribute placeholders across IPs
+            List<int> placeholderDistribution = DistributePlaceholders(totalPlaceholders, totalIps);
+            
+            int currentIpIndex = 0;
+            int currentPlaceholderStart = 0;
             
             foreach (dynamic server in Servers)
             {
@@ -75,6 +92,19 @@ namespace Send.modes
                             Pmta p = new Pmta((string)server.mainip, (string)server.password, (string)server.username, (int)server.port);
                             foreach (dynamic ip in server.ips)
                             {
+                                int ipIndex;
+                                int placeholderStart;
+                                int placeholdersForThisIp;
+                                
+                                lock (random) // Thread-safe access to shared variables
+                                {
+                                    ipIndex = currentIpIndex;
+                                    placeholderStart = currentPlaceholderStart;
+                                    placeholdersForThisIp = placeholderDistribution[ipIndex];
+                                    currentIpIndex++;
+                                    currentPlaceholderStart += placeholdersForThisIp;
+                                }
+                                
                                 string account = "";
                                 try
                                 {
@@ -82,7 +112,6 @@ namespace Send.modes
                                 }
                                 catch
                                 {
-
                                     account = "";
                                 }
 
@@ -90,7 +119,7 @@ namespace Send.modes
                                 string domain = ip.domain;
                                 string rdns = Text.Rdns(email_ip, domain);
                                 string vmta = ip.vmta;
-                                string route = ip?.route; // safe access in case ip is null
+                                string route = ip?.route;
                                 string route_alias = null;
                                 string route_domain = null;
                                 if (!string.IsNullOrEmpty(route) && route.Contains("@"))
@@ -109,22 +138,30 @@ namespace Send.modes
                                 string unsubscribe = Text.Random("[rnda/20]") + "-" + $"{Id}-0-{key}-{TestId}-" + Text.Random("[rnda/20]");
                                 string open = Text.Random("[rnda/20]") + "-" + $"{Id}-0-{key}-{TestId}-" + Text.Random("[rnda/20]");
 
+                                string bodyToUse = Body;
                                 if (IsNegative)
                                 {
-                                    Body = Text.Build_negative(Body, Negative);
+                                    bodyToUse = Text.Build_negative(Body, Negative);
                                 }
                                 
-                                // Loop through all placeholder variations or send once if no placeholders
-                                for (int placeholderIteration = 0; placeholderIteration < sendCount; placeholderIteration++)
+                                // This IP handles placeholders from placeholderStart to (placeholderStart + placeholdersForThisIp)
+                                for (int placeholderIteration = 0; placeholderIteration < placeholdersForThisIp; placeholderIteration++)
                                 {
-                                    // Send to all test emails with the same placeholder value
+                                    // Set placeholder index for this iteration
+                                    if (IsPlaceHolder)
+                                    {
+                                        // Reset placeholder to the correct position for this IP
+                                        SetPlaceholderIndex(placeholderStart + placeholderIteration);
+                                    }
+                                    
+                                    // Send to all test emails with the current placeholder value
                                     foreach (string email in Emails)
                                     {
                                         string currentEmail = IsAutoReply ? Reply.ThreadGetAndRotate() : email;
                                         string boundary = Text.Random("[rndlu/30]");
                                         string bnd = Text.Boundary(Header);
                                         string hd = Text.ReplaceBoundary(Header);
-                                        string bd = Text.ReplaceBoundary(Body);
+                                        string bd = Text.ReplaceBoundary(bodyToUse);
                                         string emailName = email.Split('@')[0];
                                         string rp = Text.Build_rp(Return_path, domain, rdns, emailName, currentEmail, (string)ip.idi, (string)ip.idd, (string)ip.ids, (string)server.name, email, account, route, route_alias, route_domain);
                                         rp = IsPlaceHolder ? Placeholder.ReplaceCurrent(rp) : rp;
@@ -143,11 +180,6 @@ namespace Send.modes
                                         Message.Encoding = Encoding.EightBit;
                                         p.Send(Message);
                                     }
-                                    // Rotate to next placeholder value after sending to all emails
-                                    if (IsPlaceHolder)
-                                    {
-                                        Placeholder.RotateNext();
-                                    }
                                 }
                             }
                             data.Add($"SERVER {server.mainip} OK");
@@ -164,6 +196,50 @@ namespace Send.modes
             Task.WaitAll(tasks.ToArray());
             return data;
         }
-
+        
+        // Helper method to distribute placeholders evenly across IPs
+        private List<int> DistributePlaceholders(int totalPlaceholders, int totalIps)
+        {
+            List<int> distribution = new List<int>();
+            int baseCount = totalPlaceholders / totalIps;
+            int remainder = totalPlaceholders % totalIps;
+            
+            for (int i = 0; i < totalIps; i++)
+            {
+                // Distribute remainder to first IPs
+                distribution.Add(baseCount + (i < remainder ? 1 : 0));
+            }
+            
+            return distribution;
+        }
+        
+        // Helper method to set placeholder to a specific position
+        private void SetPlaceholderIndex(int position)
+        {
+            if (!IsPlaceHolder || Placeholder == null)
+                return;
+                
+            // Reset all indexes to zero
+            for (int i = 0; i < Placeholder.Index.Length; i++)
+            {
+                Placeholder.Index[i] = 0;
+            }
+            
+            // Advance to the desired position
+            for (int i = 0; i < position; i++)
+            {
+                for (int j = 0; j < Placeholder.Index.Length; j++)
+                {
+                    if (Placeholder.Index[j] >= (Placeholder.Data[j].Count - 1))
+                    {
+                        Placeholder.Index[j] = 0;
+                    }
+                    else
+                    {
+                        Placeholder.Index[j]++;
+                    }
+                }
+            }
+        }
     }
 }
