@@ -64,7 +64,7 @@ namespace Send.modes
                         {
                             try
                             {
-                                Thread.Sleep(Start_after * 1000); //start after
+                                Thread.Sleep(Start_after); //start after
                                 Pmta p = new Pmta((string)server.mainip, (string)server.password, (string)server.username, (int)server.port);
                                 foreach (dynamic ip in server.ips)
                                 {
@@ -94,9 +94,9 @@ namespace Send.modes
                                             Message.Verp = false;
                                             Message.Encoding = Encoding.EightBit;
                                             p.Send(Message);
-                                            Thread.Sleep(Sleep * 1000); //sleep email
+                                            Thread.Sleep(Sleep); //sleep email
                                         }
-                                        Thread.Sleep(Sleep_loop * 1000); //sleep loop
+                                        Thread.Sleep(Sleep_loop); //sleep loop
                                     }
 
                                 }

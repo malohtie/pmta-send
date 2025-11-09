@@ -66,7 +66,7 @@ namespace Send.modes
                         {
                             try
                             {
-                                Thread.Sleep(Start_after * 1000); //start after
+                                Thread.Sleep(Start_after); //start after
                                 Pmta p = new Pmta((string)server.mainip, (string)server.password, (string)server.username, (int)server.port);
                                 Parallel.ForEach((IEnumerable<dynamic>)server.ips, ip =>
                                 {
@@ -117,7 +117,7 @@ namespace Send.modes
                                             message.AddRecipient(t);
                                         }
                                         p.Send(message);
-                                        Thread.Sleep(Sleep_loop * 1000); //sleep loop
+                                        Thread.Sleep(Sleep_loop); //sleep loop
                                     }
                                 });
                                 data.Add($"SERVER {server.mainip} OK");

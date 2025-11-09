@@ -63,24 +63,29 @@ namespace Send.modes
             List<Task> tasks = new List<Task>();
             Random random = new Random();
             
-            // Determine how many placeholder variations exist
-            int totalPlaceholders = IsPlaceHolder ? Placeholder.GetMaxPlaceholderCount() : 1;
+            // Only distribute placeholders if they are enabled
+            bool usePlaceholderDistribution = IsPlaceHolder && Placeholder != null;
+            int totalPlaceholders = usePlaceholderDistribution ? Placeholder.GetMaxPlaceholderCount() : 1;
             
-            // Count total IPs across all servers for distribution
-            int totalIps = 0;
-            foreach (dynamic server in Servers)
-            {
-                foreach (var ip in server.ips)
-                {
-                    totalIps++;
-                }
-            }
-            
-            // Distribute placeholders across IPs
-            List<int> placeholderDistribution = DistributePlaceholders(totalPlaceholders, totalIps);
-            
+            List<int> placeholderDistribution = null;
             int currentIpIndex = 0;
             int currentPlaceholderStart = 0;
+            
+            if (usePlaceholderDistribution)
+            {
+                // Count total IPs across all servers for distribution
+                int totalIps = 0;
+                foreach (dynamic server in Servers)
+                {
+                    foreach (var ip in server.ips)
+                    {
+                        totalIps++;
+                    }
+                }
+                
+                // Distribute placeholders across IPs
+                placeholderDistribution = DistributePlaceholders(totalPlaceholders, totalIps);
+            }
             
             foreach (dynamic server in Servers)
             {
@@ -92,17 +97,19 @@ namespace Send.modes
                             Pmta p = new Pmta((string)server.mainip, (string)server.password, (string)server.username, (int)server.port);
                             foreach (dynamic ip in server.ips)
                             {
-                                int ipIndex;
-                                int placeholderStart;
-                                int placeholdersForThisIp;
+                                int placeholdersForThisIp = 1; // Default: no placeholder distribution
+                                int placeholderStart = 0;
                                 
-                                lock (random) // Thread-safe access to shared variables
+                                if (usePlaceholderDistribution)
                                 {
-                                    ipIndex = currentIpIndex;
-                                    placeholderStart = currentPlaceholderStart;
-                                    placeholdersForThisIp = placeholderDistribution[ipIndex];
-                                    currentIpIndex++;
-                                    currentPlaceholderStart += placeholdersForThisIp;
+                                    // Get assigned placeholders for this IP
+                                    lock (random) // Thread-safe access to shared variables
+                                    {
+                                        placeholderStart = currentPlaceholderStart;
+                                        placeholdersForThisIp = placeholderDistribution[currentIpIndex];
+                                        currentIpIndex++;
+                                        currentPlaceholderStart += placeholdersForThisIp;
+                                    }
                                 }
                                 
                                 string account = "";
@@ -144,11 +151,11 @@ namespace Send.modes
                                     bodyToUse = Text.Build_negative(Body, Negative);
                                 }
                                 
-                                // This IP handles placeholders from placeholderStart to (placeholderStart + placeholdersForThisIp)
+                                // Loop through assigned placeholders (or just once if no placeholders)
                                 for (int placeholderIteration = 0; placeholderIteration < placeholdersForThisIp; placeholderIteration++)
                                 {
                                     // Set placeholder index for this iteration
-                                    if (IsPlaceHolder)
+                                    if (usePlaceholderDistribution)
                                     {
                                         // Reset placeholder to the correct position for this IP
                                         SetPlaceholderIndex(placeholderStart + placeholderIteration);

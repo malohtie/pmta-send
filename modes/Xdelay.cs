@@ -250,7 +250,7 @@ namespace Send.modes
                                             p.Close();
                                             return Result;
                                         }
-                                        Thread.Sleep(Delay * 1000); //sleep delay
+                                        Thread.Sleep(Delay); //sleep delay
                                     }
 
                                     p.Close(); //close pmta connection
@@ -283,7 +283,7 @@ namespace Send.modes
                     //Console.WriteLine($"ERR {ex.Message} -- {ex.StackTrace}");
                     logger.Error($"ERR {ex.Message} -- {ex.StackTrace}");
                 }
-                Thread.Sleep(Sleep * 1000);
+                Thread.Sleep(Sleep);
             }
             campaign.Campaign_update_progress(Id, "start", true, 0);
             return Result;
